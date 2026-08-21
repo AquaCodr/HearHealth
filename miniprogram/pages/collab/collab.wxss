@@ -1,0 +1,90 @@
+/* 协作说明页样式 */
+.collab-container {
+  min-height: 100vh;
+  background: #f7f8fa;
+  padding: 40rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.welcome {
+  display: flex;
+  align-items: center;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 32rpx;
+}
+
+.avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background: #e5e5e5;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 36rpx 32rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #07c160;
+  margin-bottom: 28rpx;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 28rpx;
+}
+
+.step:last-child {
+  margin-bottom: 0;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 44rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #e8f7ee;
+  color: #07c160;
+  font-size: 26rpx;
+  font-weight: 600;
+  margin-right: 20rpx;
+  margin-top: 4rpx;
+}
+
+.step-title {
+  font-size: 30rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+.step-desc {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 6rpx;
+  line-height: 1.5;
+}
+
+.tips {
+  margin-top: 32rpx;
+}
+
+.tip {
+  font-size: 24rpx;
+  color: #b8860b;
+  background: #fffbea;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 16rpx;
+  line-height: 1.5;
+}

@@ -1,0 +1,9 @@
+<!-- 登录页 -->
+<view class="login-container">
+  <view class="logo">👂</view>
+  <view class="app-name">HearHealth</view>
+  <view class="app-desc">听健康 · 生产实习团队协作</view>
+
+  <button class="login-btn" bindtap="onLogin">微信一键登录</button>
+  <view class="login-tip">登录后即可查看团队协作流程</view>
+</view>

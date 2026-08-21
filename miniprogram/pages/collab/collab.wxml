@@ -1,0 +1,24 @@
+<!-- 协作说明页 -->
+<view class="collab-container">
+  <view class="welcome">
+    <image class="avatar" wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+    <text>你好，{{userInfo.nickName || '同学'}} 👋</text>
+  </view>
+
+  <view class="card">
+    <view class="card-title">用 GitHub + Git 协作开发</view>
+    <view class="flow-steps">
+      <view class="step" wx:for="{{steps}}" wx:key="title">
+        <view class="step-num">{{index + 1}}</view>
+        <view class="step-content">
+          <view class="step-title">{{item.title}}</view>
+          <view class="step-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips">
+    <view class="tip" wx:for="{{tips}}" wx:key="*this">⚠️ {{item}}</view>
+  </view>
+</view>
