@@ -2,7 +2,7 @@
 .collab-container {
   min-height: 100vh;
   background: #f7f8fa;
-  padding: 40rpx 32rpx;
+  padding: 40rpx 32rpx 60rpx;
   box-sizing: border-box;
 }
 
@@ -26,7 +26,8 @@
 .card {
   background: #ffffff;
   border-radius: 24rpx;
-  padding: 36rpx 32rpx;
+  padding: 32rpx;
+  margin-bottom: 28rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
 }
 
@@ -34,49 +35,148 @@
   font-size: 32rpx;
   font-weight: 600;
   color: #07c160;
-  margin-bottom: 28rpx;
+  margin-bottom: 24rpx;
 }
 
-.step {
+/* --- Git 比喻 --- */
+.metaphor {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.metaphor:last-child {
+  margin-bottom: 0;
+}
+
+.meta-icon {
+  font-size: 36rpx;
+  margin-right: 16rpx;
+  line-height: 1.4;
+}
+
+.meta-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+.meta-desc {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 4rpx;
+}
+
+/* --- 流程总览横条 --- */
+.flow-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f7ee;
+  border-radius: 16rpx;
+  padding: 20rpx 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.flow-item {
+  font-size: 26rpx;
+  color: #07c160;
+  font-weight: 600;
+}
+
+.flow-arrow {
+  font-size: 24rpx;
+  color: #07c160;
+  margin: 0 12rpx;
+}
+
+/* --- 步骤 --- */
+.step {
+  margin-bottom: 32rpx;
 }
 
 .step:last-child {
   margin-bottom: 0;
 }
 
+.step-head {
+  display: flex;
+  align-items: center;
+}
+
 .step-num {
   flex-shrink: 0;
-  width: 44rpx;
-  height: 44rpx;
-  line-height: 44rpx;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 40rpx;
   text-align: center;
   border-radius: 50%;
-  background: #e8f7ee;
-  color: #07c160;
-  font-size: 26rpx;
+  background: #07c160;
+  color: #ffffff;
+  font-size: 24rpx;
   font-weight: 600;
-  margin-right: 20rpx;
-  margin-top: 4rpx;
+  margin-right: 16rpx;
 }
 
 .step-title {
-  font-size: 30rpx;
+  font-size: 29rpx;
   color: #333333;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .step-desc {
   font-size: 24rpx;
-  color: #999999;
-  margin-top: 6rpx;
-  line-height: 1.5;
+  color: #888888;
+  margin-top: 10rpx;
+  line-height: 1.6;
 }
 
+/* --- 代码块 --- */
+.cmd-block {
+  background: #1e1e2e;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  margin-top: 16rpx;
+}
+
+.cmd {
+  font-family: Menlo, Consolas, monospace;
+  font-size: 24rpx;
+  color: #7ee787;
+  line-height: 1.8;
+  word-break: break-all;
+}
+
+.cmd-tip {
+  font-size: 23rpx;
+  color: #b8860b;
+  margin-top: 10rpx;
+}
+
+/* --- 冲突示例 --- */
+.conflict-block {
+  background: #2d1b1b;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  margin-top: 16rpx;
+}
+
+.conflict {
+  color: #ffb4b4;
+  line-height: 1.8;
+  font-family: Menlo, Consolas, monospace;
+  font-size: 23rpx;
+  word-break: break-all;
+}
+
+.conflict-steps {
+  color: #666666;
+  margin-top: 14rpx;
+}
+
+/* --- 提醒 --- */
 .tips {
-  margin-top: 32rpx;
+  margin-top: 8rpx;
 }
 
 .tip {

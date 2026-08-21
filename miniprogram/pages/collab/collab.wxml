@@ -5,19 +5,55 @@
     <text>你好，{{userInfo.nickName || '同学'}} 👋</text>
   </view>
 
+  <!-- Git 是什么 -->
   <view class="card">
-    <view class="card-title">用 GitHub + Git 协作开发</view>
-    <view class="flow-steps">
-      <view class="step" wx:for="{{steps}}" wx:key="title">
-        <view class="step-num">{{index + 1}}</view>
-        <view class="step-content">
-          <view class="step-title">{{item.title}}</view>
-          <view class="step-desc">{{item.desc}}</view>
-        </view>
+    <view class="card-title">① Git 是什么（先记住这三个词）</view>
+    <view class="metaphor" wx:for="{{metaphors}}" wx:key="name">
+      <view class="meta-icon">{{item.icon}}</view>
+      <view class="meta-body">
+        <view class="meta-name">{{item.name}}</view>
+        <view class="meta-desc">{{item.desc}}</view>
       </view>
     </view>
   </view>
 
+  <!-- 完整流程 -->
+  <view class="card">
+    <view class="card-title">② 每日开发流程（4 步）</view>
+    <view class="flow-line">
+      <text class="flow-item">克隆</text>
+      <text class="flow-arrow">→</text>
+      <text class="flow-item">拉取</text>
+      <text class="flow-arrow">→</text>
+      <text class="flow-item">开发</text>
+      <text class="flow-arrow">→</text>
+      <text class="flow-item">提交+推送</text>
+    </view>
+
+    <view class="step" wx:for="{{steps}}" wx:key="title">
+      <view class="step-head">
+        <view class="step-num">{{index + 1}}</view>
+        <view class="step-title">{{item.title}}</view>
+      </view>
+      <view class="step-desc">{{item.desc}}</view>
+      <view class="cmd-block">
+        <view class="cmd" wx:for="{{item.cmd}}" wx:for-item="c">{{c}}</view>
+      </view>
+      <view class="cmd-tip">💡 {{item.cmdTip}}</view>
+    </view>
+  </view>
+
+  <!-- 冲突处理 -->
+  <view class="card">
+    <view class="card-title">③ 冲突怎么处理</view>
+    <view class="step-desc">{{conflict.desc}}</view>
+    <view class="conflict-block">
+      <view class="cmd conflict" wx:for="{{conflict.exampleBefore}}" wx:key="*this">{{item}}</view>
+    </view>
+    <view class="step-desc conflict-steps" wx:for="{{conflict.steps}}" wx:key="*this">✔️ {{item}}</view>
+  </view>
+
+  <!-- 提醒 -->
   <view class="tips">
     <view class="tip" wx:for="{{tips}}" wx:key="*this">⚠️ {{item}}</view>
   </view>
