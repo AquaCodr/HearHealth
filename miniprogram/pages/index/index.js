@@ -82,6 +82,19 @@ Page({
     haveCreateCollection: false,
     title: "",
     content: "",
+    // 开发注意事项悬浮按钮是否显示（开发完成后可在 collab 页底部一键隐藏）
+    showCollabEntry: true,
+  },
+
+  // 开发注意事项入口（开发完成后与 wxml/wxss 中对应代码一起删除）
+  onShow() {
+    this.setData({
+      showCollabEntry: !wx.getStorageSync("hideCollabEntry"),
+    });
+  },
+
+  goCollab() {
+    wx.navigateTo({ url: "/pages/collab/collab" });
   },
   onClickPowerInfo(e) {
     const app = getApp();

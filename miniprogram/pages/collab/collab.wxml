@@ -1,8 +1,8 @@
-<!-- 协作说明页 -->
+<!-- 开发注意事项页 -->
 <view class="collab-container">
-  <view class="welcome">
-    <image class="avatar" wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
-    <text>你好，{{userInfo.nickName || '同学'}} 👋</text>
+  <view class="header">
+    <view class="header-title">📋 开发注意事项</view>
+    <view class="header-desc">本项目所有代码通过 Pull Request 协作，请按流程操作</view>
   </view>
 
   <!-- Git 是什么 -->
@@ -17,17 +17,19 @@
     </view>
   </view>
 
-  <!-- 完整流程 -->
+  <!-- PR 协作流程 -->
   <view class="card">
-    <view class="card-title">② 每日开发流程（4 步）</view>
+    <view class="card-title">② Pull Request 协作流程</view>
     <view class="flow-line">
-      <text class="flow-item">克隆</text>
-      <text class="flow-arrow">→</text>
-      <text class="flow-item">拉取</text>
+      <text class="flow-item">Fork</text>
       <text class="flow-arrow">→</text>
       <text class="flow-item">开发</text>
       <text class="flow-arrow">→</text>
-      <text class="flow-item">提交+推送</text>
+      <text class="flow-item">push</text>
+      <text class="flow-arrow">→</text>
+      <text class="flow-item">提 PR</text>
+      <text class="flow-arrow">→</text>
+      <text class="flow-item">审核合并</text>
     </view>
 
     <view class="step" wx:for="{{steps}}" wx:key="title">
@@ -57,4 +59,7 @@
   <view class="tips">
     <view class="tip" wx:for="{{tips}}" wx:key="*this">⚠️ {{item}}</view>
   </view>
+
+  <!-- 开发完成后隐藏入口（开发期间请忽略） -->
+  <view class="hide-entry" bindtap="hideEntry">开发已完成？隐藏此入口</view>
 </view>

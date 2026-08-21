@@ -1,4 +1,4 @@
-/* 协作说明页样式 */
+/* 开发注意事项页样式 */
 .collab-container {
   min-height: 100vh;
   background: #f7f8fa;
@@ -6,21 +6,21 @@
   box-sizing: border-box;
 }
 
-.welcome {
-  display: flex;
-  align-items: center;
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #333333;
+/* --- 页头 --- */
+.header {
   margin-bottom: 32rpx;
 }
 
-.avatar {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 50%;
-  margin-right: 20rpx;
-  background: #e5e5e5;
+.header-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #333333;
+}
+
+.header-desc {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 8rpx;
 }
 
 .card {
@@ -72,6 +72,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   background: #e8f7ee;
   border-radius: 16rpx;
   padding: 20rpx 16rpx;
@@ -187,4 +188,13 @@
   padding: 20rpx 24rpx;
   margin-bottom: 16rpx;
   line-height: 1.5;
+}
+
+/* --- 隐藏入口 --- */
+.hide-entry {
+  text-align: center;
+  font-size: 24rpx;
+  color: #bbbbbb;
+  padding: 20rpx 0 0;
+  margin-top: 16rpx;
 }

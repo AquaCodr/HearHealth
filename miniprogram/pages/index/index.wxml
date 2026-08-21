@@ -26,4 +26,9 @@
     </view>
   </view>
   <cloud-tip-modal showTipProps="{{showTip}}" title="{{title}}" content="{{content}}"></cloud-tip-modal>
+
+  <!-- 开发注意事项悬浮按钮（开发期间常驻，开发完成后可隐藏：见 collab 页底部"隐藏入口"按钮；彻底移除可删掉本段及 index.js/wxss 中对应注释代码） -->
+  <view class="collab-entry" wx:if="{{showCollabEntry}}" bindtap="goCollab">
+    📋 开发注意事项
+  </view>
 </view>

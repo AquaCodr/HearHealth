@@ -19,9 +19,9 @@ Page({
         this.setData({ userInfo });
 
         wx.showToast({ title: "登录成功", icon: "success" });
-        // 跳转到协作说明页（redirectTo：登录页不留在历史栈中）
+        // 跳转到主开发页（redirectTo：登录页不留在历史栈中）
         setTimeout(() => {
-          wx.redirectTo({ url: "/pages/collab/collab" });
+          wx.redirectTo({ url: "/pages/index/index" });
         }, 500);
       },
       fail: () => {

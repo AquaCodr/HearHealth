@@ -1,5 +1,19 @@
 /**index.wxss**/
 
+/* 开发注意事项悬浮按钮（开发完成后可删除本段样式） */
+.collab-entry {
+  position: fixed;
+  right: 24rpx;
+  bottom: 60rpx;
+  z-index: 999;
+  background: rgba(7, 193, 96, 0.95);
+  color: #ffffff;
+  font-size: 26rpx;
+  padding: 18rpx 28rpx;
+  border-radius: 40rpx;
+  box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.35);
+}
+
 page {
   padding-top: 54rpx;
   background-color: #f6f6f6;

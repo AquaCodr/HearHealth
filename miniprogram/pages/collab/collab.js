@@ -1,7 +1,6 @@
-// 协作说明页
+// 开发注意事项页（协作流程）
 Page({
   data: {
-    userInfo: {},
     metaphors: [
       {
         icon: "📝",
@@ -11,38 +10,50 @@ Page({
       {
         icon: "⬆️",
         name: "push（上传）",
-        desc: "把本地快照上传到 GitHub，大家都能看到",
+        desc: "把本地快照上传到你自己的 GitHub 仓库",
       },
       {
         icon: "⬇️",
         name: "pull（下载）",
-        desc: "把 GitHub 上队友的最新改动同步到本地",
+        desc: "把 GitHub 上的最新代码同步到本地",
       },
     ],
     steps: [
       {
-        title: "加入团队 & 克隆代码（仅首次）",
-        desc: "把你的 GitHub 用户名告诉组长，被加为协作者后，把仓库代码克隆到本地",
-        cmd: ["git clone git@github.com:ShenChenkai/HearHealth.git"],
-        cmdTip: "只需执行一次，以后不用再克隆",
+        title: "Fork 仓库并克隆（仅首次）",
+        desc: "打开 https://github.com/ShenChenkai/HearHealth 点右上角 Fork，复制到自己的账号下，再克隆你自己的那份",
+        cmd: ["git clone git@github.com:你的用户名/HearHealth.git"],
+        cmdTip: "把'你的用户名'换成你自己的 GitHub 昵称",
       },
       {
-        title: "开发前先拉取最新代码",
-        desc: "每次开始写代码前先同步队友的改动，避免在旧代码上开发",
+        title: "开始开发前先拉取最新代码",
+        desc: "每次写代码前先同步原仓库的最新改动，避免在旧代码上开发",
         cmd: ["git pull"],
         cmdTip: "把 GitHub 上的最新代码下载到本地",
       },
       {
         title: "改完代码后提交",
-        desc: "把改动存成快照，并在说明里写清楚这次改了什么",
+        desc: "把改动存成快照，并写清楚这次改了什么",
         cmd: ["git add .", "git commit -m \"添加了xxx功能\""],
-        cmdTip: "引号里写本次改动的内容，让队友知道你干了什么",
+        cmdTip: "引号里写本次改动的内容，让审核的人看懂",
       },
       {
-        title: "先拉取再推送",
-        desc: "先 pull 同步队友改动（防止冲突），再 push 上传你的代码",
-        cmd: ["git pull", "git push"],
-        cmdTip: "顺序不能反：先 pull 再 push，养成习惯",
+        title: "推送代码到自己仓库",
+        desc: "把本地提交上传到你自己 Fork 的 GitHub 仓库",
+        cmd: ["git push"],
+        cmdTip: "先 git pull 再 push，减少冲突",
+      },
+      {
+        title: "发起 Pull Request（PR）",
+        desc: "打开你自己 GitHub 仓库的页面 → 点 Compare & pull request → 写清楚改了什么 → 点 Create pull request",
+        cmd: ["（在 GitHub 网页上操作，无需命令）"],
+        cmdTip: "组长审核通过后会自动合并，无需你操作",
+      },
+      {
+        title: "收到修改意见怎么办",
+        desc: "按意见改完代码，重新 add → commit → push，PR 会自动更新，不需要重新发起",
+        cmd: ["git add .", "git commit -m \"按反馈修改\"", "git push"],
+        cmdTip: "同一个 PR 可以反复修改，直到审核通过",
       },
     ],
     conflict: {
@@ -61,16 +72,25 @@ Page({
       ],
     },
     tips: [
-      "推送前一定要先 git pull，否则可能覆盖队友的代码",
+      "不要直接修改主仓库（ShenChenkai/HearHealth），所有改动都通过 PR 提交",
       "project.private.config.json 是个人本地配置，已自动忽略，不要手动提交",
       "新设备首次打开项目，需在微信开发者工具中重新选择云开发环境 ID",
       "拿不准的命令先问组长，别乱执行删除类命令",
     ],
   },
 
-  onShow() {
-    this.setData({
-      userInfo: wx.getStorageSync("userInfo") || {},
+  // 开发完成后一键隐藏悬浮按钮（在 index 页生效）
+  hideEntry() {
+    wx.showModal({
+      title: "隐藏入口",
+      content: "开发完成后将不再显示悬浮按钮，此操作可在开发工具中清除缓存恢复。确认隐藏吗？",
+      success: (res) => {
+        if (res.confirm) {
+          wx.setStorageSync("hideCollabEntry", true);
+          wx.showToast({ title: "已隐藏", icon: "success" });
+          setTimeout(() => wx.navigateBack(), 500);
+        }
+      },
     });
   },
 });
