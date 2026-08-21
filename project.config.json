@@ -44,7 +44,6 @@
     "swc": false,
     "disableSWC": true
   },
-  "appid": "",
   "projectname": "quickstart-wx-cloud",
   "libVersion": "2.20.1",
   "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
