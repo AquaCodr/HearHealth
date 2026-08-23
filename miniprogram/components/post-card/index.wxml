@@ -1,0 +1,16 @@
+<view class="post-card">
+  <view class="post-header">
+    <text class="post-avatar">{{post.avatar}}</text>
+    <view class="post-meta">
+      <text class="post-author">{{post.authorName}}</text>
+      <text class="post-time">{{post.time}}</text>
+    </view>
+  </view>
+  <view class="post-title">{{post.title}}</view>
+  <view class="post-summary">{{post.content}}</view>
+  <view class="post-footer">
+    <text class="post-stat">👍 {{post.likes}}</text>
+    <text class="post-stat">💬 {{post.comments}}</text>
+    <text class="post-stat">⭐ {{post.favorites}}</text>
+  </view>
+</view>

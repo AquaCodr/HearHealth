@@ -1,16 +1,61 @@
 {
   "pages": [
-    "pages/login/login",
-    "pages/collab/collab",
-    "pages/index/index",
-    "pages/example/index"
+    "pages/home/home",
+    "pages/stats/stats",
+    "pages/community/community",
+    "pages/profile/profile",
+    "pages/test/guide",
+    "pages/test/process",
+    "pages/test/report",
+    "pages/stats/earphone-stats",
+    "pages/stats/env-stats",
+    "pages/community/post-detail",
+    "pages/community/post-edit",
+    "pages/profile/my-posts",
+    "pages/profile/settings",
+    "pages/profile/about",
+    "pages/skill/list",
+    "pages/skill/detail",
+    "pages/splash/splash"
   ],
   "window": {
-    "backgroundColor": "#F6F6F6",
+    "backgroundColor": "#f5f5f7",
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F6F6F6",
+    "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "HearHealth",
     "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#0066cc",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "images/tabbar/home.png",
+        "selectedIconPath": "images/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "统计",
+        "iconPath": "images/tabbar/stats.png",
+        "selectedIconPath": "images/tabbar/stats-active.png"
+      },
+      {
+        "pagePath": "pages/community/community",
+        "text": "耳友圈",
+        "iconPath": "images/tabbar/community.png",
+        "selectedIconPath": "images/tabbar/community-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tabbar/profile.png",
+        "selectedIconPath": "images/tabbar/profile-active.png"
+      }
+    ]
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",
