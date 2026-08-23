@@ -3,7 +3,10 @@
     "pages/login/login",
     "pages/collab/collab",
     "pages/index/index",
-    "pages/example/index"
+    "pages/example/index",
+    "pages/community/community",
+    "pages/community/detail",
+    "pages/community/publish"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",

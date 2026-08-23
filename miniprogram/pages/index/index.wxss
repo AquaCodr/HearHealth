@@ -14,6 +14,20 @@
   box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.35);
 }
 
+/* 社区临时入口（底部 tabBar 启用后删除本段样式） */
+.community-entry {
+  position: fixed;
+  right: 24rpx;
+  bottom: 160rpx;
+  z-index: 999;
+  background: rgba(64, 124, 255, 0.95);
+  color: #ffffff;
+  font-size: 26rpx;
+  padding: 18rpx 28rpx;
+  border-radius: 40rpx;
+  box-shadow: 0 6rpx 20rpx rgba(64, 124, 255, 0.35);
+}
+
 page {
   padding-top: 54rpx;
   background-color: #f6f6f6;

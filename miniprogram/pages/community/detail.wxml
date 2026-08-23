@@ -1,0 +1,83 @@
+<!-- 帖子详情页 -->
+<view class="detail-page" wx:if="{{post}}">
+
+  <!-- 返回广场 + 板块标签栏 -->
+  <view class="detail-nav">
+    <view class="nav-back" bindtap="onBack">
+      <text class="nav-back-icon">‹</text>
+      <text class="nav-back-text">返回广场</text>
+    </view>
+    <view class="nav-tag">{{post.tagLabel}}</view>
+  </view>
+
+  <!-- 帖子主体 -->
+  <view class="post-card">
+    <view class="post-title">{{post.title}}</view>
+
+    <view class="author-row">
+      <image class="author-avatar" src="{{post.avatar || defaultAvatar}}" mode="aspectFill"></image>
+      <view class="author-meta">
+        <view class="author-nickname">{{post.nickname}}</view>
+        <view class="author-sub">{{post.createTime}}<text wx:if="{{post.device}}"> · {{post.device}}</text></view>
+      </view>
+    </view>
+
+    <view class="post-content" wx:if="{{post.content}}">{{post.content}}</view>
+
+    <view class="post-cover" wx:if="{{post.cover}}">
+      <image class="post-cover-img" src="{{post.cover}}" mode="widthFix"></image>
+    </view>
+
+    <!-- 互动按钮 -->
+    <view class="action-bar">
+      <view class="action-item {{liked ? 'action-item--active' : ''}}" bindtap="onLike">
+        <image class="icon" src="{{liked ? '/images/icons/like-active.svg' : '/images/icons/like.svg'}}"></image>
+        <text class="action-text">{{post.likeCount}}</text>
+      </view>
+      <view class="action-item">
+        <image class="icon" src="/images/icons/comment.svg"></image>
+        <text class="action-text">{{post.commentCount}}</text>
+      </view>
+      <view class="action-item {{faved ? 'action-item--active' : ''}}" bindtap="onFav">
+        <image class="icon" src="{{faved ? '/images/icons/star-active.svg' : '/images/icons/star.svg'}}"></image>
+        <text class="action-text">{{post.favCount}}</text>
+      </view>
+      <button class="action-item action-share" open-type="share">
+        <image class="icon" src="/images/icons/share.svg"></image>
+        <text class="action-text">分享</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 评论区 -->
+  <view class="comment-card">
+    <view class="comment-header">评论 {{comments.length}}</view>
+    <view class="comment-item" wx:for="{{comments}}" wx:key="_id">
+      <image class="comment-avatar" src="{{item.avatar || defaultAvatar}}" mode="aspectFill"></image>
+      <view class="comment-body">
+        <view class="comment-meta">
+          <text class="comment-nickname">{{item.nickname}}</text>
+          <text class="comment-time">{{item.createTime}}</text>
+        </view>
+        <view class="comment-content">{{item.content}}</view>
+      </view>
+    </view>
+    <view class="comment-empty" wx:if="{{!comments.length}}">还没有评论，来抢沙发～</view>
+  </view>
+
+  <!-- 底部评论输入框 -->
+  <view class="comment-bar">
+    <input
+      class="comment-input"
+      placeholder="友善评论，温暖耳友圈"
+      value="{{inputValue}}"
+      bindinput="onInputComment"
+      confirm-type="send"
+      bindconfirm="onSendComment"
+    />
+    <view class="comment-send {{inputValue.trim() ? '' : 'comment-send--disabled'}}" bindtap="onSendComment">发送</view>
+  </view>
+</view>
+
+<view class="loading-tip" wx:if="{{loading}}">加载中…</view>
+<view class="loading-tip" wx:if="{{notFound}}">帖子不存在或已被删除</view>

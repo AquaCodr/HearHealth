@@ -1,0 +1,14 @@
+{
+  "name": "communityFunctions",
+  "version": "1.0.0",
+  "description": "耳友圈社区云函数：帖子/评论读写与种子数据",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.4.0"
+  }
+}

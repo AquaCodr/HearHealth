@@ -31,4 +31,9 @@
   <view class="collab-entry" wx:if="{{showCollabEntry}}" bindtap="goCollab">
     📋 开发注意事项
   </view>
+
+  <!-- 社区临时入口（开发调试用，底部 tabBar 启用后删除本段） -->
+  <view class="community-entry" bindtap="goCommunity">
+    🏘️ 社区
+  </view>
 </view>

@@ -24,4 +24,7 @@ page {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  /* 苹果风格字体栈：iOS 命中 SF Pro / PingFang SC，安卓回退 system-ui / 微软雅黑 */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', system-ui, 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

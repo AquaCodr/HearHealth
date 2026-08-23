@@ -96,6 +96,11 @@ Page({
   goCollab() {
     wx.navigateTo({ url: "/pages/collab/collab" });
   },
+
+  // 社区临时入口（底部 tabBar 启用后删除）
+  goCommunity() {
+    wx.navigateTo({ url: "/pages/community/community" });
+  },
   onClickPowerInfo(e) {
     const app = getApp();
     const index = e.currentTarget.dataset.index;
