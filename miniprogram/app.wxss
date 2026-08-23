@@ -78,6 +78,7 @@ page {
   color: var(--color-body);
   font-size: var(--text-body);
   line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ========== 通用工具类 ========== */

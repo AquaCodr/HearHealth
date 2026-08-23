@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "耳友圈"
+  "navigationBarTitleText": "社区",
+  "navigationBarBackgroundColor": "#ffffff",
+  "usingComponents": {}
 }
