@@ -214,7 +214,7 @@ HearHealth 是一款用耳健康小程序，核心功能：
 **平台适配要点：**
 - 设计 token 为 px（375px 设计宽），小程序需换算 **rpx**（1px ≈ 2rpx）
 - SF Pro 仅 iOS 可用，安卓回退：`system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif`
-- 主色 `#0066cc`；语义色补充建议（待团队确认后写入 app.wxss）：进度环 安全绿 `#34c759` / 接近阈值黄 `#ffcc00` / 超阈值红 `#ff3b30`；个人中心薄荷绿渐变 `#e8f9f0 → #b9f0d4`
+- 主色 `#0066cc`（来自 design token `--color-primary`）；进度环状态色（安全绿/黄/红）、个人中心薄荷绿渐变等语义色**尚未在 DesignTemplate 中定义**，待补充到设计文件后再使用，禁止在代码里自造色值
 
 ---
 
