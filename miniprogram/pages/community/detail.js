@@ -27,15 +27,25 @@ Page({
     callCommunity('getPost', { id })
       .then(post => {
         if (post) {
+          // 兼容旧数据：无 images 数组时回退到单张 cover
+          const displayImages = post.images && post.images.length
+            ? post.images
+            : (post.cover ? [post.cover] : [])
           this.setData({
             loading: false,
-            post: { ...post, createTime: formatTime(post.createTime) }
+            post: { ...post, createTime: formatTime(post.createTime), displayImages }
           })
         } else {
           notFound()
         }
       })
       .catch(notFound)
+  },
+
+  // 预览帖子图片
+  onPreviewImage(e) {
+    const current = e.currentTarget.dataset.src
+    wx.previewImage({ current, urls: this.data.post.displayImages })
   },
 
   loadComments(postId) {

@@ -46,9 +46,21 @@
     <view class="word-count">{{content.length}}/{{maxLen}}</view>
   </view>
 
-  <!-- 添加图片 -->
-  <view class="image-add" bindtap="onAddImage">
-    <view class="image-add-icon">+</view>
-    <view class="image-add-text">添加图片</view>
+  <!-- 图片选择（最多 3 张，可预览/删除） -->
+  <view class="image-grid">
+    <view class="image-item" wx:for="{{images}}" wx:key="*this">
+      <image
+        class="image-thumb"
+        src="{{item}}"
+        mode="aspectFill"
+        data-src="{{item}}"
+        bindtap="onPreviewImage"
+      ></image>
+      <view class="image-remove" data-index="{{index}}" catchtap="onRemoveImage">×</view>
+    </view>
+    <view class="image-add" wx:if="{{images.length < maxImages}}" bindtap="onChooseImage">
+      <view class="image-add-icon">+</view>
+      <view class="image-add-text">{{images.length}}/{{maxImages}}</view>
+    </view>
   </view>
 </view>

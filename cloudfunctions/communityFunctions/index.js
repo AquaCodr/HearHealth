@@ -67,18 +67,20 @@ async function getPost(event) {
   }
 }
 
-// 发布帖子
+// 发布帖子（images 为云存储 fileID 数组，cover 取第一张）
 async function addPost(event) {
-  const { tag, title, content, summary, nickname, avatar, device, cover } = event
+  const { tag, title, content, summary, nickname, avatar, device, images } = event
+  const imgList = Array.isArray(images) ? images : []
   const post = {
     tag,
     title,
-    content,
-    summary: summary || (content.length > 60 ? content.slice(0, 60) + '…' : content),
+    content: content || '',
+    summary: summary || (content && content.length > 60 ? content.slice(0, 60) + '…' : content || ''),
     nickname: nickname || '耳友',
     avatar: avatar || '',
     device: device || '',
-    cover: cover || '',
+    images: imgList,
+    cover: imgList[0] || '',
     likeCount: 0,
     commentCount: 0,
     favCount: 0,
