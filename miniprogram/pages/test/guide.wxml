@@ -1,0 +1,8 @@
+<view class="container">
+  <view class="page-header">
+    <text class="page-title">听力测试</text>
+  </view>
+  <view class="card">
+    <text class="text-muted">页面开发中...</text>
+  </view>
+</view>

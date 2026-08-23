@@ -1,30 +1,170 @@
-/**app.wxss**/
+/**
+ * HearHealth 全局样式
+ * 设计 token 来源：DesignTemplate/apple-variables.css
+ * px → rpx 换算：1px = 2rpx（375 设计宽）
+ */
+
+/* ========== 设计 Token（CSS 变量） ========== */
+page {
+  /* 颜色 */
+  --color-primary: #0066cc;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+  --color-ink: #1d1d1f;
+  --color-body: #1d1d1f;
+  --color-body-on-dark: #ffffff;
+  --color-body-muted: #cccccc;
+  --color-ink-muted-80: #333333;
+  --color-ink-muted-48: #7a7a7a;
+  --color-divider-soft: #f0f0f0;
+  --color-hairline: #e0e0e0;
+  --color-canvas: #ffffff;
+  --color-canvas-parchment: #f5f5f7;
+  --color-surface-pearl: #fafafc;
+  --color-on-primary: #ffffff;
+
+  /* 语义色（进度环/提醒等） */
+  --color-success: #34c759;
+  --color-warning: #ffcc00;
+  --color-danger: #ff3b30;
+
+  /* 字体 */
+  --font-primary: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+
+  /* 字号（rpx） */
+  --text-hero-display: 112rpx;
+  --text-display-lg: 80rpx;
+  --text-display-md: 68rpx;
+  --text-lead: 56rpx;
+  --text-lead-airy: 48rpx;
+  --text-tagline: 42rpx;
+  --text-body-strong: 34rpx;
+  --text-body: 34rpx;
+  --text-dense-link: 34rpx;
+  --text-caption: 28rpx;
+  --text-caption-strong: 28rpx;
+  --text-button-large: 36rpx;
+  --text-button-utility: 28rpx;
+  --text-fine-print: 24rpx;
+  --text-micro-legal: 20rpx;
+  --text-nav-link: 24rpx;
+
+  /* 行高 */
+  --leading-body: 1.47;
+  --leading-caption: 1.43;
+  --leading-display: 1.1;
+
+  /* 间距（rpx） */
+  --spacing-xxs: 8rpx;
+  --spacing-xs: 16rpx;
+  --spacing-sm: 24rpx;
+  --spacing-md: 34rpx;
+  --spacing-lg: 48rpx;
+  --spacing-xl: 64rpx;
+  --spacing-xxl: 96rpx;
+  --spacing-section: 160rpx;
+
+  /* 圆角（rpx） */
+  --radius-xs: 10rpx;
+  --radius-sm: 16rpx;
+  --radius-md: 22rpx;
+  --radius-lg: 36rpx;
+  --radius-pill: 9999rpx;
+  --radius-full: 9999rpx;
+
+  /* 页面基础 */
+  background: var(--color-canvas-parchment);
+  font-family: var(--font-primary);
+  color: var(--color-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========== 通用工具类 ========== */
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
   box-sizing: border-box;
-} 
-
-button {
-  background: initial;
+  min-height: 100vh;
+  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
 }
 
-button:focus{
-  outline: 0;
+/* 卡片 */
+.card {
+  background: var(--color-canvas);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin: 0 var(--spacing-md) var(--spacing-md);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
-button::after{
+/* 主按钮 */
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-button-large);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  height: 100rpx;
+  line-height: 100rpx;
+  text-align: center;
   border: none;
 }
 
+.btn-primary::after {
+  border: none;
+}
 
-page {
-  background: #f6f6f6;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  /* 苹果风格字体栈：iOS 命中 SF Pro / PingFang SC，安卓回退 system-ui / 微软雅黑 */
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', system-ui, 'Microsoft YaHei', sans-serif;
-  -webkit-font-smoothing: antialiased;
+/* 次要按钮 */
+.btn-secondary {
+  background: var(--color-canvas);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-button-utility);
+  border-radius: var(--radius-sm);
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border: 2rpx solid var(--color-hairline);
+}
+
+.btn-secondary::after {
+  border: none;
+}
+
+/* 文字工具 */
+.text-primary { color: var(--color-primary); }
+.text-muted { color: var(--color-ink-muted-48); }
+.text-strong { font-weight: 600; }
+.text-center { text-align: center; }
+
+/* 布局工具 */
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-center { display: flex; justify-content: center; align-items: center; }
+.flex-1 { flex: 1; }
+
+/* 分割线 */
+.divider {
+  height: 2rpx;
+  background: var(--color-divider-soft);
+  margin: var(--spacing-sm) 0;
+}
+
+/* 底部 tabBar 安全区占位 */
+.tabbar-placeholder {
+  height: calc(100rpx + env(safe-area-inset-bottom));
+}
+
+/* 页面标题区 */
+.page-header {
+  padding: var(--spacing-lg) var(--spacing-md) var(--spacing-sm);
+}
+
+.page-title {
+  font-size: var(--text-lead);
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: var(--leading-display);
 }
