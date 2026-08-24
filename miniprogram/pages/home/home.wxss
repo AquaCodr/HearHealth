@@ -38,17 +38,36 @@
   flex-shrink: 0;
 }
 
-/* 进度环 */
+/* 进度环 —— 使用 conic-gradient 替代 canvas，避免 DPR 模糊与端点抖动 */
 .progress-ring {
   position: relative;
   width: 200rpx;
   height: 200rpx;
 }
 
-.progress-canvas {
+.progress-track {
+  position: relative;
   width: 200rpx;
   height: 200rpx;
-  display: block;
+  border-radius: 50%;
+  box-sizing: border-box;
+  padding: 20rpx;
+}
+
+.progress-hole {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-canvas);
+}
+
+/* 进度条两端圆角小圆点（直径=环粗，像 Apple Watch 圆环端点） */
+.progress-cap {
+  position: absolute;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .progress-overlay {

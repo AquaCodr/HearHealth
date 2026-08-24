@@ -7,7 +7,11 @@
     </view>
     <view class="top-right">
       <view class="progress-ring">
-        <canvas canvas-id="progressCanvas" class="progress-canvas"></canvas>
+        <view class="progress-track" style="background: {{progressGradient}}">
+          <view class="progress-hole"></view>
+          <view class="progress-cap" wx:if="{{progressPercent > 0}}" style="background: {{progressColor}}; left: {{capStartLeft}}rpx; top: {{capStartTop}}rpx;"></view>
+          <view class="progress-cap" wx:if="{{progressPercent > 0 && progressPercent < 100}}" style="background: {{progressColor}}; left: {{capEndLeft}}rpx; top: {{capEndTop}}rpx;"></view>
+        </view>
         <view class="progress-overlay">
           <view class="progress-label">今日</view>
           <view class="progress-value">{{todayHours}}h{{todayMinutes}}min</view>
@@ -48,7 +52,7 @@
     <view class="bar-chart">
       <view class="bar-item" wx:for="{{weekData}}" wx:key="day">
         <view class="bar-wrap">
-          <view class="bar bar-{{item.status}}" style="height: {{item.hours / maxWeekHours * 100}}%"></view>
+          <view class="bar bar-{{item.status}}" style="height: {{item.hours / maxWeekHours * 100}}%;"></view>
         </view>
         <view class="bar-label">周{{item.day}}</view>
       </view>

@@ -5,6 +5,7 @@ Page({
     todayMinutes: 35,
     threshold: 2,
     progressPercent: 0,
+    progressGradient: '',
     healthStatus: 'warning',
     healthText: '今天已戴耳机1h35min，建议摘下休息一会儿',
     healthVisible: true,
@@ -30,12 +31,6 @@ Page({
     this.calculateHealthStatus();
   },
 
-  onReady() {
-    setTimeout(() => {
-      this.drawProgressRing();
-    }, 100);
-  },
-
   setGreeting() {
     const hour = new Date().getHours();
     let greeting = '';
@@ -53,57 +48,50 @@ Page({
     const totalHours = this.data.todayHours + this.data.todayMinutes / 60;
     const threshold = this.data.threshold;
     const progressPercent = Math.min((totalHours / threshold) * 100, 100);
-    this.setData({ progressPercent });
+
+    let healthStatus = 'normal';
+    if (progressPercent >= 80) {
+      healthStatus = 'danger';
+    } else if (progressPercent >= 50) {
+      healthStatus = 'warning';
+    }
+
+    const progressColor = this.getProgressColor(healthStatus);
+    const progressDeg = (progressPercent / 100) * 270;
+    // 270度圆环，缺口在顶部（CSS 角度：从 225deg 开始，顺时针 270deg 后回到 135deg）
+    const progressGradient = `conic-gradient(from 225deg, ${progressColor} 0deg ${progressDeg}deg, #e8e8ed ${progressDeg}deg 270deg, transparent 270deg 360deg)`;
+
+    // 进度条两端圆角：在首尾位置叠加与环同宽的小圆点（轨道半径 = 100rpx - 环粗/2）
+    const ringWidth = 20;
+    const radius = 100 - ringWidth / 2;
+    const startRad = (225 * Math.PI) / 180; // 起点固定 225deg
+    const capStartLeft = 100 + radius * Math.sin(startRad);
+    const capStartTop = 100 - radius * Math.cos(startRad);
+    const endRad = ((225 + progressDeg) * Math.PI) / 180;
+    const capEndLeft = 100 + radius * Math.sin(endRad);
+    const capEndTop = 100 - radius * Math.cos(endRad);
+
+    this.setData({
+      progressPercent,
+      progressGradient,
+      progressColor,
+      healthStatus,
+      capStartLeft,
+      capStartTop,
+      capEndLeft,
+      capEndTop
+    });
   },
 
-  drawProgressRing() {
-    const ctx = wx.createCanvasContext('progressCanvas', this);
-    const centerX = 50;
-    const centerY = 50;
-    const radius = 38;
-    const lineWidth = 7;
-
-    // 背景环（缺口在顶部，270度弧）
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, 2.25 * Math.PI);
-    ctx.setStrokeStyle('#e8e8ed');
-    ctx.setLineWidth(lineWidth);
-    ctx.stroke();
-
-    // 进度环
-    const percent = this.data.progressPercent / 100;
-    const startAngle = 0.75 * Math.PI;
-    const endAngle = startAngle + percent * 1.5 * Math.PI;
-
-    let progressColor = '#0066cc';
-    if (this.data.healthStatus === 'warning') {
-      progressColor = '#ff9500';
-    } else if (this.data.healthStatus === 'danger') {
-      progressColor = '#ff3b30';
+  getProgressColor(status) {
+    switch (status) {
+      case 'danger':
+        return '#ff3b30';
+      case 'warning':
+        return '#ff9500';
+      default:
+        return '#0066cc';
     }
-
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-    ctx.setStrokeStyle(progressColor);
-    ctx.setLineWidth(lineWidth);
-    ctx.setLineCap('round');
-    ctx.stroke();
-
-    // 端点小圆点
-    if (percent > 0.02 && percent < 0.98) {
-      const dotX = centerX + radius * Math.cos(endAngle);
-      const dotY = centerY + radius * Math.sin(endAngle);
-      ctx.beginPath();
-      ctx.arc(dotX, dotY, 5, 0, 2 * Math.PI);
-      ctx.setFillStyle(progressColor);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(dotX, dotY, 2.5, 0, 2 * Math.PI);
-      ctx.setFillStyle('#ffffff');
-      ctx.fill();
-    }
-
-    ctx.draw();
   },
 
   dismissHealth() {
