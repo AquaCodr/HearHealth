@@ -14,6 +14,9 @@ Page({
     currentEar: '',
     currentFrequency: 125,
     currentFrequencyIndex: 0,
+    nextFrequencyValue: 250,
+    leftEarCompleted: false,
+    leftHeardCount: 0,
     isTonePlaying: false,
     hasPlayedTone: false,
     canAnswer: false,
@@ -60,10 +63,21 @@ Page({
       currentEar: 'left',
       currentFrequency: this.data.frequencies[0].value,
       currentFrequencyIndex: 0,
+      nextFrequencyValue: this.data.frequencies[1].value,
+      leftEarCompleted: false,
+      leftHeardCount: 0,
       hasPlayedTone: false,
       canAnswer: false,
       currentResponse: '',
       toneStatusText: '点击播放测试音后仔细聆听',
+      responses: {
+        left: [],
+        right: this.data.responses.right.slice()
+      },
+      frequencies: this.data.frequencies.map((item, index) => ({
+        value: item.value,
+        status: index === 0 ? 'active' : 'pending'
+      })),
       steps: [
         { label: '准备', status: 'complete' },
         { label: '左耳', status: 'active' },
@@ -240,13 +254,61 @@ Page({
       answeredAt: Date.now()
     })
 
+    const isLastFrequency = this.data.currentFrequencyIndex === this.data.frequencies.length - 1
+    const leftHeardCount = responses.left.filter(item => item.heard).length
+    const completedFrequencies = isLastFrequency
+      ? this.data.frequencies.map(item => ({ value: item.value, status: 'complete' }))
+      : this.data.frequencies
+
     this.setData({
       responses,
       currentResponse: responseValue,
       canAnswer: false,
-      toneStatusText: responseValue === 'heard'
-        ? '已记录：听到了'
-        : '已记录：没听到'
+      leftEarCompleted: isLastFrequency,
+      leftHeardCount,
+      frequencies: completedFrequencies,
+      steps: isLastFrequency
+        ? [
+            { label: '准备', status: 'complete' },
+            { label: '左耳', status: 'complete' },
+            { label: '右耳', status: 'pending' }
+          ]
+        : this.data.steps,
+      toneStatusText: isLastFrequency
+        ? '左耳六个频率已全部完成'
+        : responseValue === 'heard'
+          ? '已记录：听到了'
+          : '已记录：没听到'
+    })
+  },
+
+  nextFrequency() {
+    if (!this.data.currentResponse || this.data.leftEarCompleted || this.data.isTonePlaying) return
+
+    const nextIndex = this.data.currentFrequencyIndex + 1
+    if (nextIndex >= this.data.frequencies.length) return
+
+    const frequencies = this.data.frequencies.map((item, index) => ({
+      value: item.value,
+      status: index < nextIndex
+        ? 'complete'
+        : index === nextIndex
+          ? 'active'
+          : 'pending'
+    }))
+    const followingFrequency = frequencies[nextIndex + 1]
+
+    this.setData({
+      currentFrequencyIndex: nextIndex,
+      currentFrequency: frequencies[nextIndex].value,
+      nextFrequencyValue: followingFrequency ? followingFrequency.value : 0,
+      frequencies,
+      hasPlayedTone: false,
+      canAnswer: false,
+      currentResponse: '',
+      toneStatusText: '点击播放测试音后仔细聆听'
+    }, () => {
+      wx.pageScrollTo({ scrollTop: 0, duration: 200 })
     })
   },
 

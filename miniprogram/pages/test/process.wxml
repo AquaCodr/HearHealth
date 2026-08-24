@@ -62,73 +62,115 @@
   </block>
 
   <block wx:elif="{{currentStep === 2}}">
-    <view class="process-content">
-      <view class="intro-block">
-        <view class="intro-kicker">STEP 2</view>
-        <view class="intro-title">左耳测试</view>
-        <view class="intro-description">请保持安静，仔细判断左耳是否听到测试音</view>
-      </view>
-
-      <view class="ear-test-card">
-        <view class="test-ear-badge">L</view>
-        <view class="test-ear-copy">
-          <view class="test-ear-title">正在测试左耳</view>
-          <view class="test-ear-description">右耳测试将在左耳完成后开始</view>
-        </view>
-      </view>
-
-      <view class="frequency-card">
-        <view class="frequency-header">
-          <view>
-            <view class="frequency-label">当前频率</view>
-            <view class="frequency-value">{{currentFrequency}} <text class="frequency-unit">Hz</text></view>
-          </view>
-          <view class="frequency-count">{{currentFrequencyIndex + 1}} / {{frequencies.length}}</view>
+    <block wx:if="{{!leftEarCompleted}}">
+      <view class="process-content">
+        <view class="intro-block">
+          <view class="intro-kicker">STEP 2</view>
+          <view class="intro-title">左耳测试</view>
+          <view class="intro-description">请保持安静，仔细判断左耳是否听到测试音</view>
         </view>
 
-        <view class="frequency-list">
-          <view
-            class="frequency-item frequency-item--{{item.status}}"
-            wx:for="{{frequencies}}"
-            wx:key="value"
-          >
-            <view class="frequency-dot"></view>
-            <view class="frequency-item-label">{{item.value}}</view>
+        <view class="ear-test-card">
+          <view class="test-ear-badge">L</view>
+          <view class="test-ear-copy">
+            <view class="test-ear-title">正在测试左耳</view>
+            <view class="test-ear-description">右耳测试将在左耳完成后开始</view>
           </view>
         </view>
+
+        <view class="frequency-card">
+          <view class="frequency-header">
+            <view>
+              <view class="frequency-label">当前频率</view>
+              <view class="frequency-value">{{currentFrequency}} <text class="frequency-unit">Hz</text></view>
+            </view>
+            <view class="frequency-count">{{currentFrequencyIndex + 1}} / {{frequencies.length}}</view>
+          </view>
+
+          <view class="frequency-list">
+            <view
+              class="frequency-item frequency-item--{{item.status}}"
+              wx:for="{{frequencies}}"
+              wx:key="value"
+            >
+              <view class="frequency-dot"></view>
+              <view class="frequency-item-label">{{item.value}}</view>
+            </view>
+          </view>
+        </view>
+
+        <view class="tone-instruction">
+          <view class="tone-instruction-title">如何操作</view>
+          <view class="tone-instruction-text">点击播放后仔细聆听，再根据真实听感选择“听到了”或“没听到”。</view>
+        </view>
       </view>
 
-      <view class="tone-instruction">
-        <view class="tone-instruction-title">如何操作</view>
-        <view class="tone-instruction-text">点击播放后仔细聆听，再根据真实听感选择“听到了”或“没听到”。</view>
+      <view class="process-actions">
+        <button
+          class="play-tone-button {{isTonePlaying || currentResponse ? 'play-tone-button--disabled' : ''}}"
+          hover-class="play-tone-button--pressed"
+          disabled="{{isTonePlaying || currentResponse}}"
+          bindtap="playTone"
+        >
+          <text class="play-tone-icon" aria-hidden="true">▶</text>
+          <text>{{isTonePlaying ? '播放中…' : '播放测试音'}}</text>
+        </button>
+        <view class="response-row">
+          <button
+            class="response-button {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'not-heard' ? 'response-button--selected' : ''}} {{currentResponse === 'heard' ? 'response-button--muted' : ''}}"
+            disabled="{{!canAnswer}}"
+            data-response="not-heard"
+            bindtap="recordResponse"
+          >没听到</button>
+          <button
+            class="response-button response-button--primary {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'heard' ? 'response-button--selected' : ''}} {{currentResponse === 'not-heard' ? 'response-button--muted' : ''}}"
+            disabled="{{!canAnswer}}"
+            data-response="heard"
+            bindtap="recordResponse"
+          >听到了</button>
+        </view>
+        <view class="action-hint">{{toneStatusText}}</view>
+        <button
+          class="next-frequency-button"
+          wx:if="{{currentResponse}}"
+          hover-class="next-frequency-button--pressed"
+          bindtap="nextFrequency"
+        >进入 {{nextFrequencyValue}} Hz</button>
       </view>
-    </view>
+    </block>
 
-    <view class="process-actions">
-      <button
-        class="play-tone-button {{isTonePlaying || currentResponse ? 'play-tone-button--disabled' : ''}}"
-        hover-class="play-tone-button--pressed"
-        disabled="{{isTonePlaying || currentResponse}}"
-        bindtap="playTone"
-      >
-        <text class="play-tone-icon" aria-hidden="true">▶</text>
-        <text>{{isTonePlaying ? '播放中…' : '播放测试音'}}</text>
-      </button>
-      <view class="response-row">
-        <button
-          class="response-button {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'not-heard' ? 'response-button--selected' : ''}} {{currentResponse === 'heard' ? 'response-button--muted' : ''}}"
-          disabled="{{!canAnswer}}"
-          data-response="not-heard"
-          bindtap="recordResponse"
-        >没听到</button>
-        <button
-          class="response-button response-button--primary {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'heard' ? 'response-button--selected' : ''}} {{currentResponse === 'not-heard' ? 'response-button--muted' : ''}}"
-          disabled="{{!canAnswer}}"
-          data-response="heard"
-          bindtap="recordResponse"
-        >听到了</button>
+    <block wx:else>
+      <view class="process-content">
+        <view class="left-complete-card">
+          <view class="complete-icon" aria-hidden="true">✓</view>
+          <view class="complete-title">左耳测试完成</view>
+          <view class="complete-description">已完成左耳全部 6 个频率，本次回答已安全记录。</view>
+
+          <view class="complete-summary">
+            <view class="summary-item">
+              <view class="summary-value">6 / 6</view>
+              <view class="summary-label">完成频率</view>
+            </view>
+            <view class="summary-divider"></view>
+            <view class="summary-item">
+              <view class="summary-value">{{leftHeardCount}}</view>
+              <view class="summary-label">听到次数</view>
+            </view>
+          </view>
+
+          <view class="complete-frequency-list">
+            <view class="complete-frequency-item" wx:for="{{frequencies}}" wx:key="value">
+              <view class="complete-frequency-check">✓</view>
+              <view class="complete-frequency-value">{{item.value}} Hz</view>
+            </view>
+          </view>
+        </view>
+
+        <view class="next-stage-note">
+          <view class="next-stage-title">下一步：右耳测试</view>
+          <view class="next-stage-description">右耳将使用相同的 6 个频率，本轮暂不启动。</view>
+        </view>
       </view>
-      <view class="action-hint">{{toneStatusText}}</view>
-    </view>
+    </block>
   </block>
 </view>
