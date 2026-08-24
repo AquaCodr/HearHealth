@@ -46,13 +46,48 @@ function withTagLabel(post) {
   return { ...post, tagLabel: TAGS[post.tag] || '' }
 }
 
+// 根据 comments 集合实时统计每个帖子的真实评论数，返回 { [postId]: count }
+async function countCommentsByPosts(postIds) {
+  if (!postIds.length) return {}
+  // 云数据库 command.in 单次上限 100，分片查询后合并
+  const result = {}
+  const CHUNK = 100
+  for (let i = 0; i < postIds.length; i += CHUNK) {
+    const ids = postIds.slice(i, i + CHUNK)
+    const res = await db.collection('comments').where({ postId: _.in(ids) }).limit(1000).get()
+    res.data.forEach(c => {
+      result[c.postId] = (result[c.postId] || 0) + 1
+    })
+    // 评论总数超过单页上限时翻页累加
+    let total = res.data.length
+    while (total === 1000) {
+      const more = await db.collection('comments')
+        .where({ postId: _.in(ids) })
+        .skip(total)
+        .limit(1000)
+        .get()
+      more.data.forEach(c => {
+        result[c.postId] = (result[c.postId] || 0) + 1
+      })
+      total = more.data.length
+    }
+  }
+  return result
+}
+
 // 帖子列表：tag 传 'all' 或具体板块 key
 async function listPosts(event) {
   await seedIfEmpty()
   const collection = db.collection('community')
   const condition = event.tag && event.tag !== 'all' ? collection.where({ tag: event.tag }) : collection
   const res = await condition.orderBy('createTime', 'desc').limit(50).get()
-  return { success: true, data: res.data.map(withTagLabel) }
+  const posts = res.data.map(withTagLabel)
+  // 用真实评论数覆盖存储字段，保证与详情页一致
+  const counts = await countCommentsByPosts(posts.map(p => p._id))
+  posts.forEach(p => {
+    p.commentCount = counts[p._id] || 0
+  })
+  return { success: true, data: posts }
 }
 
 // 帖子详情
@@ -60,7 +95,12 @@ async function getPost(event) {
   await seedIfEmpty()
   try {
     const res = await db.collection('community').doc(event.id).get()
-    return { success: true, data: res.data ? withTagLabel(res.data) : null }
+    if (!res.data) return { success: true, data: null }
+    const post = withTagLabel(res.data)
+    // 用真实评论数覆盖存储字段，保证与广场列表一致
+    const count = await db.collection('comments').where({ postId: event.id }).count()
+    post.commentCount = count.total
+    return { success: true, data: post }
   } catch (e) {
     // doc 不存在时 SDK 会抛错
     return { success: true, data: null }

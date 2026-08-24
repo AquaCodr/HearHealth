@@ -59,7 +59,7 @@
 
   <!-- 评论区 -->
   <view class="comment-card">
-    <view class="comment-header">评论 {{comments.length}}</view>
+    <view class="comment-header">评论 {{post.commentCount}}</view>
     <view class="comment-item" wx:for="{{comments}}" wx:key="_id">
       <image class="comment-avatar" src="{{item.avatar || defaultAvatar}}" mode="aspectFill"></image>
       <view class="comment-body">
