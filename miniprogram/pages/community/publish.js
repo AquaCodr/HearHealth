@@ -16,12 +16,12 @@ Page({
       { key: 'recommend', label: '耳机安利' }
     ],
     activeTag: 'tip',
-    title: '',
     content: '',
     images: [], // 本地临时文件路径
     maxImages: 3,
     maxLen: 500,
     publishing: false,
+    canPublish: false, // 有正文或图片才可发布
     // 进入幕布转场状态
     curtain: {
       show: false,
@@ -33,13 +33,11 @@ Page({
   },
 
   onLoad(options) {
-    // 支持从听力报告页分享预填：/pages/community/publish?title=xx&content=xx
-    if (options.title || options.content) {
-      this.setData({
-        title: options.title || '',
-        content: options.content || ''
-      })
+    // 支持从听力报告页分享预填正文：/pages/community/publish?content=xx
+    if (options.content) {
+      this.setData({ content: options.content || '' })
     }
+    this.refreshCanPublish()
     // 长按耳友圈进入时，携带幕布起点坐标，播放蓝色幕布转场
     if (options.cx || options.cy) {
       this.playCurtain(Number(options.cx) || 62.5, Number(options.cy) || 92)
@@ -71,12 +69,15 @@ Page({
     this.setData({ activeTag: e.currentTarget.dataset.key })
   },
 
-  onTitleInput(e) {
-    this.setData({ title: e.detail.value })
+  // 根据正文/图片是否为空，刷新发布按钮可用状态
+  refreshCanPublish() {
+    const { content, images } = this.data
+    this.setData({ canPublish: !!(content.trim() || images.length) })
   },
 
   onContentInput(e) {
     this.setData({ content: e.detail.value })
+    this.refreshCanPublish()
   },
 
   // 选择图片（相册/拍摄）
@@ -93,6 +94,7 @@ Page({
         this.setData({
           images: [...this.data.images, ...paths].slice(0, this.data.maxImages)
         })
+        this.refreshCanPublish()
       }
     })
   },
@@ -103,6 +105,7 @@ Page({
     const images = [...this.data.images]
     images.splice(index, 1)
     this.setData({ images })
+    this.refreshCanPublish()
   },
 
   // 预览已选图片
@@ -112,31 +115,31 @@ Page({
   },
 
   onCancel() {
-    const { title, content, images } = this.data
-    if (title.trim() || content.trim() || images.length) {
+    const { content, images } = this.data
+    const back = () => {
+      wx.navigateBack({
+        fail: () => wx.switchTab({ url: '/pages/community/community' })
+      })
+    }
+    if (content.trim() || images.length) {
       wx.showModal({
         title: '放弃发布？',
         content: '已编辑的内容将不会保存',
         confirmText: '放弃',
         confirmColor: '#0066cc',
         success: res => {
-          if (res.confirm) wx.navigateBack()
+          if (res.confirm) back()
         }
       })
     } else {
-      wx.navigateBack()
+      back()
     }
   },
 
   onPublish() {
-    if (this.data.publishing) return
-    const title = this.data.title.trim()
+    if (this.data.publishing || !this.data.canPublish) return
     const content = this.data.content.trim()
     const { images } = this.data
-    if (!title) {
-      wx.showToast({ title: '请填写标题', icon: 'none' })
-      return
-    }
     if (!content && !images.length) {
       wx.showToast({ title: '请填写内容或添加图片', icon: 'none' })
       return
@@ -150,7 +153,6 @@ Page({
       // 2. 云函数写入帖子
       .then(fileIDs => callCommunity('addPost', {
         tag: this.data.activeTag,
-        title,
         content,
         summary: content.length > 60 ? content.slice(0, 60) + '…' : content,
         images: fileIDs
