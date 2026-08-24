@@ -12,50 +12,108 @@
     </view>
   </view>
 
-  <view class="process-content">
-    <view class="intro-block">
-      <view class="intro-kicker">STEP 1</view>
-      <view class="intro-title">准备测试</view>
-      <view class="intro-description">请先正确佩戴耳机，确认测试环境安全、安静</view>
-    </view>
+  <block wx:if="{{currentStep === 1}}">
+    <view class="process-content">
+      <view class="intro-block">
+        <view class="intro-kicker">STEP 1</view>
+        <view class="intro-title">准备测试</view>
+        <view class="intro-description">请先正确佩戴耳机，确认测试环境安全、安静</view>
+      </view>
 
-    <view class="earphone-card">
-      <view class="earphone-icon" aria-hidden="true">🎧</view>
-      <view class="earphone-title">确认左右耳方向</view>
-      <view class="earphone-description">耳机上的 L 对应左耳，R 对应右耳</view>
-      <view class="channel-row">
-        <view class="channel-item">
-          <view class="channel-badge">L</view>
-          <view class="channel-name">左耳</view>
+      <view class="earphone-card">
+        <view class="earphone-icon" aria-hidden="true">🎧</view>
+        <view class="earphone-title">确认左右耳方向</view>
+        <view class="earphone-description">耳机上的 L 对应左耳，R 对应右耳</view>
+        <view class="channel-row">
+          <view class="channel-item">
+            <view class="channel-badge">L</view>
+            <view class="channel-name">左耳</view>
+          </view>
+          <view class="channel-divider"></view>
+          <view class="channel-item">
+            <view class="channel-badge">R</view>
+            <view class="channel-name">右耳</view>
+          </view>
         </view>
-        <view class="channel-divider"></view>
-        <view class="channel-item">
-          <view class="channel-badge">R</view>
-          <view class="channel-name">右耳</view>
+      </view>
+
+      <view class="preparation-card">
+        <view class="section-title">开始前再次确认</view>
+        <view
+          class="preparation-item"
+          wx:for="{{preparationItems}}"
+          wx:key="*this"
+        >
+          <view class="preparation-check" aria-hidden="true">✓</view>
+          <view class="preparation-text">{{item}}</view>
         </view>
+      </view>
+
+      <view class="safety-note">
+        <view class="safety-title">感觉不适时请立即停止</view>
+        <view class="safety-description">测试音不应让你感到刺耳、疼痛或明显不舒服。</view>
       </view>
     </view>
 
-    <view class="preparation-card">
-      <view class="section-title">开始前再次确认</view>
-      <view
-        class="preparation-item"
-        wx:for="{{preparationItems}}"
-        wx:key="*this"
-      >
-        <view class="preparation-check" aria-hidden="true">✓</view>
-        <view class="preparation-text">{{item}}</view>
+    <view class="process-actions">
+      <button class="ready-button" hover-class="ready-button--pressed" bindtap="startLeftEar">我已准备好</button>
+      <view class="action-hint">下一步将开始左耳测试</view>
+    </view>
+  </block>
+
+  <block wx:elif="{{currentStep === 2}}">
+    <view class="process-content">
+      <view class="intro-block">
+        <view class="intro-kicker">STEP 2</view>
+        <view class="intro-title">左耳测试</view>
+        <view class="intro-description">请保持安静，仔细判断左耳是否听到测试音</view>
+      </view>
+
+      <view class="ear-test-card">
+        <view class="test-ear-badge">L</view>
+        <view class="test-ear-copy">
+          <view class="test-ear-title">正在测试左耳</view>
+          <view class="test-ear-description">右耳测试将在左耳完成后开始</view>
+        </view>
+      </view>
+
+      <view class="frequency-card">
+        <view class="frequency-header">
+          <view>
+            <view class="frequency-label">当前频率</view>
+            <view class="frequency-value">{{currentFrequency}} <text class="frequency-unit">Hz</text></view>
+          </view>
+          <view class="frequency-count">{{currentFrequencyIndex + 1}} / {{frequencies.length}}</view>
+        </view>
+
+        <view class="frequency-list">
+          <view
+            class="frequency-item frequency-item--{{item.status}}"
+            wx:for="{{frequencies}}"
+            wx:key="value"
+          >
+            <view class="frequency-dot"></view>
+            <view class="frequency-item-label">{{item.value}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="tone-instruction">
+        <view class="tone-instruction-title">如何操作</view>
+        <view class="tone-instruction-text">点击播放后仔细聆听，再根据真实听感选择“听到了”或“没听到”。</view>
       </view>
     </view>
 
-    <view class="safety-note">
-      <view class="safety-title">感觉不适时请立即停止</view>
-      <view class="safety-description">测试音不应让你感到刺耳、疼痛或明显不舒服。</view>
+    <view class="process-actions">
+      <button class="play-tone-button" hover-class="play-tone-button--pressed">
+        <text class="play-tone-icon" aria-hidden="true">▶</text>
+        <text>播放测试音</text>
+      </button>
+      <view class="response-row">
+        <button class="response-button response-button--disabled" disabled="true">没听到</button>
+        <button class="response-button response-button--primary response-button--disabled" disabled="true">听到了</button>
+      </view>
+      <view class="action-hint">播放测试音后即可选择答案</view>
     </view>
-  </view>
-
-  <view class="process-actions">
-    <button class="ready-button" hover-class="ready-button--pressed">我已准备好</button>
-    <view class="action-hint">下一步将开始左耳测试</view>
-  </view>
+  </block>
 </view>

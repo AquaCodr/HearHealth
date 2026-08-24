@@ -48,6 +48,10 @@
   background: var(--color-primary);
 }
 
+.step-segment--complete {
+  background: var(--color-primary);
+}
+
 .step-label {
   margin-top: var(--spacing-xxs);
   color: var(--color-ink-muted-48);
@@ -57,6 +61,11 @@
 
 .step-label--active {
   color: var(--color-primary);
+  font-weight: 600;
+}
+
+.step-label--complete {
+  color: var(--color-ink-muted-80);
   font-weight: 600;
 }
 
@@ -272,4 +281,206 @@
   margin-top: var(--spacing-xs);
   color: var(--color-ink-muted-48);
   font-size: var(--text-fine-print);
+}
+
+/* ========== Step 2 左耳测试 ========== */
+.ear-test-card,
+.frequency-card,
+.tone-instruction {
+  box-sizing: border-box;
+  width: 100%;
+  border: 2rpx solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
+}
+
+.ear-test-card {
+  display: flex;
+  align-items: center;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+
+.test-ear-badge {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-xxl);
+  height: var(--spacing-xxl);
+  margin-right: var(--spacing-sm);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-body-strong);
+  font-weight: 700;
+}
+
+.test-ear-copy {
+  min-width: 0;
+}
+
+.test-ear-title {
+  color: var(--color-ink);
+  font-size: var(--text-caption-strong);
+  font-weight: 600;
+}
+
+.test-ear-description {
+  margin-top: var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+}
+
+.frequency-card {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md);
+}
+
+.frequency-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.frequency-label {
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+}
+
+.frequency-value {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink);
+  font-size: var(--text-display-md);
+  font-weight: 700;
+  line-height: var(--leading-display);
+}
+
+.frequency-unit {
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-caption);
+  font-weight: 400;
+}
+
+.frequency-count {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-pearl);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-fine-print);
+}
+
+.frequency-list {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-lg);
+}
+
+.frequency-item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.frequency-dot {
+  width: var(--spacing-sm);
+  height: var(--spacing-sm);
+  border: 4rpx solid var(--color-divider-soft);
+  border-radius: var(--radius-full);
+  background: var(--color-canvas);
+}
+
+.frequency-item--active .frequency-dot {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.frequency-item-label {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+}
+
+.frequency-item--active .frequency-item-label {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.tone-instruction {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-surface-pearl);
+}
+
+.tone-instruction-title {
+  color: var(--color-ink);
+  font-size: var(--text-caption-strong);
+  font-weight: 600;
+}
+
+.tone-instruction-text {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+}
+
+.play-tone-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100rpx;
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-button-large);
+  font-weight: 600;
+}
+
+.play-tone-button::after,
+.response-button::after {
+  border: none;
+}
+
+.play-tone-button--pressed {
+  background: var(--color-primary-focus);
+}
+
+.play-tone-icon {
+  margin-right: var(--spacing-xs);
+  font-size: var(--text-caption);
+}
+
+.response-row {
+  display: flex;
+  margin-top: var(--spacing-sm);
+  gap: var(--spacing-sm);
+}
+
+.response-button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  margin: 0;
+  border: 2rpx solid var(--color-hairline);
+  border-radius: var(--radius-pill);
+  background: var(--color-canvas);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-button-utility);
+  font-weight: 600;
+}
+
+.response-button--primary {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.response-button--disabled {
+  opacity: 0.48;
 }
