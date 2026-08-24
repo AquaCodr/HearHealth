@@ -16,7 +16,13 @@ Page({
     currentFrequencyIndex: 0,
     isTonePlaying: false,
     hasPlayedTone: false,
+    canAnswer: false,
+    currentResponse: '',
     toneStatusText: '点击播放测试音后仔细聆听',
+    responses: {
+      left: [],
+      right: []
+    },
     frequencies: [
       { value: 125, status: 'active' },
       { value: 250, status: 'pending' },
@@ -55,6 +61,8 @@ Page({
       currentFrequency: this.data.frequencies[0].value,
       currentFrequencyIndex: 0,
       hasPlayedTone: false,
+      canAnswer: false,
+      currentResponse: '',
       toneStatusText: '点击播放测试音后仔细聆听',
       steps: [
         { label: '准备', status: 'complete' },
@@ -67,7 +75,7 @@ Page({
   },
 
   playTone() {
-    if (this.data.currentStep !== 2 || this.data.isTonePlaying) return
+    if (this.data.currentStep !== 2 || this.data.isTonePlaying || this.data.currentResponse) return
 
     if (typeof wx.createWebAudioContext !== 'function') {
       wx.showToast({ title: '当前微信版本不支持测试音', icon: 'none' })
@@ -76,6 +84,7 @@ Page({
 
     this.setData({
       isTonePlaying: true,
+      canAnswer: false,
       toneStatusText: `正在播放 ${this.data.currentFrequency} Hz 测试音…`
     })
 
@@ -157,8 +166,9 @@ Page({
     this.setData({
       isTonePlaying: false,
       hasPlayedTone: completed || this.data.hasPlayedTone,
+      canAnswer: completed && !this.data.currentResponse,
       toneStatusText: completed
-        ? '播放完成，可以重新播放测试音'
+        ? '播放完成，请选择你的真实听感'
         : '测试音已停止，可以重新播放'
     })
   },
@@ -179,6 +189,7 @@ Page({
     if (updateState && this.data.isTonePlaying) {
       this.setData({
         isTonePlaying: false,
+        canAnswer: false,
         toneStatusText: '测试音已停止，可以重新播放'
       })
     }
@@ -204,9 +215,39 @@ Page({
     this.stopTone()
     this.setData({
       isTonePlaying: false,
+      canAnswer: false,
       toneStatusText: message
     })
     wx.showToast({ title: message, icon: 'none' })
+  },
+
+  recordResponse(e) {
+    if (!this.data.canAnswer || this.data.isTonePlaying || this.data.currentResponse) return
+
+    const responseValue = e.currentTarget.dataset.response
+    if (responseValue !== 'heard' && responseValue !== 'not-heard') return
+
+    const ear = this.data.currentEar
+    if (ear !== 'left' && ear !== 'right') return
+
+    const responses = {
+      left: this.data.responses.left.slice(),
+      right: this.data.responses.right.slice()
+    }
+    responses[ear].push({
+      frequency: this.data.currentFrequency,
+      heard: responseValue === 'heard',
+      answeredAt: Date.now()
+    })
+
+    this.setData({
+      responses,
+      currentResponse: responseValue,
+      canAnswer: false,
+      toneStatusText: responseValue === 'heard'
+        ? '已记录：听到了'
+        : '已记录：没听到'
+    })
   },
 
   destroyAudioContext() {

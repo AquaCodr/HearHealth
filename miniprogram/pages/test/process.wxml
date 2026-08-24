@@ -106,17 +106,27 @@
 
     <view class="process-actions">
       <button
-        class="play-tone-button {{isTonePlaying ? 'play-tone-button--disabled' : ''}}"
+        class="play-tone-button {{isTonePlaying || currentResponse ? 'play-tone-button--disabled' : ''}}"
         hover-class="play-tone-button--pressed"
-        disabled="{{isTonePlaying}}"
+        disabled="{{isTonePlaying || currentResponse}}"
         bindtap="playTone"
       >
         <text class="play-tone-icon" aria-hidden="true">▶</text>
         <text>{{isTonePlaying ? '播放中…' : '播放测试音'}}</text>
       </button>
       <view class="response-row">
-        <button class="response-button response-button--disabled" disabled="true">没听到</button>
-        <button class="response-button response-button--primary response-button--disabled" disabled="true">听到了</button>
+        <button
+          class="response-button {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'not-heard' ? 'response-button--selected' : ''}} {{currentResponse === 'heard' ? 'response-button--muted' : ''}}"
+          disabled="{{!canAnswer}}"
+          data-response="not-heard"
+          bindtap="recordResponse"
+        >没听到</button>
+        <button
+          class="response-button response-button--primary {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'heard' ? 'response-button--selected' : ''}} {{currentResponse === 'not-heard' ? 'response-button--muted' : ''}}"
+          disabled="{{!canAnswer}}"
+          data-response="heard"
+          bindtap="recordResponse"
+        >听到了</button>
       </view>
       <view class="action-hint">{{toneStatusText}}</view>
     </view>
