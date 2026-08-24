@@ -87,6 +87,22 @@
             <view class="frequency-count">{{currentFrequencyIndex + 1}} / {{frequencies.length}}</view>
           </view>
 
+          <view class="relative-level">
+            <view class="relative-level-header">
+              <view class="relative-level-label">本轮相对强度</view>
+              <view class="relative-level-value">{{currentLevelPercent}}%</view>
+            </view>
+            <view class="relative-level-track">
+              <view class="relative-level-fill" style="width: {{currentLevelPercent}}%;"></view>
+            </view>
+            <view class="relative-level-scale">
+              <text>轻</text>
+              <text>测试上限</text>
+            </view>
+            <view class="relative-level-note">百分比表示小程序测试音上限内的相对强度，不是实际分贝。</view>
+            <view class="relative-level-warning" wx:if="{{isAtMaxLevel}}">当前已到测试上限；如有刺耳或不适，请立即停止。</view>
+          </view>
+
           <view class="frequency-list">
             <view
               class="frequency-item frequency-item--{{item.status}}"
@@ -101,7 +117,7 @@
 
         <view class="tone-instruction">
           <view class="tone-instruction-title">如何操作</view>
-          <view class="tone-instruction-text">点击播放后仔细聆听，再根据真实听感选择“听到了”或“没听到”。</view>
+          <view class="tone-instruction-text">每个频率从 10% 开始。没听到时会逐级提高；第一次听到的强度将作为本频率的相对阈值。</view>
         </view>
       </view>
 
@@ -121,13 +137,13 @@
             disabled="{{!canAnswer}}"
             data-response="not-heard"
             bindtap="recordResponse"
-          >没听到</button>
+          >这一档没听到</button>
           <button
             class="response-button response-button--primary {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'heard' ? 'response-button--selected' : ''}} {{currentResponse === 'not-heard' ? 'response-button--muted' : ''}}"
             disabled="{{!canAnswer}}"
             data-response="heard"
             bindtap="recordResponse"
-          >听到了</button>
+          >这一档听到了</button>
         </view>
         <view class="action-hint">{{toneStatusText}}</view>
         <button
@@ -144,7 +160,7 @@
         <view class="ear-complete-card">
           <view class="complete-icon" aria-hidden="true">✓</view>
           <view class="complete-title">{{currentEarName}}测试完成</view>
-          <view class="complete-description">已完成{{currentEarName}}全部 6 个频率，本次回答已安全记录。</view>
+          <view class="complete-description">已完成{{currentEarName}}全部 6 个频率的相对阈值测试。</view>
 
           <view class="complete-summary">
             <view class="summary-item">
@@ -153,15 +169,17 @@
             </view>
             <view class="summary-divider"></view>
             <view class="summary-item">
-              <view class="summary-value">{{currentHeardCount}}</view>
-              <view class="summary-label">听到次数</view>
+              <view class="summary-value">{{currentThresholdCount}}</view>
+              <view class="summary-label">测得阈值</view>
             </view>
           </view>
 
           <view class="complete-frequency-list">
-            <view class="complete-frequency-item" wx:for="{{frequencies}}" wx:key="value">
-              <view class="complete-frequency-check">✓</view>
-              <view class="complete-frequency-value">{{item.value}} Hz</view>
+            <view class="complete-frequency-item" wx:for="{{currentEarResults}}" wx:key="frequency">
+              <view class="complete-frequency-check">{{item.detected ? '✓' : '—'}}</view>
+              <view class="complete-frequency-value">{{item.frequency}} Hz</view>
+              <view class="complete-threshold-value" wx:if="{{item.detected}}">{{item.thresholdPercent}}%</view>
+              <view class="complete-threshold-value complete-threshold-value--missing" wx:else>未测得</view>
             </view>
           </view>
         </view>
@@ -173,7 +191,7 @@
 
         <view class="test-complete-note" wx:else>
           <view class="next-stage-title">双耳测试已完成</view>
-          <view class="next-stage-description">左右耳共 12 个频率回答均已记录，可以进入听力报告。</view>
+          <view class="next-stage-description">左右耳共 12 个频率的相对阈值结果均已记录，可以进入听力报告。</view>
         </view>
       </view>
 
@@ -190,7 +208,7 @@
           wx:else
           bindtap="viewReport"
         >查看听力报告</button>
-        <view class="action-hint">{{currentEar === 'left' ? '下一步将从 125 Hz 开始测试右耳' : '测试结果仅用于日常听力筛查参考'}}</view>
+        <view class="action-hint">{{currentEar === 'left' ? '下一步将从 125 Hz、10% 相对强度开始' : '相对阈值不能替代专业分贝听力检查'}}</view>
       </view>
     </block>
   </block>

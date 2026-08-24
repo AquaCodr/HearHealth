@@ -370,6 +370,69 @@
   font-size: var(--text-fine-print);
 }
 
+.relative-level {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-pearl);
+}
+
+.relative-level-header,
+.relative-level-scale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.relative-level-label {
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-fine-print);
+  font-weight: 600;
+}
+
+.relative-level-value {
+  color: var(--color-primary);
+  font-size: var(--text-body-strong);
+  font-weight: 700;
+}
+
+.relative-level-track {
+  overflow: hidden;
+  height: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+  border-radius: var(--radius-pill);
+  background: var(--color-divider-soft);
+}
+
+.relative-level-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  transition: width 200ms ease;
+}
+
+.relative-level-scale {
+  margin-top: var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+}
+
+.relative-level-note {
+  margin-top: var(--spacing-sm);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+  line-height: var(--leading-caption);
+}
+
+.relative-level-warning {
+  margin-top: var(--spacing-sm);
+  padding-left: var(--spacing-xs);
+  border-left: 6rpx solid var(--color-warning);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-micro-legal);
+  line-height: var(--leading-caption);
+}
+
 .frequency-list {
   display: flex;
   justify-content: space-between;
@@ -644,9 +707,22 @@
 }
 
 .complete-frequency-value {
+  flex: 1;
   color: var(--color-ink-muted-80);
   font-size: var(--text-fine-print);
   font-weight: 600;
+}
+
+.complete-threshold-value {
+  margin-left: var(--spacing-xs);
+  color: var(--color-primary);
+  font-size: var(--text-fine-print);
+  font-weight: 700;
+}
+
+.complete-threshold-value--missing {
+  color: var(--color-ink-muted-48);
+  font-weight: 500;
 }
 
 .next-stage-note,

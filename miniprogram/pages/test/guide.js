@@ -10,12 +10,12 @@ Page({
         description: '确认左右耳方向，并让耳机保持稳定、舒适'
       },
       {
-        title: '使用舒适音量',
-        description: '从较低音量开始，任何不适都应立即停止测试'
+        title: '固定设备音量',
+        description: '调到舒适位置后保持不变，小程序会从较弱测试音逐级提高'
       },
       {
         title: '根据真实听感作答',
-        description: '无论声音多轻，只在确实听到时选择“听到了”'
+        description: '无论声音多轻，只在确实听到时选择“这一档听到了”'
       }
     ],
     navigating: false

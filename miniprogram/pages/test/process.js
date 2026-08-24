@@ -1,7 +1,8 @@
 const TONE_DURATION_SECONDS = 1
 const TONE_FADE_SECONDS = 0.05
-const SAFE_TONE_GAIN = 0.02
+const MAX_TEST_TONE_GAIN = 0.02
 const TONE_START_TIMEOUT_MS = 1500
+const RELATIVE_LEVELS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 Page({
   data: {
@@ -16,14 +17,18 @@ Page({
     currentEarCode: '',
     currentEarName: '',
     currentEarCompleted: false,
-    currentHeardCount: 0,
+    currentThresholdCount: 0,
+    currentEarResults: [],
     currentFrequency: 125,
     currentFrequencyIndex: 0,
     nextFrequencyValue: 250,
+    currentLevelIndex: 0,
+    currentLevelPercent: RELATIVE_LEVELS[0],
+    isAtMaxLevel: false,
     leftEarCompleted: false,
     rightEarCompleted: false,
-    leftHeardCount: 0,
-    rightHeardCount: 0,
+    leftThresholdCount: 0,
+    rightThresholdCount: 0,
     isTonePlaying: false,
     hasPlayedTone: false,
     canAnswer: false,
@@ -44,7 +49,7 @@ Page({
     preparationItems: [
       '确认耳机左右方向佩戴正确',
       '保持坐姿稳定，测试时不要说话',
-      '设备音量处于舒适、较低的水平'
+      '将设备音量固定在舒适位置，测试中不要调整'
     ]
   },
 
@@ -73,14 +78,18 @@ Page({
       currentEarCode: 'L',
       currentEarName: '左耳',
       currentEarCompleted: false,
-      currentHeardCount: 0,
+      currentThresholdCount: 0,
+      currentEarResults: [],
       currentFrequency: this.data.frequencies[0].value,
       currentFrequencyIndex: 0,
       nextFrequencyValue: this.data.frequencies[1].value,
+      currentLevelIndex: 0,
+      currentLevelPercent: RELATIVE_LEVELS[0],
+      isAtMaxLevel: false,
       leftEarCompleted: false,
       rightEarCompleted: false,
-      leftHeardCount: 0,
-      rightHeardCount: 0,
+      leftThresholdCount: 0,
+      rightThresholdCount: 0,
       hasPlayedTone: false,
       canAnswer: false,
       currentResponse: '',
@@ -113,12 +122,16 @@ Page({
       currentEarCode: 'R',
       currentEarName: '右耳',
       currentEarCompleted: false,
-      currentHeardCount: 0,
+      currentThresholdCount: 0,
+      currentEarResults: [],
       currentFrequency: this.data.frequencies[0].value,
       currentFrequencyIndex: 0,
       nextFrequencyValue: this.data.frequencies[1].value,
+      currentLevelIndex: 0,
+      currentLevelPercent: RELATIVE_LEVELS[0],
+      isAtMaxLevel: false,
       rightEarCompleted: false,
-      rightHeardCount: 0,
+      rightThresholdCount: 0,
       hasPlayedTone: false,
       canAnswer: false,
       currentResponse: '',
@@ -155,7 +168,7 @@ Page({
     this.setData({
       isTonePlaying: true,
       canAnswer: false,
-      toneStatusText: `正在播放 ${this.data.currentFrequency} Hz 测试音…`
+      toneStatusText: `正在播放 ${this.data.currentFrequency} Hz · 相对强度 ${this.data.currentLevelPercent}%…`
     })
     this.prepareTone(requestId)
   },
@@ -229,6 +242,7 @@ Page({
       const gain = context.createGain()
       const merger = context.createChannelMerger(2)
       const channelIndex = this.data.currentEar === 'right' ? 1 : 0
+      const toneGain = MAX_TEST_TONE_GAIN * (this.data.currentLevelPercent / 100)
       const now = context.currentTime
       const stopAt = now + TONE_DURATION_SECONDS
 
@@ -240,8 +254,8 @@ Page({
       oscillator.frequency.setValueAtTime(this.data.currentFrequency, now)
 
       gain.gain.setValueAtTime(0, now)
-      gain.gain.linearRampToValueAtTime(SAFE_TONE_GAIN, now + TONE_FADE_SECONDS)
-      gain.gain.setValueAtTime(SAFE_TONE_GAIN, stopAt - TONE_FADE_SECONDS)
+      gain.gain.linearRampToValueAtTime(toneGain, now + TONE_FADE_SECONDS)
+      gain.gain.setValueAtTime(toneGain, stopAt - TONE_FADE_SECONDS)
       gain.gain.linearRampToValueAtTime(0, stopAt)
 
       oscillator.connect(gain)
@@ -345,18 +359,39 @@ Page({
     const ear = this.data.currentEar
     if (ear !== 'left' && ear !== 'right') return
 
+    const heard = responseValue === 'heard'
+    const isAtMaxLevel = this.data.currentLevelIndex === RELATIVE_LEVELS.length - 1
+    if (!heard && !isAtMaxLevel) {
+      const nextLevelIndex = this.data.currentLevelIndex + 1
+      const nextLevelPercent = RELATIVE_LEVELS[nextLevelIndex]
+
+      this.setData({
+        currentLevelIndex: nextLevelIndex,
+        currentLevelPercent: nextLevelPercent,
+        isAtMaxLevel: nextLevelIndex === RELATIVE_LEVELS.length - 1,
+        hasPlayedTone: false,
+        canAnswer: false,
+        currentResponse: '',
+        toneStatusText: `未听到，已提升至 ${nextLevelPercent}%，请再次播放`
+      })
+      return
+    }
+
     const responses = {
       left: this.data.responses.left.slice(),
       right: this.data.responses.right.slice()
     }
     responses[ear].push({
       frequency: this.data.currentFrequency,
-      heard: responseValue === 'heard',
+      detected: heard,
+      thresholdPercent: heard ? this.data.currentLevelPercent : null,
+      maxTestedPercent: this.data.currentLevelPercent,
+      attempts: this.data.currentLevelIndex + 1,
       answeredAt: Date.now()
     })
 
     const isLastFrequency = this.data.currentFrequencyIndex === this.data.frequencies.length - 1
-    const heardCount = responses[ear].filter(item => item.heard).length
+    const thresholdCount = responses[ear].filter(item => item.detected).length
     const completedFrequencies = isLastFrequency
       ? this.data.frequencies.map(item => ({ value: item.value, status: 'complete' }))
       : this.data.frequencies
@@ -377,22 +412,23 @@ Page({
       currentResponse: responseValue,
       canAnswer: false,
       currentEarCompleted: isLastFrequency,
-      currentHeardCount: heardCount,
+      currentThresholdCount: thresholdCount,
+      currentEarResults: responses[ear].slice(),
       leftEarCompleted: ear === 'left' && isLastFrequency
         ? true
         : this.data.leftEarCompleted,
       rightEarCompleted: ear === 'right' && isLastFrequency
         ? true
         : this.data.rightEarCompleted,
-      leftHeardCount: ear === 'left' ? heardCount : this.data.leftHeardCount,
-      rightHeardCount: ear === 'right' ? heardCount : this.data.rightHeardCount,
+      leftThresholdCount: ear === 'left' ? thresholdCount : this.data.leftThresholdCount,
+      rightThresholdCount: ear === 'right' ? thresholdCount : this.data.rightThresholdCount,
       frequencies: completedFrequencies,
       steps: isLastFrequency ? completedSteps : this.data.steps,
       toneStatusText: isLastFrequency
-        ? `${this.data.currentEarName}六个频率已全部完成`
-        : responseValue === 'heard'
-          ? '已记录：听到了'
-          : '已记录：没听到'
+        ? `${this.data.currentEarName}六个频率阈值测试已完成`
+        : heard
+          ? `已记录相对阈值：${this.data.currentLevelPercent}%`
+          : '达到测试上限仍未听到，已记录本频率结果'
     })
   },
 
@@ -416,6 +452,9 @@ Page({
       currentFrequencyIndex: nextIndex,
       currentFrequency: frequencies[nextIndex].value,
       nextFrequencyValue: followingFrequency ? followingFrequency.value : 0,
+      currentLevelIndex: 0,
+      currentLevelPercent: RELATIVE_LEVELS[0],
+      isAtMaxLevel: false,
       frequencies,
       hasPlayedTone: false,
       canAnswer: false,
