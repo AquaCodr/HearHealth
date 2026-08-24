@@ -94,8 +94,23 @@
       class="report-primary-button {{navigating ? 'report-button--disabled' : ''}}"
       hover-class="report-primary-button--pressed"
       disabled="{{navigating}}"
+      wx:if="{{hasResult}}"
+      bindtap="shareToCommunity"
+    >分享到耳友圈</button>
+    <button
+      class="report-primary-button {{navigating ? 'report-button--disabled' : ''}}"
+      hover-class="report-primary-button--pressed"
+      disabled="{{navigating}}"
+      wx:else
       bindtap="startTest"
-    >{{hasResult ? '重新测试' : '开始测试'}}</button>
+    >开始测试</button>
+    <button
+      class="report-secondary-button {{navigating ? 'report-button--disabled' : ''}}"
+      hover-class="report-secondary-button--pressed"
+      disabled="{{navigating}}"
+      wx:if="{{hasResult}}"
+      bindtap="startTest"
+    >重新测试</button>
     <button
       class="report-secondary-button {{navigating ? 'report-button--disabled' : ''}}"
       hover-class="report-secondary-button--pressed"

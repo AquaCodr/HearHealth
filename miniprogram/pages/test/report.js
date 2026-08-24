@@ -1,4 +1,5 @@
 const LATEST_TEST_RESULT_KEY = 'latestHearingTestResult'
+const COMMUNITY_SHARE_DRAFT_KEY = 'hearingReportShareDraft'
 
 Page({
   data: {
@@ -18,6 +19,10 @@ Page({
   onReady() {
     this.chartReady = true
     if (this.data.hasResult) this.drawThresholdChart()
+  },
+
+  onShow() {
+    if (this.data.navigating) this.setData({ navigating: false })
   },
 
   loadLatestResult() {
@@ -247,6 +252,45 @@ Page({
       url: '/pages/test/guide',
       fail: () => this.handleNavigationFailure('暂时无法开始测试')
     })
+  },
+
+  shareToCommunity() {
+    if (!this.data.hasResult || this.data.navigating) return
+
+    const draft = this.buildCommunityShareDraft()
+    try {
+      wx.setStorageSync(COMMUNITY_SHARE_DRAFT_KEY, draft)
+    } catch (error) {
+      wx.showToast({ title: '生成分享内容失败，请重试', icon: 'none' })
+      return
+    }
+
+    this.setData({ navigating: true })
+    wx.navigateTo({
+      url: '/pages/community/publish?source=hearing-report',
+      fail: () => this.handleNavigationFailure('暂时无法进入发布页')
+    })
+  },
+
+  buildCommunityShareDraft() {
+    const lines = this.data.earSummaries.map(summary => {
+      const details = summary.results
+        .map(result => `${result.frequency}Hz ${result.thresholdText}`)
+        .join('、')
+      return `${summary.name}：平均相对阈值 ${summary.averageText}，测得 ${summary.detectedText}\n${details}`
+    })
+    const content = [
+      '我完成了一次听力相对阈值筛查。',
+      ...lines,
+      '说明：百分比是固定设备音量下的小程序相对测试值，不是真实分贝，也不代表医学诊断。'
+    ].join('\n\n')
+
+    return {
+      source: 'hearing-report',
+      tag: 'tip',
+      content: content.slice(0, 500),
+      createdAt: Date.now()
+    }
   },
 
   returnHome() {
