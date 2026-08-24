@@ -34,6 +34,7 @@
 }
 
 .overview-card,
+.chart-card,
 .ear-summary-card,
 .interpretation-note,
 .empty-state {
@@ -97,6 +98,94 @@
   margin-top: var(--spacing-xs);
   color: var(--color-ink-muted-48);
   font-size: var(--text-fine-print);
+}
+
+.chart-card {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.chart-title {
+  color: var(--color-ink);
+  font-size: var(--text-body-strong);
+  font-weight: 700;
+}
+
+.chart-description {
+  margin-top: var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+}
+
+.chart-unit {
+  flex-shrink: 0;
+  margin-left: var(--spacing-sm);
+  padding: var(--spacing-xxs) var(--spacing-xs);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-pearl);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  margin-top: var(--spacing-md);
+  gap: var(--spacing-md);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-fine-print);
+}
+
+.legend-dot {
+  width: var(--spacing-xs);
+  height: var(--spacing-xs);
+  margin-right: var(--spacing-xs);
+  border-radius: var(--radius-full);
+}
+
+.legend-dot--left {
+  background: var(--color-primary);
+}
+
+.legend-dot--right {
+  background: var(--color-success);
+}
+
+.threshold-chart {
+  display: block;
+  width: 100%;
+  height: 440rpx;
+  margin-top: var(--spacing-sm);
+}
+
+.chart-fallback {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-pearl);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+  text-align: center;
+}
+
+.chart-footnote {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+  line-height: var(--leading-caption);
 }
 
 .ear-summary-card {

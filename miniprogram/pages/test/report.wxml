@@ -17,6 +17,36 @@
         </view>
       </view>
 
+      <view class="chart-card">
+        <view class="chart-header">
+          <view>
+            <view class="chart-title">频率—相对阈值</view>
+            <view class="chart-description">纵轴越靠上，表示在本次条件下越早听到</view>
+          </view>
+          <view class="chart-unit">%</view>
+        </view>
+
+        <view class="chart-legend">
+          <view class="legend-item">
+            <view class="legend-dot legend-dot--left"></view>
+            <view>左耳</view>
+          </view>
+          <view class="legend-item">
+            <view class="legend-dot legend-dot--right"></view>
+            <view>右耳</view>
+          </view>
+        </view>
+
+        <canvas
+          class="threshold-chart"
+          id="thresholdChart"
+          type="2d"
+          wx:if="{{!chartDrawFailed}}"
+        ></canvas>
+        <view class="chart-fallback" wx:else>当前设备暂时无法绘制图表，请查看下方频率明细。</view>
+        <view class="chart-footnote">未测得的频率不绘制点，也不会跨过该频率连接折线。</view>
+      </view>
+
       <view class="ear-summary-card" wx:for="{{earSummaries}}" wx:key="key">
         <view class="ear-summary-header">
           <view class="ear-summary-badge">{{item.code}}</view>
