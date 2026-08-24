@@ -8,7 +8,7 @@ Page({
     progressGradient: '',
     healthStatus: 'warning',
     healthText: '今天已戴耳机1h35min，建议摘下休息一会儿',
-    healthVisible: true,
+    healthDismissed: false,
     weekData: [
       { day: '一', hours: 1.2, status: 'normal' },
       { day: '二', hours: 2.5, status: 'warning' },
@@ -55,10 +55,11 @@ Page({
     const threshold = this.data.threshold;
     const progressPercent = Math.min((totalHours / threshold) * 100, 100);
 
+    // 按 PRD：<50%阈值=正常绿，50%-100%阈值=警告黄，>100%阈值=危险红
     let healthStatus = 'normal';
-    if (progressPercent >= 80) {
+    if (totalHours > threshold) {
       healthStatus = 'danger';
-    } else if (progressPercent >= 50) {
+    } else if (totalHours >= threshold * 0.5) {
       healthStatus = 'warning';
     }
 
@@ -90,18 +91,21 @@ Page({
   },
 
   getProgressColor(status) {
+    // 与 app.wxss 语义 token 保持一致：success #34c759 / warning #ffcc00 / danger #ff3b30
     switch (status) {
       case 'danger':
         return '#ff3b30';
       case 'warning':
-        return '#ff9500';
+        return '#ffcc00';
       default:
-        return '#0066cc';
+        return '#34c759';
     }
   },
 
   dismissHealth() {
-    this.setData({ healthVisible: false });
+    // 卡片常驻，点击后仅隐藏"知道了"按钮（本次会话内），下次进入重新出现
+    this.setData({ healthDismissed: true });
+    wx.showToast({ title: '好的，注意护耳', icon: 'none', duration: 1500 });
   },
 
   goTest() {

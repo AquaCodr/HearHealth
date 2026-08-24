@@ -235,15 +235,15 @@
 }
 
 .bar-normal {
-  background: linear-gradient(180deg, #4d94ff, #0066cc);
+  background: linear-gradient(180deg, #5cd97a, var(--color-success));
 }
 
 .bar-warning {
-  background: linear-gradient(180deg, #ffb347, #ff9500);
+  background: linear-gradient(180deg, #ffdd4d, var(--color-warning));
 }
 
 .bar-danger {
-  background: linear-gradient(180deg, #ff6b6b, #ff3b30);
+  background: linear-gradient(180deg, #ff6b6b, var(--color-danger));
 }
 
 .bar-label {
