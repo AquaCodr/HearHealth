@@ -1,1 +1,125 @@
 /* 我的帖子 页面样式 */
+.my-posts {
+  min-height: 100vh;
+  background: #f6f7f9;
+  padding: 24rpx 24rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.page-header {
+  padding: 16rpx 8rpx 24rpx;
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.loading-tip {
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+  padding: 80rpx 0;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: 0.5;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 32rpx;
+}
+
+.empty-btn {
+  padding: 16rpx 48rpx;
+  background: #0066cc;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 40rpx;
+}
+
+.post-card {
+  display: flex;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.post-card--pressed {
+  background: #f2f2f2;
+}
+
+.post-cover {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+  background: #eee;
+}
+
+.post-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.post-tag {
+  align-self: flex-start;
+  font-size: 22rpx;
+  color: #0066cc;
+  background: rgba(0, 102, 204, 0.1);
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  margin-bottom: 12rpx;
+}
+
+.post-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-summary {
+  font-size: 26rpx;
+  color: #888;
+  line-height: 1.5;
+  margin-top: 8rpx;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.post-meta {
+  margin-top: auto;
+  padding-top: 16rpx;
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #aaa;
+}
+
+.post-meta-item {
+  margin-left: 24rpx;
+}

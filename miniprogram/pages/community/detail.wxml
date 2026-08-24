@@ -83,7 +83,7 @@
       confirm-type="send"
       bindconfirm="onSendComment"
     />
-    <view class="comment-send {{inputValue.trim() ? '' : 'comment-send--disabled'}}" bindtap="onSendComment">发送</view>
+    <view class="comment-send {{canSend ? '' : 'comment-send--disabled'}}" bindtap="onSendComment">发送</view>
   </view>
 </view>
 

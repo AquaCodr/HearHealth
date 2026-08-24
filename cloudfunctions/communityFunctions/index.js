@@ -109,6 +109,7 @@ async function getPost(event) {
 
 // 发布帖子（images 为云存储 fileID 数组，cover 取第一张）
 async function addPost(event) {
+  const { OPENID } = cloud.getWXContext()
   const { tag, title, content, summary, nickname, avatar, device, images } = event
   const imgList = Array.isArray(images) ? images : []
   const post = {
@@ -119,6 +120,7 @@ async function addPost(event) {
     nickname: nickname || '耳友',
     avatar: avatar || '',
     device: device || '',
+    openid: OPENID || '',
     images: imgList,
     cover: imgList[0] || '',
     likeCount: 0,
@@ -128,6 +130,25 @@ async function addPost(event) {
   }
   const res = await db.collection('community').add({ data: post })
   return { success: true, data: { _id: res._id } }
+}
+
+// 我的帖子：按当前用户 openid 查询（未登录时为匿名，返回空）
+async function myPosts(event) {
+  await seedIfEmpty()
+  const { OPENID } = cloud.getWXContext()
+  if (!OPENID) return { success: true, data: [] }
+  const res = await db.collection('community')
+    .where({ openid: OPENID })
+    .orderBy('createTime', 'desc')
+    .limit(50)
+    .get()
+  const posts = res.data.map(withTagLabel)
+  // 用真实评论数覆盖存储字段，与详情页保持一致
+  const counts = await countCommentsByPosts(posts.map(p => p._id))
+  posts.forEach(p => {
+    p.commentCount = counts[p._id] || 0
+  })
+  return { success: true, data: posts }
 }
 
 // 评论列表
@@ -179,6 +200,8 @@ exports.main = async (event) => {
         return await getPost(event)
       case 'addPost':
         return await addPost(event)
+      case 'myPosts':
+        return await myPosts(event)
       case 'listComments':
         return await listComments(event)
       case 'addComment':

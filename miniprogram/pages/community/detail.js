@@ -9,6 +9,7 @@ Page({
     liked: false,
     faved: false,
     inputValue: '',
+    canSend: false,
     loading: true
   },
 
@@ -83,7 +84,8 @@ Page({
   },
 
   onInputComment(e) {
-    this.setData({ inputValue: e.detail.value })
+    const value = e.detail.value
+    this.setData({ inputValue: value, canSend: !!value.trim() })
   },
 
   onSendComment() {
@@ -103,6 +105,7 @@ Page({
     this.setData({
       comments: [...this.data.comments, comment],
       inputValue: '',
+      canSend: false,
       'post.commentCount': this.data.post.commentCount + 1
     })
     // 云函数写入（失败静默并提示）
