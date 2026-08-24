@@ -6,7 +6,9 @@
       wx:key="index"
       data-index="{{index}}"
       data-path="{{item.pagePath}}"
+      data-key="{{item.text}}"
       bindtap="switchTab"
+      bindlongpress="onLongPressPublish"
     >
       <view class="tab-bg"></view>
       <image class="tab-icon" src="{{selected === index ? item.selectedIconPath : item.iconPath}}" mode="aspectFit"></image>

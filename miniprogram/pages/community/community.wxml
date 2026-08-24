@@ -1,7 +1,7 @@
 <!-- 耳友圈广场（tabBar 页） -->
 <view class="community-page">
 
-  <!-- 分区导航栏 -->
+  <!-- 分区导航栏（胶囊选中态，参考 custom-tab-bar 风格） -->
   <view class="tab-bar">
     <view class="tab-list">
       <view
@@ -11,54 +11,59 @@
         data-key="{{item.key}}"
         bindtap="onSwitchTab"
       >
+        <view class="tab-bg"></view>
         <text class="tab-text">{{item.label}}</text>
       </view>
-      <!-- 滑动下划线指示器 -->
-      <view class="tab-indicator" style="left: {{indicatorLeft}}px; width: {{indicatorWidth}}px;"></view>
     </view>
   </view>
 
-  <!-- 帖子流（无卡片，细分隔线，参考 Twitter 扁平样式：单一字号正文） -->
-  <view class="post-list" wx:if="{{postList.length}}">
-    <view class="post-item" wx:for="{{postList}}" wx:key="_id" bindtap="onTapPost" data-id="{{item._id}}">
-      <image class="post-avatar" src="{{item.avatar || defaultAvatar}}" mode="aspectFill"></image>
-      <view class="post-body">
-        <view class="post-head">
-          <text class="post-nickname">{{item.nickname}}</text>
-          <text class="post-head-sep">·</text>
-          <text class="post-time">{{item.createTime}}</text>
-          <text wx:if="{{item.device}}" class="post-head-sep">·</text>
-          <text wx:if="{{item.device}}" class="post-device">{{item.device}}</text>
-        </view>
-
-        <view class="post-content" wx:if="{{item.content}}">{{item.content}}</view>
-
-        <view class="post-thumb" wx:if="{{item.cover}}">
-          <image class="post-thumb-img" src="{{item.cover}}" mode="widthFix"></image>
-        </view>
-
-        <view class="post-stats">
-          <view class="stat-item">
-            <image class="stat-icon" src="/images/icons/like.svg"></image>
-            <text>{{item.likeCount}}</text>
+  <!-- 可滚动内容区：关闭 iOS 橡皮筋回弹，避免强行拖拽整个页面移动 -->
+  <scroll-view
+    class="post-scroll"
+    scroll-y="{{true}}"
+    enhanced="{{true}}"
+    bounce="{{false}}"
+    show-scrollbar="{{false}}"
+  >
+    <!-- 帖子流（无卡片，细分隔线，参考 Twitter 扁平样式：单一字号正文） -->
+    <view class="post-list" wx:if="{{postList.length}}">
+      <view class="post-item" wx:for="{{postList}}" wx:key="_id" bindtap="onTapPost" data-id="{{item._id}}">
+        <image class="post-avatar" src="{{item.avatar || defaultAvatar}}" mode="aspectFill"></image>
+        <view class="post-body">
+          <view class="post-head">
+            <text class="post-nickname">{{item.nickname}}</text>
+            <text class="post-head-sep">·</text>
+            <text class="post-time">{{item.createTime}}</text>
+            <text wx:if="{{item.device}}" class="post-head-sep">·</text>
+            <text wx:if="{{item.device}}" class="post-device">{{item.device}}</text>
           </view>
-          <view class="stat-item">
-            <image class="stat-icon" src="/images/icons/comment.svg"></image>
-            <text>{{item.commentCount}}</text>
+
+          <view class="post-content" wx:if="{{item.content}}">{{item.content}}</view>
+
+          <view class="post-thumb" wx:if="{{item.cover}}">
+            <image class="post-thumb-img" src="{{item.cover}}" mode="widthFix"></image>
           </view>
-          <view class="stat-item">
-            <image class="stat-icon" src="/images/icons/star.svg"></image>
-            <text>{{item.favCount}}</text>
+
+          <view class="post-stats">
+            <view class="stat-item">
+              <image class="stat-icon" src="/images/icons/like.svg"></image>
+              <text>{{item.likeCount}}</text>
+            </view>
+            <view class="stat-item">
+              <image class="stat-icon" src="/images/icons/comment.svg"></image>
+              <text>{{item.commentCount}}</text>
+            </view>
+            <view class="stat-item">
+              <image class="stat-icon" src="/images/icons/star.svg"></image>
+              <text>{{item.favCount}}</text>
+            </view>
+            <text class="post-tag-inline">{{item.tagLabel}}</text>
           </view>
-          <text class="post-tag-inline">{{item.tagLabel}}</text>
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 空状态 -->
-  <view class="empty-tip" wx:else>暂无内容，快来发布第一条帖子吧～</view>
-
-  <!-- 悬浮发帖按钮 -->
-  <view class="post-fab" bindtap="onPublish">+</view>
+    <!-- 空状态 -->
+    <view class="empty-tip" wx:else>暂无内容，快来发布第一条帖子吧～</view>
+  </scroll-view>
 </view>

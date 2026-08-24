@@ -21,7 +21,15 @@ Page({
     images: [], // 本地临时文件路径
     maxImages: 3,
     maxLen: 500,
-    publishing: false
+    publishing: false,
+    // 进入幕布转场状态
+    curtain: {
+      show: false,
+      radius: 0,
+      opacity: 1,
+      x: 62.5, // 默认耳友圈大致中心，longpress 跳转会覆盖
+      y: 92
+    }
   },
 
   onLoad(options) {
@@ -32,6 +40,31 @@ Page({
         content: options.content || ''
       })
     }
+    // 长按耳友圈进入时，携带幕布起点坐标，播放蓝色幕布转场
+    if (options.cx || options.cy) {
+      this.playCurtain(Number(options.cx) || 62.5, Number(options.cy) || 92)
+    }
+  },
+
+  // 蓝色幕布：从耳友圈位置展开铺满 → 停留 → 整体淡出揭开发帖页
+  playCurtain(x, y) {
+    this.setData({
+      curtain: { show: true, radius: 0, opacity: 1, x, y }
+    })
+    wx.nextTick(() => {
+      setTimeout(() => {
+        // 铺满全屏
+        this.setData({ 'curtain.radius': 150 })
+      }, 30)
+      // 铺满后短暂停留，再淡出揭开发帖页
+      setTimeout(() => {
+        this.setData({ 'curtain.opacity': 0 })
+      }, 460)
+      // 淡出结束后移除幕布
+      setTimeout(() => {
+        this.setData({ 'curtain.show': false })
+      }, 820)
+    })
   },
 
   onSelectTag(e) {

@@ -2,22 +2,26 @@
    主色 #0066cc，canvas 白底扁平信息流，1px≈2rpx */
 
 .community-page {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   background: #ffffff;
   box-sizing: border-box;
-  padding-bottom: 40rpx;
 }
 
-/* 分区导航栏（无圆圈包裹，选中态：主色+加粗，四个选项均匀分布，避免跳动） */
+.post-scroll {
+  flex: 1;
+  min-height: 0;
+}
+
+/* 分区导航栏（胶囊选中态，参考 custom-tab-bar 风格） */
 .tab-bar {
   padding: 24rpx 24rpx 0;
   border-bottom: 1rpx solid #e0e0e0;
 }
 
 .tab-list {
-  position: relative;
   display: flex;
-  align-items: flex-end;
   padding-bottom: 14rpx;
 }
 
@@ -25,38 +29,49 @@
   position: relative;
   flex: 1;
   min-width: 0;
-  padding: 12rpx 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14rpx 8rpx;
+  border-radius: 9999rpx;
   text-align: center;
   color: #7a7a7a;
+  transition: color 0.25s ease;
+}
+
+.tab-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999rpx;
+  background: rgba(0, 0, 0, 0.06);
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
 .tab-text {
-  display: block;
+  position: relative;
+  z-index: 1;
   font-size: 30rpx;
   line-height: 1.2;
   font-weight: 400;
   color: inherit;
-  transition: font-size 0.3s ease, font-weight 0.3s ease, color 0.3s ease;
+  transition: font-weight 0.25s ease, color 0.25s ease;
 }
 
 .tab-item--active {
   color: #0066cc;
 }
 
-.tab-item--active .tab-text {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #0066cc;
+.tab-item--active .tab-bg {
+  opacity: 1;
 }
 
-/* 滑动下划线指示器（贴文字底部，宽度=文字实际宽度） */
-.tab-indicator {
-  position: absolute;
-  bottom: 0;
-  height: 6rpx;
-  border-radius: 9999px;
-  background: #0066cc;
-  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.tab-item--active .tab-text {
+  font-weight: 600;
+  color: #0066cc;
 }
 
 /* 帖子流：参考 Twitter 扁平样式——头像在左、正文在右，
@@ -182,17 +197,4 @@
 }
 
 /* 悬浮发帖按钮 */
-.post-fab {
-  position: fixed;
-  right: 48rpx;
-  bottom: 120rpx;
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 9999px;
-  background: #0066cc;
-  color: #ffffff;
-  font-size: 56rpx;
-  line-height: 96rpx;
-  text-align: center;
-  box-shadow: 0 8rpx 24rpx rgba(0, 102, 204, 0.4);
-}
+/* 长按「耳友圈」进入发帖的转场动画层（样式已移至 custom-tab-bar） */

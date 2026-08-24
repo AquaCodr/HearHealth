@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "社区",
   "navigationBarBackgroundColor": "#ffffff",
+  "disableScroll": true,
   "usingComponents": {}
 }

@@ -1,6 +1,15 @@
 <!-- 发帖编辑页 -->
 <view class="publish-page">
 
+  <!-- 进入幕布：从耳友圈位置展开铺满，再淡出，盖住生硬的页面切换 -->
+  <view class="curtain-mask" wx:if="{{curtain.show}}" style="opacity: {{curtain.opacity}};">
+    <view
+      class="curtain-fill"
+      style="clip-path: circle({{curtain.radius}}% at {{curtain.x}}% {{curtain.y}}%); -webkit-clip-path: circle({{curtain.radius}}% at {{curtain.x}}% {{curtain.y}}%);"
+    ></view>
+  </view>
+
+
   <!-- 顶部操作栏 -->
   <view class="action-bar">
     <view class="action-cancel" bindtap="onCancel">取消</view>

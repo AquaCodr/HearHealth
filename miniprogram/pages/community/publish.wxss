@@ -7,6 +7,28 @@
   padding: 24rpx;
 }
 
+/* 进入幕布：从耳友圈位置展开的蓝色转场层 */
+.curtain-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  pointer-events: none;
+  transition: opacity 0.36s ease;
+}
+
+.curtain-fill {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #0066cc;
+  transition: clip-path 0.42s cubic-bezier(0.22, 1, 0.36, 1), -webkit-clip-path 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* 顶部操作栏 */
 .action-bar {
   display: flex;
