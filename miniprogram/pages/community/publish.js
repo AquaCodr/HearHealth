@@ -1,5 +1,6 @@
 // 发帖编辑页 —— 图片上传云存储，发布走云函数 communityFunctions
 const { callCommunity } = require('./util')
+const COMMUNITY_SHARE_DRAFT_KEY = 'hearingReportShareDraft'
 
 // 上传单张图片到云存储，返回 fileID
 function uploadImage(filePath) {
@@ -22,6 +23,7 @@ Page({
     maxLen: 500,
     publishing: false,
     canPublish: false, // 有正文或图片才可发布
+    fromHearingReport: false,
     // 进入幕布转场状态
     curtain: {
       show: false,
@@ -33,9 +35,19 @@ Page({
   },
 
   onLoad(options) {
-    // 支持从听力报告页分享预填正文：/pages/community/publish?content=xx
-    if (options.content) {
-      this.setData({ content: options.content || '' })
+    if (options.source === 'hearing-report') {
+      const draft = this.consumeHearingReportDraft()
+      if (draft) {
+        const validTag = this.data.tags.some(item => item.key === draft.tag)
+        this.setData({
+          activeTag: validTag ? draft.tag : 'tip',
+          content: draft.content.slice(0, this.data.maxLen),
+          fromHearingReport: true
+        })
+      }
+    } else if (options.content) {
+      // 兼容原有的正文参数预填入口。
+      this.setData({ content: options.content })
     }
     this.refreshCanPublish()
     // 长按耳友圈进入时，携带幕布起点坐标，播放蓝色幕布转场
@@ -63,6 +75,25 @@ Page({
         this.setData({ 'curtain.show': false })
       }, 820)
     })
+  },
+
+  consumeHearingReportDraft() {
+    let draft
+    try {
+      draft = wx.getStorageSync(COMMUNITY_SHARE_DRAFT_KEY)
+      wx.removeStorageSync(COMMUNITY_SHARE_DRAFT_KEY)
+    } catch (error) {
+      return null
+    }
+
+    if (
+      !draft ||
+      draft.source !== 'hearing-report' ||
+      typeof draft.content !== 'string'
+    ) {
+      return null
+    }
+    return draft
   },
 
   onSelectTag(e) {

@@ -9,6 +9,11 @@
     ></view>
   </view>
 
+  <view class="report-prefill-note" wx:if="{{fromHearingReport}}">
+    <view class="report-prefill-title">已生成听力报告摘要</view>
+    <view class="report-prefill-description">发布前可以自由修改内容；系统不会自动发布，也不会将相对阈值表述为医学结论。</view>
+  </view>
+
   <!-- 正文 -->
   <view class="editor">
     <textarea

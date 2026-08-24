@@ -78,6 +78,27 @@
   margin-top: 8rpx;
 }
 
+.report-prefill-note {
+  padding: 24rpx 28rpx;
+  margin-bottom: 24rpx;
+  border-left: 8rpx solid #0066cc;
+  border-radius: 18rpx;
+  background: #fafafc;
+}
+
+.report-prefill-title {
+  color: #1d1d1f;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.report-prefill-description {
+  margin-top: 8rpx;
+  color: #7a7a7a;
+  font-size: 24rpx;
+  line-height: 1.43;
+}
+
 .content-input {
   width: 100%;
   min-height: 420rpx;

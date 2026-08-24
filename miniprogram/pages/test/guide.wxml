@@ -1,8 +1,54 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">听力测试</text>
+<view class="container guide-page">
+  <view class="guide-hero">
+    <view class="hero-icon" aria-hidden="true">🎧</view>
+    <view class="hero-title">开始听力测试</view>
+    <view class="hero-description">
+      逐级寻找左右耳在不同频率下首次听到的相对强度
+    </view>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <view class="notice-card">
+    <view class="notice-title">测试结果仅供参考</view>
+    <view class="notice-text">
+      本测试记录小程序内的相对强度，不能换算为真实分贝，也不能替代专业医学检查。不同设备之间请勿直接比较；如有耳痛、持续耳鸣或明显听力下降，请及时就诊。
+    </view>
+  </view>
+
+  <view class="requirements-card">
+    <view class="section-title">开始前请确认</view>
+    <view
+      class="requirement-item"
+      wx:for="{{requirements}}"
+      wx:key="title"
+    >
+      <view class="requirement-check" aria-hidden="true">✓</view>
+      <view class="requirement-content">
+        <view class="requirement-title">{{item.title}}</view>
+        <view class="requirement-description">{{item.description}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="duration-row">
+    <view class="duration-icon" aria-hidden="true">⏱</view>
+    <view class="duration-copy">
+      <view class="duration-title">大约需要 5 分钟</view>
+      <view class="duration-description">每个频率会从较弱测试音开始，依次完成左右耳</view>
+    </view>
+  </view>
+
+  <view class="guide-actions">
+    <button
+      class="start-button {{navigating ? 'button--disabled' : ''}}"
+      hover-class="start-button--pressed"
+      disabled="{{navigating}}"
+      bindtap="startTest"
+    >开始测试</button>
+    <button
+      class="skip-button {{navigating ? 'button--disabled' : ''}}"
+      hover-class="skip-button--pressed"
+      disabled="{{navigating}}"
+      bindtap="skipTest"
+    >跳过本次</button>
   </view>
 </view>
