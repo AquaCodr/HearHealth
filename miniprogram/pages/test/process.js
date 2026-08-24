@@ -13,11 +13,17 @@ Page({
       { label: '右耳', status: 'pending' }
     ],
     currentEar: '',
+    currentEarCode: '',
+    currentEarName: '',
+    currentEarCompleted: false,
+    currentHeardCount: 0,
     currentFrequency: 125,
     currentFrequencyIndex: 0,
     nextFrequencyValue: 250,
     leftEarCompleted: false,
+    rightEarCompleted: false,
     leftHeardCount: 0,
+    rightHeardCount: 0,
     isTonePlaying: false,
     hasPlayedTone: false,
     canAnswer: false,
@@ -64,18 +70,24 @@ Page({
     this.setData({
       currentStep: 2,
       currentEar: 'left',
+      currentEarCode: 'L',
+      currentEarName: '左耳',
+      currentEarCompleted: false,
+      currentHeardCount: 0,
       currentFrequency: this.data.frequencies[0].value,
       currentFrequencyIndex: 0,
       nextFrequencyValue: this.data.frequencies[1].value,
       leftEarCompleted: false,
+      rightEarCompleted: false,
       leftHeardCount: 0,
+      rightHeardCount: 0,
       hasPlayedTone: false,
       canAnswer: false,
       currentResponse: '',
       toneStatusText: '点击播放测试音后仔细聆听',
       responses: {
         left: [],
-        right: this.data.responses.right.slice()
+        right: []
       },
       frequencies: this.data.frequencies.map((item, index) => ({
         value: item.value,
@@ -91,8 +103,47 @@ Page({
     })
   },
 
+  startRightEar() {
+    if (this.data.currentStep !== 2 || !this.data.leftEarCompleted) return
+
+    this.stopTone(false)
+    this.setData({
+      currentStep: 3,
+      currentEar: 'right',
+      currentEarCode: 'R',
+      currentEarName: '右耳',
+      currentEarCompleted: false,
+      currentHeardCount: 0,
+      currentFrequency: this.data.frequencies[0].value,
+      currentFrequencyIndex: 0,
+      nextFrequencyValue: this.data.frequencies[1].value,
+      rightEarCompleted: false,
+      rightHeardCount: 0,
+      hasPlayedTone: false,
+      canAnswer: false,
+      currentResponse: '',
+      toneStatusText: '点击播放测试音后仔细聆听',
+      responses: {
+        left: this.data.responses.left.slice(),
+        right: []
+      },
+      frequencies: this.data.frequencies.map((item, index) => ({
+        value: item.value,
+        status: index === 0 ? 'active' : 'pending'
+      })),
+      steps: [
+        { label: '准备', status: 'complete' },
+        { label: '左耳', status: 'complete' },
+        { label: '右耳', status: 'active' }
+      ]
+    }, () => {
+      wx.pageScrollTo({ scrollTop: 0, duration: 0 })
+    })
+  },
+
   playTone() {
-    if (this.data.currentStep !== 2 || this.data.isTonePlaying || this.data.currentResponse) return
+    const isTestingEar = this.data.currentStep === 2 || this.data.currentStep === 3
+    if (!isTestingEar || this.data.currentEarCompleted || this.data.isTonePlaying || this.data.currentResponse) return
 
     if (typeof wx.createWebAudioContext !== 'function') {
       wx.showToast({ title: '当前微信版本不支持测试音', icon: 'none' })
@@ -177,6 +228,7 @@ Page({
       const oscillator = context.createOscillator()
       const gain = context.createGain()
       const merger = context.createChannelMerger(2)
+      const channelIndex = this.data.currentEar === 'right' ? 1 : 0
       const now = context.currentTime
       const stopAt = now + TONE_DURATION_SECONDS
 
@@ -193,7 +245,7 @@ Page({
       gain.gain.linearRampToValueAtTime(0, stopAt)
 
       oscillator.connect(gain)
-      gain.connect(merger, 0, 0)
+      gain.connect(merger, 0, channelIndex)
       merger.connect(context.destination)
 
       oscillator.onended = () => this.finishTone(oscillator, true)
@@ -204,7 +256,7 @@ Page({
         this.finishTone(oscillator, true)
       }, (TONE_DURATION_SECONDS * 1000) + 200)
     } catch (error) {
-      this.handleToneError('当前设备不支持左声道测试')
+      this.handleToneError(`当前设备不支持${this.data.currentEarName}声道测试`)
     }
   },
 
@@ -304,27 +356,40 @@ Page({
     })
 
     const isLastFrequency = this.data.currentFrequencyIndex === this.data.frequencies.length - 1
-    const leftHeardCount = responses.left.filter(item => item.heard).length
+    const heardCount = responses[ear].filter(item => item.heard).length
     const completedFrequencies = isLastFrequency
       ? this.data.frequencies.map(item => ({ value: item.value, status: 'complete' }))
       : this.data.frequencies
+    const completedSteps = ear === 'left'
+      ? [
+          { label: '准备', status: 'complete' },
+          { label: '左耳', status: 'complete' },
+          { label: '右耳', status: 'pending' }
+        ]
+      : [
+          { label: '准备', status: 'complete' },
+          { label: '左耳', status: 'complete' },
+          { label: '右耳', status: 'complete' }
+        ]
 
     this.setData({
       responses,
       currentResponse: responseValue,
       canAnswer: false,
-      leftEarCompleted: isLastFrequency,
-      leftHeardCount,
+      currentEarCompleted: isLastFrequency,
+      currentHeardCount: heardCount,
+      leftEarCompleted: ear === 'left' && isLastFrequency
+        ? true
+        : this.data.leftEarCompleted,
+      rightEarCompleted: ear === 'right' && isLastFrequency
+        ? true
+        : this.data.rightEarCompleted,
+      leftHeardCount: ear === 'left' ? heardCount : this.data.leftHeardCount,
+      rightHeardCount: ear === 'right' ? heardCount : this.data.rightHeardCount,
       frequencies: completedFrequencies,
-      steps: isLastFrequency
-        ? [
-            { label: '准备', status: 'complete' },
-            { label: '左耳', status: 'complete' },
-            { label: '右耳', status: 'pending' }
-          ]
-        : this.data.steps,
+      steps: isLastFrequency ? completedSteps : this.data.steps,
       toneStatusText: isLastFrequency
-        ? '左耳六个频率已全部完成'
+        ? `${this.data.currentEarName}六个频率已全部完成`
         : responseValue === 'heard'
           ? '已记录：听到了'
           : '已记录：没听到'
@@ -332,7 +397,7 @@ Page({
   },
 
   nextFrequency() {
-    if (!this.data.currentResponse || this.data.leftEarCompleted || this.data.isTonePlaying) return
+    if (!this.data.currentResponse || this.data.currentEarCompleted || this.data.isTonePlaying) return
 
     const nextIndex = this.data.currentFrequencyIndex + 1
     if (nextIndex >= this.data.frequencies.length) return
@@ -358,6 +423,14 @@ Page({
       toneStatusText: '点击播放测试音后仔细聆听'
     }, () => {
       wx.pageScrollTo({ scrollTop: 0, duration: 200 })
+    })
+  },
+
+  viewReport() {
+    if (!this.data.leftEarCompleted || !this.data.rightEarCompleted) return
+
+    wx.navigateTo({
+      url: '/pages/test/report'
     })
   },
 

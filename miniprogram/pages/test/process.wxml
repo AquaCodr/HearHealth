@@ -61,20 +61,20 @@
     </view>
   </block>
 
-  <block wx:elif="{{currentStep === 2}}">
-    <block wx:if="{{!leftEarCompleted}}">
+  <block wx:elif="{{currentStep === 2 || currentStep === 3}}">
+    <block wx:if="{{!currentEarCompleted}}">
       <view class="process-content">
         <view class="intro-block">
-          <view class="intro-kicker">STEP 2</view>
-          <view class="intro-title">左耳测试</view>
-          <view class="intro-description">请保持安静，仔细判断左耳是否听到测试音</view>
+          <view class="intro-kicker">STEP {{currentStep}}</view>
+          <view class="intro-title">{{currentEarName}}测试</view>
+          <view class="intro-description">请保持安静，仔细判断{{currentEarName}}是否听到测试音</view>
         </view>
 
         <view class="ear-test-card">
-          <view class="test-ear-badge">L</view>
+          <view class="test-ear-badge">{{currentEarCode}}</view>
           <view class="test-ear-copy">
-            <view class="test-ear-title">正在测试左耳</view>
-            <view class="test-ear-description">右耳测试将在左耳完成后开始</view>
+            <view class="test-ear-title">正在测试{{currentEarName}}</view>
+            <view class="test-ear-description">{{currentStep === 2 ? '右耳测试将在左耳完成后开始' : '完成右耳后即可查看本次听力报告'}}</view>
           </view>
         </view>
 
@@ -141,10 +141,10 @@
 
     <block wx:else>
       <view class="process-content">
-        <view class="left-complete-card">
+        <view class="ear-complete-card">
           <view class="complete-icon" aria-hidden="true">✓</view>
-          <view class="complete-title">左耳测试完成</view>
-          <view class="complete-description">已完成左耳全部 6 个频率，本次回答已安全记录。</view>
+          <view class="complete-title">{{currentEarName}}测试完成</view>
+          <view class="complete-description">已完成{{currentEarName}}全部 6 个频率，本次回答已安全记录。</view>
 
           <view class="complete-summary">
             <view class="summary-item">
@@ -153,7 +153,7 @@
             </view>
             <view class="summary-divider"></view>
             <view class="summary-item">
-              <view class="summary-value">{{leftHeardCount}}</view>
+              <view class="summary-value">{{currentHeardCount}}</view>
               <view class="summary-label">听到次数</view>
             </view>
           </view>
@@ -166,10 +166,31 @@
           </view>
         </view>
 
-        <view class="next-stage-note">
+        <view class="next-stage-note" wx:if="{{currentEar === 'left'}}">
           <view class="next-stage-title">下一步：右耳测试</view>
-          <view class="next-stage-description">右耳将使用相同的 6 个频率，本轮暂不启动。</view>
+          <view class="next-stage-description">右耳将使用相同的 6 个频率，请继续保持安静并确认耳机佩戴正确。</view>
         </view>
+
+        <view class="test-complete-note" wx:else>
+          <view class="next-stage-title">双耳测试已完成</view>
+          <view class="next-stage-description">左右耳共 12 个频率回答均已记录，可以进入听力报告。</view>
+        </view>
+      </view>
+
+      <view class="process-actions">
+        <button
+          class="ready-button"
+          hover-class="ready-button--pressed"
+          wx:if="{{currentEar === 'left'}}"
+          bindtap="startRightEar"
+        >开始右耳测试</button>
+        <button
+          class="ready-button"
+          hover-class="ready-button--pressed"
+          wx:else
+          bindtap="viewReport"
+        >查看听力报告</button>
+        <view class="action-hint">{{currentEar === 'left' ? '下一步将从 125 Hz 开始测试右耳' : '测试结果仅用于日常听力筛查参考'}}</view>
       </view>
     </block>
   </block>

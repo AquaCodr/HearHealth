@@ -283,7 +283,7 @@
   font-size: var(--text-fine-print);
 }
 
-/* ========== Step 2 左耳测试 ========== */
+/* ========== Step 2 / 3 双耳测试 ========== */
 .ear-test-card,
 .frequency-card,
 .tone-instruction {
@@ -532,9 +532,10 @@
   background: var(--color-primary-focus);
 }
 
-/* ========== 左耳完成 ========== */
-.left-complete-card,
-.next-stage-note {
+/* ========== 单耳 / 双耳完成 ========== */
+.ear-complete-card,
+.next-stage-note,
+.test-complete-note {
   box-sizing: border-box;
   width: 100%;
   border: 2rpx solid var(--color-hairline);
@@ -542,7 +543,7 @@
   background: var(--color-canvas);
 }
 
-.left-complete-card {
+.ear-complete-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -648,11 +649,16 @@
   font-weight: 600;
 }
 
-.next-stage-note {
+.next-stage-note,
+.test-complete-note {
   margin-top: var(--spacing-md);
   padding: var(--spacing-md);
   border-left: 8rpx solid var(--color-primary);
   background: var(--color-surface-pearl);
+}
+
+.test-complete-note {
+  border-left-color: var(--color-success);
 }
 
 .next-stage-title {
