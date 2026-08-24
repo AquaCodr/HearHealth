@@ -1,8 +1,61 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">听力测试</text>
+<view class="container process-page">
+  <view class="progress-section">
+    <view class="progress-meta">
+      <view class="progress-title">听力测试</view>
+      <view class="progress-count">步骤 {{currentStep}} / {{totalSteps}}</view>
+    </view>
+    <view class="step-row">
+      <view class="step-item" wx:for="{{steps}}" wx:key="label">
+        <view class="step-segment step-segment--{{item.status}}"></view>
+        <view class="step-label step-label--{{item.status}}">{{item.label}}</view>
+      </view>
+    </view>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <view class="process-content">
+    <view class="intro-block">
+      <view class="intro-kicker">STEP 1</view>
+      <view class="intro-title">准备测试</view>
+      <view class="intro-description">请先正确佩戴耳机，确认测试环境安全、安静</view>
+    </view>
+
+    <view class="earphone-card">
+      <view class="earphone-icon" aria-hidden="true">🎧</view>
+      <view class="earphone-title">确认左右耳方向</view>
+      <view class="earphone-description">耳机上的 L 对应左耳，R 对应右耳</view>
+      <view class="channel-row">
+        <view class="channel-item">
+          <view class="channel-badge">L</view>
+          <view class="channel-name">左耳</view>
+        </view>
+        <view class="channel-divider"></view>
+        <view class="channel-item">
+          <view class="channel-badge">R</view>
+          <view class="channel-name">右耳</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="preparation-card">
+      <view class="section-title">开始前再次确认</view>
+      <view
+        class="preparation-item"
+        wx:for="{{preparationItems}}"
+        wx:key="*this"
+      >
+        <view class="preparation-check" aria-hidden="true">✓</view>
+        <view class="preparation-text">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="safety-note">
+      <view class="safety-title">感觉不适时请立即停止</view>
+      <view class="safety-description">测试音不应让你感到刺耳、疼痛或明显不舒服。</view>
+    </view>
+  </view>
+
+  <view class="process-actions">
+    <button class="ready-button" hover-class="ready-button--pressed">我已准备好</button>
+    <view class="action-hint">下一步将开始左耳测试</view>
   </view>
 </view>
