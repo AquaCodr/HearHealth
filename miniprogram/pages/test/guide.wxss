@@ -1,1 +1,199 @@
-/* 听力测试 页面样式 */
+/* 听力测试引导页 */
+.guide-page {
+  padding: var(--spacing-xl) var(--spacing-md) calc(var(--spacing-xl) + env(safe-area-inset-bottom));
+  background: var(--color-canvas-parchment);
+}
+
+.guide-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-sm) var(--spacing-lg);
+  text-align: center;
+}
+
+.hero-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-xxl);
+  height: var(--spacing-xxl);
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-pearl);
+  border: 2rpx solid var(--color-hairline);
+  font-size: var(--text-display-lg);
+}
+
+.hero-title {
+  color: var(--color-ink);
+  font-size: var(--text-lead);
+  font-weight: 700;
+  line-height: var(--leading-display);
+}
+
+.hero-description {
+  max-width: 620rpx;
+  margin-top: var(--spacing-sm);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.notice-card,
+.requirements-card,
+.duration-row {
+  box-sizing: border-box;
+  width: 100%;
+  border: 2rpx solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
+}
+
+.notice-card {
+  padding: var(--spacing-md);
+  border-left: 8rpx solid var(--color-primary);
+}
+
+.notice-title {
+  color: var(--color-ink);
+  font-size: var(--text-caption-strong);
+  font-weight: 600;
+}
+
+.notice-text {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+}
+
+.requirements-card {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.section-title {
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-ink);
+  font-size: var(--text-body-strong);
+  font-weight: 600;
+}
+
+.requirement-item {
+  display: flex;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 2rpx solid var(--color-divider-soft);
+}
+
+.requirement-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.requirement-check {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-lg);
+  height: var(--spacing-lg);
+  margin-right: var(--spacing-sm);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-fine-print);
+  font-weight: 600;
+}
+
+.requirement-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.requirement-title {
+  color: var(--color-ink);
+  font-size: var(--text-caption-strong);
+  font-weight: 600;
+}
+
+.requirement-description {
+  margin-top: var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+}
+
+.duration-row {
+  display: flex;
+  align-items: center;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-surface-pearl);
+}
+
+.duration-icon {
+  flex-shrink: 0;
+  margin-right: var(--spacing-sm);
+  font-size: var(--text-lead-airy);
+}
+
+.duration-copy {
+  min-width: 0;
+}
+
+.duration-title {
+  color: var(--color-ink);
+  font-size: var(--text-caption-strong);
+  font-weight: 600;
+}
+
+.duration-description {
+  margin-top: var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+}
+
+.guide-actions {
+  margin-top: var(--spacing-lg);
+}
+
+.start-button,
+.skip-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+
+.start-button::after,
+.skip-button::after {
+  border: none;
+}
+
+.start-button {
+  height: 100rpx;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-button-large);
+}
+
+.start-button--pressed {
+  background: var(--color-primary-focus);
+}
+
+.skip-button {
+  height: 88rpx;
+  margin-top: var(--spacing-xs);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: var(--text-button-utility);
+}
+
+.skip-button--pressed {
+  background: var(--color-surface-pearl);
+}
