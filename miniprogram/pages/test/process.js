@@ -1,6 +1,7 @@
 const TONE_DURATION_SECONDS = 1
 const TONE_FADE_SECONDS = 0.05
 const SAFE_TONE_GAIN = 0.02
+const TONE_START_TIMEOUT_MS = 1500
 
 Page({
   data: {
@@ -46,6 +47,8 @@ Page({
     this.activeOscillator = null
     this.activeGain = null
     this.activeMerger = null
+    this.toneRequestId = 0
+    this.toneStartTimer = null
     this.toneTimer = null
   },
 
@@ -96,33 +99,74 @@ Page({
       return
     }
 
+    const requestId = ++this.toneRequestId
+
     this.setData({
       isTonePlaying: true,
       canAnswer: false,
       toneStatusText: `正在播放 ${this.data.currentFrequency} Hz 测试音…`
     })
+    this.prepareTone(requestId)
+  },
+
+  prepareTone(requestId) {
+    if (requestId !== this.toneRequestId || !this.data.isTonePlaying) return
 
     try {
-      if (!this.audioContext) {
+      const needsNewContext = !this.audioContext || this.audioContext.state === 'closed'
+      if (needsNewContext) {
         this.audioContext = wx.createWebAudioContext()
       }
 
-      const resumeResult = this.audioContext.resume()
-      if (resumeResult && typeof resumeResult.then === 'function') {
-        resumeResult
-          .then(() => this.startToneNodes())
-          .catch(() => this.handleToneError('无法启动音频，请重试'))
-        return
+      const context = this.audioContext
+      if (!context) {
+        throw new Error('audio context unavailable')
       }
 
-      this.startToneNodes()
+      this.clearToneStartTimer()
+      this.toneStartTimer = setTimeout(() => {
+        if (requestId === this.toneRequestId && this.data.isTonePlaying && !this.activeOscillator) {
+          this.handleToneError('音频启动超时，请重新播放')
+        }
+      }, TONE_START_TIMEOUT_MS)
+
+      // 只在首次创建或确实暂停时恢复；重复等待运行中的上下文会让部分客户端卡在“播放中”。
+      if ((needsNewContext || context.state === 'suspended') && typeof context.resume === 'function') {
+        const resumeResult = context.resume()
+        if (resumeResult && typeof resumeResult.then === 'function') {
+          resumeResult
+            .then(() => this.startToneNodes(requestId))
+            .catch(() => {
+              if (requestId === this.toneRequestId) {
+                this.handleToneError('无法启动音频，请重试')
+              }
+            })
+          return
+        }
+      }
+
+      this.startToneNodes(requestId)
     } catch (error) {
       this.handleToneError('无法播放测试音，请重试')
     }
   },
 
-  startToneNodes() {
-    if (!this.audioContext || !this.data.isTonePlaying) return
+  clearToneStartTimer() {
+    if (!this.toneStartTimer) return
+
+    clearTimeout(this.toneStartTimer)
+    this.toneStartTimer = null
+  },
+
+  startToneNodes(requestId) {
+    if (requestId !== this.toneRequestId) return
+
+    if (!this.audioContext || !this.data.isTonePlaying) {
+      this.clearToneStartTimer()
+      return
+    }
+
+    this.clearToneStartTimer()
 
     try {
       const context = this.audioContext
@@ -167,6 +211,8 @@ Page({
   finishTone(oscillator, completed, updateState = true) {
     if (oscillator !== this.activeOscillator) return
 
+    this.clearToneStartTimer()
+
     if (this.toneTimer) {
       clearTimeout(this.toneTimer)
       this.toneTimer = null
@@ -188,6 +234,9 @@ Page({
   },
 
   stopTone(updateState = true) {
+    this.clearToneStartTimer()
+    this.toneRequestId += 1
+
     const oscillator = this.activeOscillator
     if (oscillator) {
       oscillator.onended = null
