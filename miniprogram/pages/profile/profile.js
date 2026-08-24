@@ -48,6 +48,12 @@ Page({
     ]
   },
 
+  onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 3 });
+    }
+  },
+
   onMenuTap(e) {
     const { url } = e.currentTarget.dataset
     if (!url) return

@@ -31,6 +31,12 @@ Page({
     this.calculateHealthStatus();
   },
 
+  onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 0 });
+    }
+  },
+
   setGreeting() {
     const hour = new Date().getHours();
     let greeting = '';
