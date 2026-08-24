@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: space-between;
   background: var(--color-canvas);
-  border-radius: var(--radius-lg);
+  border-radius: 36rpx;
   margin: 32rpx 34rpx 28rpx;
   padding: 40rpx 36rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
@@ -101,8 +101,8 @@
 .entry-card {
   flex: 1;
   background: var(--color-canvas);
-  border-radius: var(--radius-md);
-  border: 3rpx solid var(--color-primary);
+  border-radius: 36rpx;
+  border: 2rpx solid #e5e5ea;
   padding: 36rpx 20rpx;
   display: flex;
   flex-direction: column;
@@ -128,7 +128,7 @@
   display: flex;
   align-items: center;
   background: linear-gradient(135deg, #fff8e6, #ffefcc);
-  border-radius: var(--radius-md);
+  border-radius: 36rpx;
   margin: 0 34rpx 28rpx;
   padding: 28rpx 24rpx;
 }
@@ -174,7 +174,7 @@
 /* ========== 通用卡片 ========== */
 .card {
   background: var(--color-canvas);
-  border-radius: var(--radius-md);
+  border-radius: 36rpx;
   margin: 0 34rpx 28rpx;
   padding: 32rpx 28rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
