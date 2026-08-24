@@ -1,8 +1,61 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">听力报告</text>
+<view class="container report-page">
+  <view class="report-header">
+    <view class="report-kicker">相对阈值筛查</view>
+    <view class="report-title">听力报告</view>
+    <view class="report-description">查看本次固定设备音量下，左右耳各频率的相对测试结果</view>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <block wx:if="{{hasResult}}">
+    <view class="report-content">
+      <view class="overview-card">
+        <view class="overview-icon" aria-hidden="true">✓</view>
+        <view class="overview-title">双耳测试已完成</view>
+        <view class="overview-time">{{completedAtText}}</view>
+        <view class="overview-summary">
+          <view class="overview-value">{{totalDetectedText}}</view>
+          <view class="overview-label">测得相对阈值的频率</view>
+        </view>
+      </view>
+
+      <view class="ear-summary-card" wx:for="{{earSummaries}}" wx:key="key">
+        <view class="ear-summary-header">
+          <view class="ear-summary-badge">{{item.code}}</view>
+          <view class="ear-summary-copy">
+            <view class="ear-summary-title">{{item.name}}结果</view>
+            <view class="ear-summary-description">数字越低，表示本次条件下越早听到</view>
+          </view>
+        </view>
+
+        <view class="ear-stat-row">
+          <view class="ear-stat-item">
+            <view class="ear-stat-value">{{item.averageText}}</view>
+            <view class="ear-stat-label">平均相对阈值</view>
+          </view>
+          <view class="ear-stat-divider"></view>
+          <view class="ear-stat-item">
+            <view class="ear-stat-value">{{item.detectedText}}</view>
+            <view class="ear-stat-label">测得频率</view>
+          </view>
+        </view>
+
+        <view class="threshold-list">
+          <view class="threshold-item" wx:for="{{item.results}}" wx:for-item="result" wx:key="frequency">
+            <view class="threshold-frequency">{{result.frequency}} Hz</view>
+            <view class="threshold-value {{result.detected ? '' : 'threshold-value--missing'}}">{{result.thresholdText}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="interpretation-note">
+        <view class="interpretation-title">如何理解结果</view>
+        <view class="interpretation-text">百分比是小程序测试音上限内的线性数字增益。它不是真实分贝，不能用于不同设备之间比较，也不能替代专业听力检查。</view>
+      </view>
+    </view>
+  </block>
+
+  <view class="empty-state" wx:else>
+    <view class="empty-icon" aria-hidden="true">🎧</view>
+    <view class="empty-title">暂时没有完整测试结果</view>
+    <view class="empty-description">完成左右耳全部频率后，即可在这里查看相对阈值摘要。</view>
   </view>
 </view>

@@ -3,6 +3,7 @@ const TONE_FADE_SECONDS = 0.05
 const MAX_TEST_TONE_GAIN = 0.02
 const TONE_START_TIMEOUT_MS = 1500
 const RELATIVE_LEVELS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+const LATEST_TEST_RESULT_KEY = 'latestHearingTestResult'
 
 Page({
   data: {
@@ -467,6 +468,25 @@ Page({
 
   viewReport() {
     if (!this.data.leftEarCompleted || !this.data.rightEarCompleted) return
+
+    const result = {
+      version: 1,
+      measurement: 'relative-gain-threshold',
+      completedAt: Date.now(),
+      relativeLevels: RELATIVE_LEVELS.slice(),
+      maxTestToneGain: MAX_TEST_TONE_GAIN,
+      ears: {
+        left: this.data.responses.left.map(item => ({ ...item })),
+        right: this.data.responses.right.map(item => ({ ...item }))
+      }
+    }
+
+    try {
+      wx.setStorageSync(LATEST_TEST_RESULT_KEY, result)
+    } catch (error) {
+      wx.showToast({ title: '保存测试结果失败，请重试', icon: 'none' })
+      return
+    }
 
     wx.navigateTo({
       url: '/pages/test/report'
