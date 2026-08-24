@@ -197,3 +197,7 @@
 .skip-button--pressed {
   background: var(--color-surface-pearl);
 }
+
+.button--disabled {
+  opacity: 0.48;
+}

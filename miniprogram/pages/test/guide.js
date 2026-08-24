@@ -17,7 +17,47 @@ Page({
         title: '根据真实听感作答',
         description: '无论声音多轻，只在确实听到时选择“听到了”'
       }
-    ]
+    ],
+    navigating: false
   },
-  onLoad() {}
+
+  onLoad() {},
+
+  startTest() {
+    if (this.data.navigating) return
+
+    this.setData({ navigating: true })
+    wx.redirectTo({
+      url: '/pages/test/process',
+      fail: () => {
+        this.setData({ navigating: false })
+        wx.showToast({ title: '暂时无法进入测试', icon: 'none' })
+      }
+    })
+  },
+
+  skipTest() {
+    if (this.data.navigating) return
+
+    this.setData({ navigating: true })
+    if (getCurrentPages().length > 1) {
+      wx.navigateBack({
+        delta: 1,
+        fail: () => this.returnHome()
+      })
+      return
+    }
+
+    this.returnHome()
+  },
+
+  returnHome() {
+    wx.switchTab({
+      url: '/pages/home/home',
+      fail: () => {
+        this.setData({ navigating: false })
+        wx.showToast({ title: '暂时无法返回首页', icon: 'none' })
+      }
+    })
+  }
 })

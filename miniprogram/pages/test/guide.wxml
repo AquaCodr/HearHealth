@@ -38,7 +38,17 @@
   </view>
 
   <view class="guide-actions">
-    <button class="start-button" hover-class="start-button--pressed">开始测试</button>
-    <button class="skip-button" hover-class="skip-button--pressed">跳过本次</button>
+    <button
+      class="start-button {{navigating ? 'button--disabled' : ''}}"
+      hover-class="start-button--pressed"
+      disabled="{{navigating}}"
+      bindtap="startTest"
+    >开始测试</button>
+    <button
+      class="skip-button {{navigating ? 'button--disabled' : ''}}"
+      hover-class="skip-button--pressed"
+      disabled="{{navigating}}"
+      bindtap="skipTest"
+    >跳过本次</button>
   </view>
 </view>
