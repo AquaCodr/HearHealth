@@ -6,7 +6,8 @@ Page({
     chartDrawFailed: false,
     completedAtText: '',
     totalDetectedText: '0 / 12',
-    earSummaries: []
+    earSummaries: [],
+    navigating: false
   },
 
   onLoad() {
@@ -236,5 +237,30 @@ Page({
       // 无法读取设备像素比时使用 1，图表内容仍可正常展示。
     }
     return 1
+  },
+
+  startTest() {
+    if (this.data.navigating) return
+
+    this.setData({ navigating: true })
+    wx.reLaunch({
+      url: '/pages/test/guide',
+      fail: () => this.handleNavigationFailure('暂时无法开始测试')
+    })
+  },
+
+  returnHome() {
+    if (this.data.navigating) return
+
+    this.setData({ navigating: true })
+    wx.switchTab({
+      url: '/pages/home/home',
+      fail: () => this.handleNavigationFailure('暂时无法返回首页')
+    })
+  },
+
+  handleNavigationFailure(message) {
+    this.setData({ navigating: false })
+    wx.showToast({ title: message, icon: 'none' })
   }
 })

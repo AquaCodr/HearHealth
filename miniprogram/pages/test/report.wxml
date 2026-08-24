@@ -88,4 +88,19 @@
     <view class="empty-title">暂时没有完整测试结果</view>
     <view class="empty-description">完成左右耳全部频率后，即可在这里查看相对阈值摘要。</view>
   </view>
+
+  <view class="report-actions">
+    <button
+      class="report-primary-button {{navigating ? 'report-button--disabled' : ''}}"
+      hover-class="report-primary-button--pressed"
+      disabled="{{navigating}}"
+      bindtap="startTest"
+    >{{hasResult ? '重新测试' : '开始测试'}}</button>
+    <button
+      class="report-secondary-button {{navigating ? 'report-button--disabled' : ''}}"
+      hover-class="report-secondary-button--pressed"
+      disabled="{{navigating}}"
+      bindtap="returnHome"
+    >返回首页</button>
+  </view>
 </view>
