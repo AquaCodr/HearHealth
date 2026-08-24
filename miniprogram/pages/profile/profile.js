@@ -1,3 +1,5 @@
+const { callCommunity } = require('../community/util')
+
 Page({
   data: {
     user: {
@@ -52,6 +54,18 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 3 });
     }
+    this.loadPostCount()
+  },
+
+  loadPostCount() {
+    callCommunity('myPosts', {})
+      .then(list => {
+        const count = (list || []).length
+        this.setData({
+          stats: this.data.stats.map(s => s.label === '发帖数' ? { ...s, value: String(count) } : s)
+        })
+      })
+      .catch(() => {})
   },
 
   onMenuTap(e) {

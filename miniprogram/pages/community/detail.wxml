@@ -24,8 +24,16 @@
 
     <view class="post-content" wx:if="{{post.content}}">{{post.content}}</view>
 
-    <view class="post-cover" wx:if="{{post.cover}}">
-      <image class="post-cover-img" src="{{post.cover}}" mode="widthFix"></image>
+    <view class="post-images" wx:if="{{post.displayImages.length}}">
+      <image
+        class="post-image"
+        wx:for="{{post.displayImages}}"
+        wx:key="*this"
+        src="{{item}}"
+        mode="widthFix"
+        data-src="{{item}}"
+        bindtap="onPreviewImage"
+      ></image>
     </view>
 
     <!-- 互动按钮 -->
@@ -51,7 +59,7 @@
 
   <!-- 评论区 -->
   <view class="comment-card">
-    <view class="comment-header">评论 {{comments.length}}</view>
+    <view class="comment-header">评论 {{post.commentCount}}</view>
     <view class="comment-item" wx:for="{{comments}}" wx:key="_id">
       <image class="comment-avatar" src="{{item.avatar || defaultAvatar}}" mode="aspectFill"></image>
       <view class="comment-body">
@@ -75,7 +83,7 @@
       confirm-type="send"
       bindconfirm="onSendComment"
     />
-    <view class="comment-send {{inputValue.trim() ? '' : 'comment-send--disabled'}}" bindtap="onSendComment">发送</view>
+    <view class="comment-send {{canSend ? '' : 'comment-send--disabled'}}" bindtap="onSendComment">发送</view>
   </view>
 </view>
 
