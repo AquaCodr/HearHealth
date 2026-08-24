@@ -105,15 +105,20 @@
     </view>
 
     <view class="process-actions">
-      <button class="play-tone-button" hover-class="play-tone-button--pressed">
+      <button
+        class="play-tone-button {{isTonePlaying ? 'play-tone-button--disabled' : ''}}"
+        hover-class="play-tone-button--pressed"
+        disabled="{{isTonePlaying}}"
+        bindtap="playTone"
+      >
         <text class="play-tone-icon" aria-hidden="true">▶</text>
-        <text>播放测试音</text>
+        <text>{{isTonePlaying ? '播放中…' : '播放测试音'}}</text>
       </button>
       <view class="response-row">
         <button class="response-button response-button--disabled" disabled="true">没听到</button>
         <button class="response-button response-button--primary response-button--disabled" disabled="true">听到了</button>
       </view>
-      <view class="action-hint">播放测试音后即可选择答案</view>
+      <view class="action-hint">{{toneStatusText}}</view>
     </view>
   </block>
 </view>
