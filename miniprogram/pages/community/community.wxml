@@ -2,7 +2,7 @@
 <view class="community-page">
 
   <!-- 分区导航栏 -->
-  <scroll-view class="tab-bar" scroll-x="true" enhanced="true" show-scrollbar="false">
+  <view class="tab-bar">
     <view class="tab-list">
       <view
         class="tab-item {{activeTab === item.key ? 'tab-item--active' : ''}}"
@@ -16,7 +16,7 @@
       <!-- 滑动下划线指示器 -->
       <view class="tab-indicator" style="left: {{indicatorLeft}}px; width: {{indicatorWidth}}px;"></view>
     </view>
-  </scroll-view>
+  </view>
 
   <!-- 帖子流（无卡片，细分隔线，参考 Twitter 扁平样式：单一字号正文） -->
   <view class="post-list" wx:if="{{postList.length}}">

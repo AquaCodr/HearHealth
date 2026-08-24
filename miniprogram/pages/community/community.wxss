@@ -8,33 +8,31 @@
   padding-bottom: 40rpx;
 }
 
-/* 分区导航栏（无圆圈包裹，选中态：主色+加粗+放大，遵循 DesignTemplate 不滥用阴影） */
+/* 分区导航栏（无圆圈包裹，选中态：主色+加粗，四个选项均匀分布，避免跳动） */
 .tab-bar {
-  white-space: nowrap;
   padding: 24rpx 24rpx 0;
   border-bottom: 1rpx solid #e0e0e0;
 }
 
 .tab-list {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: flex-end;
   padding-bottom: 14rpx;
 }
 
 .tab-item {
   position: relative;
-  flex: none;
-  min-width: 96rpx;
-  padding: 12rpx 16rpx;
-  margin-right: 16rpx;
+  flex: 1;
+  min-width: 0;
+  padding: 12rpx 8rpx;
   text-align: center;
   color: #7a7a7a;
 }
 
 .tab-text {
   display: block;
-  font-size: 28rpx;
+  font-size: 30rpx;
   line-height: 1.2;
   font-weight: 400;
   color: inherit;
@@ -46,7 +44,7 @@
 }
 
 .tab-item--active .tab-text {
-  font-size: 44rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: #0066cc;
 }

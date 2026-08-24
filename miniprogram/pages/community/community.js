@@ -34,18 +34,20 @@ Page({
     // 等视图渲染完成再测量
     wx.nextTick(() => {
       query.select('.tab-list').boundingClientRect()
-      query.selectAll('.tab-text').boundingClientRect()
+      query.selectAll('.tab-item').boundingClientRect()
       query.exec((res) => {
         if (!res || !res[0] || !res[1]) return
         const listRect = res[0]
-        const texts = res[1]
+        const items = res[1]
         const idx = this.data.tabs.findIndex(t => t.key === key)
-        const target = texts[idx]
+        const target = items[idx]
         if (!target) return
-        const left = target.left - listRect.left
+        // 固定宽度下划线，居中于当前 tab，避免跳动
+        const indicatorWidth = 40
+        const left = target.left - listRect.left + (target.width - indicatorWidth) / 2
         this.setData({
           indicatorLeft: left,
-          indicatorWidth: target.width
+          indicatorWidth: indicatorWidth
         })
       })
     })
