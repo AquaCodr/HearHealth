@@ -11,6 +11,7 @@
           <view class="progress-hole"></view>
           <view class="progress-cap" wx:if="{{progressPercent > 0}}" style="background: {{progressColor}}; left: {{capStartLeft}}rpx; top: {{capStartTop}}rpx;"></view>
           <view class="progress-cap" wx:if="{{progressPercent > 0 && progressPercent < 100}}" style="background: {{progressColor}}; left: {{capEndLeft}}rpx; top: {{capEndTop}}rpx;"></view>
+          <view class="progress-cap" style="background: #e8e8ed; left: {{trackCapEndLeft}}rpx; top: {{trackCapEndTop}}rpx;"></view>
         </view>
         <view class="progress-overlay">
           <view class="progress-label">今日</view>
@@ -63,7 +64,7 @@
   <view class="card hospital-card">
     <view class="card-title">附近医院</view>
     <view class="hospital-list">
-      <view class="hospital-item" wx:for="{{nearbyHospitals}}" wx:key="name" data-name="{{item.name}}" bindtap="goHospital">
+      <view class="hospital-item" wx:for="{{nearbyHospitals}}" wx:key="name" data-latitude="{{item.latitude}}" data-longitude="{{item.longitude}}" data-name="{{item.name}}" data-address="{{item.address}}" bindtap="goHospital">
         <view class="hospital-info">
           <view class="hospital-name">{{item.name}}</view>
           <view class="hospital-meta">{{item.department}} · {{item.distance}}</view>
