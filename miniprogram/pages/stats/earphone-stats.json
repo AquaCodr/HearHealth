@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "耳机使用统计"
+  "navigationBarTitleText": "耳机使用统计",
+  "usingComponents": {
+    "sound-detail": "/components/sound-detail/index"
+  }
 }

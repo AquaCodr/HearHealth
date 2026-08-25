@@ -1,8 +1,93 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">用耳统计</text>
+<view class="stats-page">
+  <view class="calendar-card">
+    <view class="card-section-head">
+      <text class="card-section-title">每日用耳时长</text>
+      <text class="card-section-caption">颜色越深，时长越长</text>
+    </view>
+    <view class="month-toolbar">
+      <view class="month-button" hover-class="control-pressed" bindtap="onPreviousMonth" aria-role="button" aria-label="查看上一个月">
+        <text class="month-button-icon">‹</text>
+      </view>
+      <view class="month-title-wrap">
+        <text class="month-title">{{monthTitle}}</text>
+      </view>
+      <view class="month-button {{canGoNext ? '' : 'month-button--disabled'}}" hover-class="{{canGoNext ? 'control-pressed' : 'none'}}" bindtap="onNextMonth" aria-role="button" aria-label="查看下一个月">
+        <text class="month-button-icon">›</text>
+      </view>
+    </view>
+
+    <view class="weekday-row">
+      <text class="weekday" wx:for="{{weekdays}}" wx:key="*this">{{item}}</text>
+    </view>
+
+    <view class="calendar-grid">
+      <block wx:for="{{calendarDays}}" wx:key="key">
+        <view class="calendar-cell calendar-cell--blank" wx:if="{{item.isBlank}}"></view>
+        <view wx:else class="calendar-cell calendar-cell--level-{{item.level}} {{item.isToday ? 'calendar-cell--today' : ''}} {{item.isSelected ? 'calendar-cell--selected' : ''}} {{item.hasData ? '' : 'calendar-cell--empty'}}" hover-class="calendar-cell--pressed" bindtap="onSelectDay" data-day="{{item.day}}" aria-role="button" aria-label="{{item.ariaLabel}}">
+          <view class="calendar-day-line">
+            <text class="calendar-day">{{item.day}}</text>
+          </view>
+          <text class="calendar-duration">{{item.durationLabel}}</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="month-summary">
+      <view class="summary-stat">
+        <text class="summary-stat-label">本月日均</text>
+        <text class="summary-stat-value">{{monthAverage}}</text>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-stat">
+        <text class="summary-stat-label">累计</text>
+        <text class="summary-stat-value">{{monthTotal}}</text>
+      </view>
+    </view>
+
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <view class="section-header">
+    <text class="section-title">听力数据</text>
+    <text class="section-caption">最近 7 天</text>
+  </view>
+
+  <view class="insight-list">
+    <view class="insight-card" hover-class="insight-card--pressed" bindtap="onOpenHeadphoneStats" aria-role="button" aria-label="查看耳机使用统计，七日暴露状态良好">
+      <view class="insight-content">
+        <view class="insight-heading">
+          <text class="insight-tag">耳机</text>
+          <text class="insight-title">耳机使用统计</text>
+        </view>
+        <view class="status-line">
+          <view class="status-dot"></view>
+          <text class="status-text">七日暴露良好</text>
+        </view>
+        <text class="insight-meta">平均 62 dB · 使用 13小时23分</text>
+      </view>
+      <view class="mini-chart" aria-hidden="true">
+        <view class="mini-chart-bar" wx:for="{{headphoneMiniBars}}" wx:key="*this" style="height: {{item}}%;"></view>
+        <view class="mini-chart-line"></view>
+      </view>
+      <image class="insight-arrow" src="/images/arrow.svg" mode="aspectFit"></image>
+    </view>
+
+    <view class="insight-card" hover-class="insight-card--pressed" bindtap="onOpenEnvironmentStats" aria-role="button" aria-label="查看环境音量统计，七日暴露状态良好">
+      <view class="insight-content">
+        <view class="insight-heading">
+          <text class="insight-tag">环境</text>
+          <text class="insight-title">环境音量统计</text>
+        </view>
+        <view class="status-line">
+          <view class="status-dot"></view>
+          <text class="status-text">七日暴露良好</text>
+        </view>
+        <text class="insight-meta">平均 58 dB · 峰值 76 dB</text>
+      </view>
+      <view class="mini-chart" aria-hidden="true">
+        <view class="mini-chart-bar" wx:for="{{environmentMiniBars}}" wx:key="*this" style="height: {{item}}%;"></view>
+        <view class="mini-chart-line"></view>
+      </view>
+      <image class="insight-arrow" src="/images/arrow.svg" mode="aspectFit"></image>
+    </view>
   </view>
 </view>

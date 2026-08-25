@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "环境音量统计"
+  "navigationBarTitleText": "环境音量统计",
+  "usingComponents": {
+    "sound-detail": "/components/sound-detail/index"
+  }
 }
