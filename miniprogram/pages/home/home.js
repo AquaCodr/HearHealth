@@ -20,9 +20,9 @@ Page({
     ],
     maxWeekHours: 4,
     nearbyHospitals: [
-      { name: '浙江大学医学院附属第一医院', distance: '1.2km', department: '耳鼻喉科' },
-      { name: '浙江大学医学院附属第二医院', distance: '2.5km', department: '耳鼻喉科' },
-      { name: '杭州市第一人民医院', distance: '3.1km', department: '耳鼻喉科' }
+      { name: '浙江大学医学院附属第一医院', address: '杭州市上城区庆春路79号', latitude: 30.2638, longitude: 120.1725, distance: '1.2km', department: '耳鼻喉科' },
+      { name: '浙江大学医学院附属第二医院', address: '杭州市上城区解放路88号', latitude: 30.2578, longitude: 120.1680, distance: '2.5km', department: '耳鼻喉科' },
+      { name: '杭州市第一人民医院', address: '杭州市上城区浣纱路261号', latitude: 30.2560, longitude: 120.1630, distance: '3.1km', department: '耳鼻喉科' }
     ]
   },
 
@@ -78,6 +78,11 @@ Page({
     const capEndLeft = 100 + radius * Math.sin(endRad);
     const capEndTop = 100 - radius * Math.cos(endRad);
 
+    // 灰色背景轨道末端圆角（固定 135deg 位置，即 225+270）
+    const trackEndRad = (135 * Math.PI) / 180;
+    const trackCapEndLeft = 100 + radius * Math.sin(trackEndRad);
+    const trackCapEndTop = 100 - radius * Math.cos(trackEndRad);
+
     this.setData({
       progressPercent,
       progressGradient,
@@ -86,7 +91,9 @@ Page({
       capStartLeft,
       capStartTop,
       capEndLeft,
-      capEndTop
+      capEndTop,
+      trackCapEndLeft,
+      trackCapEndTop
     });
   },
 
@@ -121,7 +128,16 @@ Page({
   },
 
   goHospital(e) {
-    const name = e.currentTarget.dataset.name;
-    wx.showToast({ title: `导航到${name}`, icon: 'none' });
+    const { latitude, longitude, name, address } = e.currentTarget.dataset;
+    wx.openLocation({
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+      name,
+      address,
+      scale: 18,
+      fail: () => {
+        wx.showToast({ title: '打开地图失败', icon: 'none' });
+      }
+    });
   }
 });
