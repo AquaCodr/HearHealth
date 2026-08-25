@@ -77,6 +77,6 @@
 
 .tabbar-safe {
   width: 100%;
-  height: calc(12rpx + env(safe-area-inset-bottom));
+  height: calc(4rpx + env(safe-area-inset-bottom) / 2);
   background: transparent;
 }
