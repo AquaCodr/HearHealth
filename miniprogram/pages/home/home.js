@@ -20,9 +20,9 @@ Page({
     ],
     maxWeekHours: 4,
     nearbyHospitals: [
-      { name: '浙江大学医学院附属第一医院', address: '杭州市上城区庆春路79号', latitude: 30.2638, longitude: 120.1725, distance: '1.2km', department: '耳鼻喉科' },
-      { name: '浙江大学医学院附属第二医院', address: '杭州市上城区解放路88号', latitude: 30.2578, longitude: 120.1680, distance: '2.5km', department: '耳鼻喉科' },
-      { name: '杭州市第一人民医院', address: '杭州市上城区浣纱路261号', latitude: 30.2560, longitude: 120.1630, distance: '3.1km', department: '耳鼻喉科' }
+      { name: '浙江大学医学院附属第一医院(庆春院区)', address: '杭州市上城区庆春路79号', latitude: 30.255920, longitude: 120.177825, distance: '1.2km', department: '耳鼻喉科' },
+      { name: '浙江大学医学院附属第二医院(解放路院区)', address: '杭州市上城区解放路88号', latitude: 30.251172, longitude: 120.177439, distance: '2.5km', department: '耳鼻喉科' },
+      { name: '杭州市第一人民医院(湖滨院区)', address: '杭州市上城区浣纱路261号', latitude: 30.255273, longitude: 120.166749, distance: '3.1km', department: '耳鼻喉科' }
     ]
   },
 
