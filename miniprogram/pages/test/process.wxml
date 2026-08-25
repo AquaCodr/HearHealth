@@ -117,41 +117,38 @@
 
         <view class="tone-instruction">
           <view class="tone-instruction-title">如何操作</view>
-          <view class="tone-instruction-text">每个频率从 10% 开始。没听到时会逐级提高；第一次听到的强度将作为本频率的相对阈值。</view>
+          <view class="tone-instruction-text">系统会从 10% 开始自动播放并逐级提高。第一次听到声音时立即点击下方按钮；到达测试上限仍未点击，将自动记录为未测得。</view>
         </view>
       </view>
 
       <view class="process-actions">
-        <button
-          class="play-tone-button {{isTonePlaying || currentResponse ? 'play-tone-button--disabled' : ''}}"
-          hover-class="play-tone-button--pressed"
-          disabled="{{isTonePlaying || currentResponse}}"
-          bindtap="playTone"
-        >
-          <text class="play-tone-icon" aria-hidden="true">▶</text>
-          <text>{{isTonePlaying ? '播放中…' : '播放测试音'}}</text>
-        </button>
-        <view class="response-row">
-          <button
-            class="response-button {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'not-heard' ? 'response-button--selected' : ''}} {{currentResponse === 'heard' ? 'response-button--muted' : ''}}"
-            disabled="{{!canAnswer}}"
-            data-response="not-heard"
-            bindtap="recordResponse"
-          >这一档没听到</button>
-          <button
-            class="response-button response-button--primary {{!canAnswer && !currentResponse ? 'response-button--disabled' : ''}} {{currentResponse === 'heard' ? 'response-button--selected' : ''}} {{currentResponse === 'not-heard' ? 'response-button--muted' : ''}}"
-            disabled="{{!canAnswer}}"
-            data-response="heard"
-            bindtap="recordResponse"
-          >这一档听到了</button>
+        <view class="auto-tone-panel auto-tone-panel--{{autoPhase}}">
+          <view class="countdown-badge" wx:if="{{autoPhase === 'countdown'}}">{{countdownSeconds}}</view>
+          <view class="sound-wave" wx:elif="{{autoPhase === 'playing'}}" aria-hidden="true">
+            <view class="sound-wave-bar sound-wave-bar--one"></view>
+            <view class="sound-wave-bar sound-wave-bar--two"></view>
+            <view class="sound-wave-bar sound-wave-bar--three"></view>
+          </view>
+          <view class="auto-tone-symbol" wx:elif="{{autoPhase === 'recorded'}}" aria-hidden="true">✓</view>
+          <view class="auto-tone-symbol auto-tone-symbol--error" wx:elif="{{autoPhase === 'error'}}" aria-hidden="true">!</view>
+          <view class="auto-tone-symbol" wx:else aria-hidden="true">…</view>
+          <view class="auto-tone-status">{{toneStatusText}}</view>
         </view>
-        <view class="action-hint">{{toneStatusText}}</view>
         <button
-          class="next-frequency-button"
-          wx:if="{{currentResponse}}"
-          hover-class="next-frequency-button--pressed"
-          bindtap="nextFrequency"
-        >进入 {{nextFrequencyValue}} Hz</button>
+          class="heard-button {{!canAnswer || currentResponse ? 'heard-button--disabled' : ''}}"
+          hover-class="heard-button--pressed"
+          disabled="{{!canAnswer || currentResponse}}"
+          bindtap="recordHeard"
+        >
+          <text class="heard-button-icon" aria-hidden="true">✓</text>
+          <text>{{currentResponse === 'heard' ? '已记录听到' : '听到了'}}</text>
+        </button>
+        <button
+          class="retry-tone-button"
+          wx:if="{{toneError}}"
+          bindtap="retryAutomaticTone"
+        >重新尝试本频率</button>
+        <view class="action-hint" wx:if="{{!toneError}}">听到声音后立即点击，系统会自动进入下一频率</view>
       </view>
     </block>
 
