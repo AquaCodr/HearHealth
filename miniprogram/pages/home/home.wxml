@@ -32,15 +32,15 @@
     </view>
   </view>
 
-  <!-- 健康提示 -->
-  <view class="health-card" wx:if="{{healthVisible}}">
+  <!-- 健康提示（常驻组件，不因点击消失） -->
+  <view class="health-card">
     <view class="health-icon-wrap">
       <text class="health-icon">💡</text>
     </view>
     <view class="health-content">
       <view class="health-text">{{healthText}}</view>
     </view>
-    <view class="health-btn" bindtap="dismissHealth">知道了</view>
+    <view class="health-btn" wx:if="{{!healthDismissed}}" bindtap="dismissHealth">知道了</view>
   </view>
 
   <!-- 本周用耳概览 -->
