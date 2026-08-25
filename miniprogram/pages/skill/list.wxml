@@ -1,8 +1,72 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">护耳技能库</text>
+<view class="container skill-library-page">
+  <view class="page-header skill-library-header">
+    <view class="header-kicker">EAR CARE LIBRARY</view>
+    <view class="page-title">护耳技能库</view>
+    <view class="header-description">汇集开发者整理的护耳知识与耳友分享的真实经验</view>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <view class="source-switch" role="tablist" aria-label="技能来源">
+    <view
+      class="source-tab {{activeSource === item.key ? 'source-tab--active' : ''}}"
+      wx:for="{{sourceTabs}}"
+      wx:key="key"
+      role="tab"
+      aria-selected="{{activeSource === item.key}}"
+      data-source="{{item.key}}"
+      bindtap="onSelectSource"
+    >{{item.label}}</view>
   </view>
+
+  <block wx:if="{{activeSource === 'developer'}}">
+    <view class="source-card">
+      <view class="source-card-header">
+        <view class="source-badge">研</view>
+        <view class="source-copy">
+          <view class="source-title">开发者护耳技能</view>
+          <view class="source-description">由 HearHealth 开发者整理、审核并持续更新。</view>
+        </view>
+      </view>
+      <view class="source-label">开发者内容</view>
+    </view>
+
+    <view class="section-heading">
+      <view class="section-title">全部技能</view>
+      <view class="section-count">{{developerSkills.length}} 项</view>
+    </view>
+
+    <view class="empty-state" wx:if="{{developerSkills.length === 0}}">
+      <view class="empty-symbol">+</view>
+      <view class="empty-title">开发者技能正在整理</view>
+      <view class="empty-description">后续可在这里加入日常护耳、耳机使用和噪声防护等内容。</view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="source-card">
+      <view class="source-card-header">
+        <view class="source-badge source-badge--community">耳</view>
+        <view class="source-copy">
+          <view class="source-title">耳友护耳妙招</view>
+          <view class="source-description">来源于耳友圈“护耳妙招”板块中的公开分享。</view>
+        </view>
+      </view>
+      <view class="source-label source-label--community">社区内容</view>
+    </view>
+
+    <view class="section-heading">
+      <view class="section-title">耳友分享</view>
+      <view class="section-count">{{communitySkills.length}} 项</view>
+    </view>
+
+    <view class="empty-state" wx:if="{{communitySkills.length === 0}}">
+      <view class="empty-symbol empty-symbol--community">···</view>
+      <view class="empty-title">耳友妙招等待接入</view>
+      <view class="empty-description">下一步将从耳友圈筛选“护耳妙招”，并保留原帖作者与内容来源。</view>
+    </view>
+
+    <view class="community-note">
+      <view class="community-note-title">阅读提示</view>
+      <view class="community-note-text">耳友分享属于个人经验，不替代医生建议或专业听力检查。</view>
+    </view>
+  </block>
 </view>
