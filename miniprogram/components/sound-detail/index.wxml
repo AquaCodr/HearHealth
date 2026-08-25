@@ -1,0 +1,67 @@
+<view class="detail-page">
+  <view class="range-switch" aria-role="tablist" aria-label="选择统计时间范围">
+    <view
+      wx:for="{{rangeOptions}}"
+      wx:key="*this"
+      class="range-option {{selectedRange === item ? 'range-option--selected' : ''}}"
+      hover-class="range-option--pressed"
+      data-range="{{item}}"
+      bindtap="onSelectRange"
+      aria-role="button"
+      aria-label="查看{{item}}统计"
+    >{{item}}</view>
+  </view>
+
+  <view class="status-panel">
+    <view class="status-copy">
+      <text class="status-label">{{statusLabel}}</text>
+      <view class="status-value-row">
+        <view class="status-check" aria-hidden="true">✓</view>
+        <text class="status-value">{{statusText}}</text>
+      </view>
+      <text class="date-range">{{dateRange}}</text>
+    </view>
+    <view class="info-button" hover-class="info-button--pressed" bindtap="onShowInfo" aria-role="button" aria-label="查看数据说明">i</view>
+  </view>
+
+  <view class="chart-card">
+    <view class="chart-heading">
+      <text class="chart-title">音量范围</text>
+      <text class="chart-unit">单位：dB</text>
+    </view>
+    <view class="chart-area">
+      <view class="chart-plot">
+        <view class="grid-line grid-line--top"></view>
+        <view class="grid-line grid-line--middle"></view>
+        <view class="grid-line grid-line--bottom"></view>
+        <view class="reference-line" style="bottom: {{referenceValue}}%;">
+          <text class="reference-label">{{referenceValue}} dB</text>
+        </view>
+        <view class="chart-bars">
+          <view class="chart-column" wx:for="{{chartBars}}" wx:key="key">
+            <view class="range-bar" style="bottom: {{item.min}}%; height: {{item.span}}%;"></view>
+          </view>
+        </view>
+        <view class="y-label y-label--top">100</view>
+        <view class="y-label y-label--middle">50</view>
+        <view class="y-label y-label--bottom">0</view>
+      </view>
+      <view class="x-axis">
+        <text class="x-label" wx:for="{{xLabels}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+    <view class="chart-description">竖线表示该时间段记录到的最低与最高音量。</view>
+  </view>
+
+  <view class="metric-list">
+    <view class="metric-row {{index === 0 ? 'metric-row--primary' : ''}}" wx:for="{{metrics}}" wx:key="label">
+      <view class="metric-copy">
+        <text class="metric-label">{{item.label}}</text>
+        <text class="metric-description" wx:if="{{item.description}}">{{item.description}}</text>
+      </view>
+      <text class="metric-value">{{item.value}}</text>
+    </view>
+  </view>
+
+  <view class="detail-footnote">{{footerText}}</view>
+</view>

@@ -1,1 +1,184 @@
-/* 用耳统计 页面样式 */
+/* 用耳统计 —— Apple 经典浅色数据界面 */
+.stats-page {
+  display: grid;
+  grid-template-rows: minmax(0, 2.05fr) auto minmax(0, 1fr);
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 16rpx 24rpx;
+  overflow: hidden;
+  background: #f5f5f7;
+}
+
+.stats-header { padding: 4rpx 8rpx 30rpx; }
+.stats-title { display: block; color: #1d1d1f; font-size: 56rpx; font-weight: 700; line-height: 1.12; }
+.stats-subtitle { display: block; margin-top: 12rpx; color: #7a7a7a; font-size: 26rpx; line-height: 1.45; }
+
+.calendar-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.045);
+}
+
+.card-section-head { display: flex; align-items: center; justify-content: space-between; min-height: 42rpx; padding: 0 4rpx 10rpx; }
+.card-section-title { color: #1d1d1f; font-size: 30rpx; font-weight: 700; }
+.card-section-caption { color: #7a7a7a; font-size: 19rpx; }
+
+.month-toolbar { display: flex; align-items: center; justify-content: space-between; }
+.month-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 16rpx;
+  background: #ffffff;
+}
+.month-button--disabled { opacity: 0.3; }
+.month-button-icon { color: #1d1d1f; font-size: 42rpx; font-weight: 400; line-height: 1; transform: translateY(-2rpx); }
+.control-pressed { background: #f0f0f0; }
+.month-title-wrap { display: flex; flex-direction: column; align-items: center; }
+.month-title { color: #1d1d1f; font-size: 30rpx; font-weight: 600; }
+.month-caption { margin-top: 2rpx; color: #7a7a7a; font-size: 22rpx; }
+
+.weekday-row,
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.weekday-row { margin-top: 10rpx; padding: 0 2rpx; }
+.weekday { color: #7a7a7a; font-size: 20rpx; font-weight: 500; line-height: 34rpx; text-align: center; }
+.calendar-grid {
+  flex: 1;
+  grid-auto-rows: minmax(0, 1fr);
+  min-height: 0;
+  gap: 4rpx;
+}
+.calendar-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  box-sizing: border-box;
+  padding: 6rpx 4rpx 5rpx;
+  overflow: hidden;
+  border: 2rpx solid transparent;
+  border-radius: 10rpx;
+  background: #f5f5f7;
+}
+.calendar-cell--blank { background: transparent; }
+.calendar-cell--level-1 { background: #edf5ff; }
+.calendar-cell--level-2 { background: #d7eaff; }
+.calendar-cell--level-3 { background: #a9d1ff; }
+.calendar-cell--level-4 { background: #5da7f7; }
+.calendar-cell--level-4 .calendar-day,
+.calendar-cell--level-4 .calendar-duration { color: #ffffff; }
+.calendar-cell--empty { background: #fafafc; opacity: 0.7; }
+.calendar-cell--selected { border-color: #0071e3; box-shadow: inset 0 0 0 2rpx rgba(255, 255, 255, 0.75); }
+.calendar-cell--pressed { opacity: 0.72; }
+.calendar-day-line { display: flex; align-items: center; justify-content: center; min-width: 0; }
+.calendar-day { color: #1d1d1f; font-size: 21rpx; font-weight: 600; line-height: 1; }
+.calendar-cell--today .calendar-day { color: #0066cc; }
+.calendar-cell--level-4.calendar-cell--today .calendar-day { color: #ffffff; }
+.today-chip { margin-left: 4rpx; color: #0066cc; font-size: 16rpx; font-weight: 600; line-height: 1; }
+.calendar-cell--level-4 .today-chip { color: #ffffff; }
+.calendar-duration {
+  display: block;
+  width: 100%;
+  margin-top: 4rpx;
+  overflow: hidden;
+  color: #33506d;
+  font-size: 14rpx;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selected-day {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 70rpx;
+  margin-top: 18rpx;
+  padding: 0 20rpx;
+  border-radius: 16rpx;
+  background: #f5f5f7;
+}
+.selected-day-label { color: #7a7a7a; font-size: 24rpx; }
+.selected-day-value { color: #1d1d1f; font-size: 26rpx; font-weight: 600; }
+
+.month-summary { display: flex; align-items: stretch; margin-top: 10rpx; border: 2rpx solid #f0f0f0; border-radius: 16rpx; }
+.summary-stat { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 10rpx; }
+.summary-stat-label { color: #7a7a7a; font-size: 19rpx; }
+.summary-stat-value { margin-top: 1rpx; color: #1d1d1f; font-size: 25rpx; font-weight: 600; }
+.summary-divider { width: 2rpx; margin: 10rpx 0; background: #e0e0e0; }
+
+.calendar-legend { display: flex; align-items: center; justify-content: flex-end; margin-top: 16rpx; }
+.legend-text { margin: 0 6rpx; color: #7a7a7a; font-size: 20rpx; }
+.legend-swatch { width: 24rpx; height: 12rpx; margin-left: 4rpx; border-radius: 6rpx; }
+.legend-swatch--1 { background: #edf5ff; }
+.legend-swatch--2 { background: #d7eaff; }
+.legend-swatch--3 { background: #a9d1ff; }
+.legend-swatch--4 { background: #5da7f7; }
+
+.section-header { display: flex; align-items: flex-end; justify-content: space-between; padding: 20rpx 8rpx 10rpx; }
+.section-title { color: #1d1d1f; font-size: 32rpx; font-weight: 700; }
+.section-caption { color: #7a7a7a; font-size: 21rpx; }
+.insight-list {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 12rpx;
+  min-height: 0;
+}
+.insight-card {
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+  height: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+  padding: 14rpx 16rpx 14rpx 18rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 18rpx rgba(0, 0, 0, 0.04);
+}
+.insight-card--pressed { background: #f0f6fc; }
+.insight-content { display: flex; flex: 1; flex-direction: column; justify-content: center; min-width: 0; }
+.insight-heading { display: flex; align-items: center; }
+.insight-tag { flex-shrink: 0; margin-right: 10rpx; padding: 3rpx 10rpx; color: #0066cc; font-size: 18rpx; font-weight: 600; border-radius: 999rpx; background: #edf5ff; }
+.insight-title { overflow: hidden; color: #1d1d1f; font-size: 27rpx; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.status-line { display: flex; align-items: center; margin-top: 6rpx; }
+.status-dot { width: 14rpx; height: 14rpx; margin-right: 10rpx; border-radius: 50%; background: #34c759; }
+.status-text { color: #1d8f40; font-size: 21rpx; font-weight: 600; }
+.insight-meta { display: block; margin-top: 2rpx; overflow: hidden; color: #7a7a7a; font-size: 20rpx; text-overflow: ellipsis; white-space: nowrap; }
+.mini-chart { position: relative; display: flex; align-self: center; align-items: center; justify-content: space-between; width: 126rpx; height: 94rpx; margin-left: 10rpx; padding: 0 4rpx; }
+.mini-chart-bar { z-index: 1; width: 8rpx; min-height: 12rpx; border-radius: 8rpx; background: #0071e3; }
+.mini-chart-line { position: absolute; right: 0; left: 0; top: 50%; height: 2rpx; background: rgba(0, 113, 227, 0.28); }
+.insight-arrow { align-self: center; width: 16rpx; height: 28rpx; margin-left: 12rpx; opacity: 0.55; }
+.stats-footnote { padding: 16rpx 18rpx 0; color: #7a7a7a; font-size: 22rpx; line-height: 1.5; text-align: center; }
+
+/* 矮屏设备进一步压缩纵向节奏，仍保留完整日期和时长文字 */
+@media (max-height: 580px) {
+  .stats-page { padding: 10rpx 20rpx; }
+  .calendar-card { padding: 12rpx; }
+  .card-section-head { min-height: 36rpx; padding-bottom: 6rpx; }
+  .card-section-title { font-size: 28rpx; }
+  .month-button { width: 56rpx; height: 56rpx; }
+  .month-button-icon { font-size: 38rpx; }
+  .weekday-row { margin-top: 6rpx; }
+  .weekday { line-height: 30rpx; }
+  .calendar-cell { height: auto; padding-top: 4rpx; padding-bottom: 4rpx; }
+  .month-summary { margin-top: 6rpx; }
+  .summary-stat { padding: 6rpx 10rpx; }
+  .section-header { padding-top: 14rpx; padding-bottom: 8rpx; }
+  .insight-list { gap: 8rpx; }
+  .insight-card { padding-top: 10rpx; padding-bottom: 10rpx; }
+  .mini-chart { width: 108rpx; height: 70rpx; }
+}
