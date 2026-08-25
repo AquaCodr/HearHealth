@@ -12,6 +12,7 @@
     "pages/community/detail",
     "pages/community/publish",
     "pages/profile/my-posts",
+    "pages/profile/edit-profile",
     "pages/profile/settings",
     "pages/profile/about",
     "pages/skill/list",

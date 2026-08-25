@@ -1,0 +1,213 @@
+.edit-profile-page {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: var(--spacing-xs) var(--spacing-md)
+    calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+  background: var(--color-canvas-parchment);
+}
+
+.edit-profile-form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+}
+
+.edit-profile-content {
+  flex-shrink: 0;
+}
+
+.avatar-section {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md) 0 var(--spacing-lg);
+}
+
+.avatar-frame {
+  width: 168rpx;
+  height: 168rpx;
+  min-width: 168rpx;
+  min-height: 168rpx;
+  max-width: 168rpx;
+  max-height: 168rpx;
+  flex: 0 0 168rpx;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 50%;
+}
+
+.avatar-button {
+  display: block;
+  width: 168rpx;
+  height: 168rpx;
+  min-width: 0;
+  min-height: 0;
+  max-width: 168rpx;
+  max-height: 168rpx;
+  flex: 0 0 168rpx;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 0;
+  line-height: normal;
+  vertical-align: top;
+  -webkit-appearance: none;
+}
+
+.avatar-button::after {
+  border: none;
+}
+
+.avatar-image {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border: 2rpx solid var(--color-hairline);
+  border-radius: 50%;
+  background: var(--color-canvas);
+}
+
+.avatar-hint {
+  margin-top: var(--spacing-sm);
+  color: var(--color-primary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  opacity: 0.8;
+}
+
+.section-title {
+  margin: 0 0 var(--spacing-xs) var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  font-weight: 600;
+  line-height: var(--leading-caption);
+}
+
+.grouped-card {
+  overflow: hidden;
+  border: 2rpx solid var(--color-divider-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
+}
+
+.form-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 104rpx;
+  padding: 0 var(--spacing-md);
+}
+
+.form-row--divided::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: var(--spacing-md);
+  height: 2rpx;
+  background: var(--color-hairline);
+  opacity: 0.48;
+  content: "";
+}
+
+.field-label {
+  flex-shrink: 0;
+  color: var(--color-ink);
+  font-size: var(--text-body-strong);
+  font-weight: 500;
+}
+
+.field-input {
+  flex: 1;
+  min-width: 0;
+  height: 104rpx;
+  margin-left: var(--spacing-md);
+  padding: 0;
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption);
+  text-align: right;
+}
+
+.field-value-wrap {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: var(--spacing-md);
+}
+
+.field-value {
+  overflow: hidden;
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field-chevron {
+  width: 14rpx;
+  height: 24rpx;
+  flex-shrink: 0;
+  margin-left: var(--spacing-xs);
+  opacity: 0.5;
+}
+
+.privacy-note {
+  padding: var(--spacing-sm) var(--spacing-xxs) 0;
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+}
+
+.edit-profile-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: var(--spacing-xl) var(--spacing-xs) 0;
+}
+
+.save-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100rpx;
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-button-large);
+  font-weight: 600;
+}
+
+.save-button::after {
+  border: none;
+}
+
+.save-button--pressed {
+  background: var(--color-primary-focus);
+}
+
+.save-button[disabled] {
+  opacity: 0.48;
+}
+
+@media (min-height: 800px) {
+  .avatar-section {
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-xl);
+  }
+
+  .edit-profile-footer {
+    padding-top: var(--spacing-xxl);
+  }
+}
