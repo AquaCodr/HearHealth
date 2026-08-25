@@ -108,15 +108,20 @@
   word-break: break-all;
 }
 
-.post-cover {
+/* 帖子图片（多张纵向排列，点击可预览） */
+.post-images {
   margin-top: 24rpx;
-  border-radius: 11rpx;
-  overflow: hidden;
-  background: #f0f0f0;
 }
 
-.post-cover-img {
+.post-image {
   width: 100%;
+  border-radius: 11rpx;
+  background: #f0f0f0;
+  display: block;
+}
+
+.post-image + .post-image {
+  margin-top: 16rpx;
 }
 
 /* 互动按钮 */

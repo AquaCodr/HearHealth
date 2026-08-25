@@ -1,40 +1,21 @@
 <!-- 发帖编辑页 -->
 <view class="publish-page">
 
-  <!-- 顶部操作栏 -->
-  <view class="action-bar">
-    <view class="action-cancel" bindtap="onCancel">取消</view>
-    <view class="action-title">发布帖子</view>
-    <view class="action-publish {{publishing ? 'action-publish--disabled' : ''}}" bindtap="onPublish">
-      {{publishing ? '发布中…' : '发布'}}
-    </view>
-  </view>
-
-  <!-- 板块选择 -->
-  <view class="section-label">选择板块</view>
-  <view class="tag-row">
+  <!-- 进入幕布：从耳友圈位置展开铺满，再淡出，盖住生硬的页面切换 -->
+  <view class="curtain-mask" wx:if="{{curtain.show}}" style="opacity: {{curtain.opacity}};">
     <view
-      class="tag-chip {{activeTag === item.key ? 'tag-chip--active' : ''}}"
-      wx:for="{{tags}}"
-      wx:key="key"
-      data-key="{{item.key}}"
-      bindtap="onSelectTag"
-    >{{item.label}}</view>
+      class="curtain-fill"
+      style="clip-path: circle({{curtain.radius}}% at {{curtain.x}}% {{curtain.y}}%); -webkit-clip-path: circle({{curtain.radius}}% at {{curtain.x}}% {{curtain.y}}%);"
+    ></view>
   </view>
 
-  <!-- 标题输入 -->
-  <view class="field-card">
-    <input
-      class="title-input"
-      placeholder="起一个吸引人的标题吧"
-      maxlength="40"
-      value="{{title}}"
-      bindinput="onTitleInput"
-    />
+  <view class="report-prefill-note" wx:if="{{fromHearingReport}}">
+    <view class="report-prefill-title">已生成听力报告摘要</view>
+    <view class="report-prefill-description">发布前可以自由修改内容；系统不会自动发布，也不会将相对阈值表述为医学结论。</view>
   </view>
 
-  <!-- 内容输入 -->
-  <view class="field-card">
+  <!-- 正文 -->
+  <view class="editor">
     <textarea
       class="content-input"
       placeholder="分享你的护耳经验、翻车经历或耳机测评…"
@@ -43,12 +24,57 @@
       bindinput="onContentInput"
       auto-height="true"
     />
+  </view>
+
+  <!-- 图片选择（最多 3 张，横向滚动） -->
+  <view class="media-section" wx:if="{{images.length || images.length < maxImages}}">
+    <scroll-view class="image-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="image-scroll__content">
+        <view class="image-item" wx:for="{{images}}" wx:key="*this">
+          <image
+            class="image-thumb"
+            src="{{item}}"
+            mode="aspectFill"
+            data-src="{{item}}"
+            bindtap="onPreviewImage"
+          ></image>
+          <view class="image-remove" data-index="{{index}}" catchtap="onRemoveImage">×</view>
+        </view>
+        <view class="image-add" wx:if="{{images.length < maxImages}}" bindtap="onChooseImage">
+          <view class="image-add-icon">+</view>
+          <view class="image-add-text">{{images.length}}/{{maxImages}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 板块选择 -->
+  <view class="topic-section">
+    <text class="section-title">选择板块</text>
+    <view class="topic-list">
+      <view
+        class="topic-chip {{activeTag === item.key ? 'topic-chip--active' : ''}}"
+        wx:for="{{tags}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onSelectTag"
+      >{{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 底部字数 -->
+  <view class="footer-hint">
     <view class="word-count">{{content.length}}/{{maxLen}}</view>
   </view>
 
-  <!-- 添加图片 -->
-  <view class="image-add" bindtap="onAddImage">
-    <view class="image-add-icon">+</view>
-    <view class="image-add-text">添加图片</view>
+  <!-- 底部操作栏：取消 + 发布（大号加长） -->
+  <view class="action-bar">
+    <view class="action-cancel" bindtap="onCancel">取消</view>
+    <view
+      class="action-publish {{(!canPublish || publishing) ? 'action-publish--disabled' : ''}}"
+      bindtap="onPublish"
+    >
+      {{publishing ? '发布中…' : '发布'}}
+    </view>
   </view>
 </view>

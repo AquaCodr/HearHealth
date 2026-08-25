@@ -1,8 +1,77 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">首页</text>
+<view class="container home-page">
+  <!-- 顶部卡片：问候语 + 进度环 -->
+  <view class="top-card">
+    <view class="top-left">
+      <view class="greeting">{{greeting}}，耳友</view>
+      <view class="subtitle">今天也要好好爱护耳朵哦</view>
+    </view>
+    <view class="top-right">
+      <view class="progress-ring">
+        <view class="progress-track" style="background: {{progressGradient}}">
+          <view class="progress-hole"></view>
+          <view class="progress-cap" wx:if="{{progressPercent > 0}}" style="background: {{progressColor}}; left: {{capStartLeft}}rpx; top: {{capStartTop}}rpx;"></view>
+          <view class="progress-cap" wx:if="{{progressPercent > 0 && progressPercent < 100}}" style="background: {{progressColor}}; left: {{capEndLeft}}rpx; top: {{capEndTop}}rpx;"></view>
+        </view>
+        <view class="progress-overlay">
+          <view class="progress-label">今日</view>
+          <view class="progress-value">{{todayHours}}h{{todayMinutes}}min</view>
+        </view>
+      </view>
+    </view>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <!-- 快捷入口 -->
+  <view class="quick-entries">
+    <view class="entry-card" bindtap="goTest">
+      <view class="entry-icon">🎧</view>
+      <view class="entry-title">开始听力测试</view>
+    </view>
+    <view class="entry-card" bindtap="goSkill">
+      <view class="entry-icon">📖</view>
+      <view class="entry-title">查看护耳技能库</view>
+    </view>
   </view>
+
+  <!-- 健康提示（常驻组件，不因点击消失） -->
+  <view class="health-card">
+    <view class="health-icon-wrap">
+      <text class="health-icon">💡</text>
+    </view>
+    <view class="health-content">
+      <view class="health-text">{{healthText}}</view>
+    </view>
+    <view class="health-btn" wx:if="{{!healthDismissed}}" bindtap="dismissHealth">知道了</view>
+  </view>
+
+  <!-- 本周用耳概览 -->
+  <view class="card week-card" bindtap="goStats">
+    <view class="card-header">
+      <view class="card-title">本周用耳概览</view>
+      <view class="card-more">查看详情 ›</view>
+    </view>
+    <view class="bar-chart">
+      <view class="bar-item" wx:for="{{weekData}}" wx:key="day">
+        <view class="bar-wrap">
+          <view class="bar bar-{{item.status}}" style="height: {{item.hours / maxWeekHours * 100}}%;"></view>
+        </view>
+        <view class="bar-label">周{{item.day}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 附近医院 -->
+  <view class="card hospital-card">
+    <view class="card-title">附近医院</view>
+    <view class="hospital-list">
+      <view class="hospital-item" wx:for="{{nearbyHospitals}}" wx:key="name" data-name="{{item.name}}" bindtap="goHospital">
+        <view class="hospital-info">
+          <view class="hospital-name">{{item.name}}</view>
+          <view class="hospital-meta">{{item.department}} · {{item.distance}}</view>
+        </view>
+        <view class="hospital-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="tabbar-placeholder"></view>
 </view>

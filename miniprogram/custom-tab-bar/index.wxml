@@ -1,0 +1,19 @@
+<view class="tabbar">
+  <view class="tabbar-glass">
+    <view
+      class="tab-item {{selected === index ? 'tab-item--active' : ''}}"
+      wx:for="{{list}}"
+      wx:key="index"
+      data-index="{{index}}"
+      data-path="{{item.pagePath}}"
+      data-key="{{item.text}}"
+      bindtap="switchTab"
+      bindlongpress="onLongPressPublish"
+    >
+      <view class="tab-bg"></view>
+      <image class="tab-icon" src="{{selected === index ? item.selectedIconPath : item.iconPath}}" mode="aspectFit"></image>
+      <text class="tab-text">{{item.text}}</text>
+    </view>
+  </view>
+  <view class="tabbar-safe"></view>
+</view>

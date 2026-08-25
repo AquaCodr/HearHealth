@@ -169,5 +169,11 @@ Page({
 
   onOpenEnvironmentStats() {
     wx.navigateTo({ url: '/pages/stats/env-stats' })
+  },
+
+  onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 1 })
+    }
   }
 })

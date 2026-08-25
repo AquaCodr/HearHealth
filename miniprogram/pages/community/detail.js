@@ -9,6 +9,7 @@ Page({
     liked: false,
     faved: false,
     inputValue: '',
+    canSend: false,
     loading: true
   },
 
@@ -27,15 +28,25 @@ Page({
     callCommunity('getPost', { id })
       .then(post => {
         if (post) {
+          // 兼容旧数据：无 images 数组时回退到单张 cover
+          const displayImages = post.images && post.images.length
+            ? post.images
+            : (post.cover ? [post.cover] : [])
           this.setData({
             loading: false,
-            post: { ...post, createTime: formatTime(post.createTime) }
+            post: { ...post, createTime: formatTime(post.createTime), displayImages }
           })
         } else {
           notFound()
         }
       })
       .catch(notFound)
+  },
+
+  // 预览帖子图片
+  onPreviewImage(e) {
+    const current = e.currentTarget.dataset.src
+    wx.previewImage({ current, urls: this.data.post.displayImages })
   },
 
   loadComments(postId) {
@@ -73,7 +84,8 @@ Page({
   },
 
   onInputComment(e) {
-    this.setData({ inputValue: e.detail.value })
+    const value = e.detail.value
+    this.setData({ inputValue: value, canSend: !!value.trim() })
   },
 
   onSendComment() {
@@ -93,6 +105,7 @@ Page({
     this.setData({
       comments: [...this.data.comments, comment],
       inputValue: '',
+      canSend: false,
       'post.commentCount': this.data.post.commentCount + 1
     })
     // 云函数写入（失败静默并提示）

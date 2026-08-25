@@ -1,8 +1,40 @@
-<view class="container">
+<view class="my-posts">
   <view class="page-header">
     <text class="page-title">我的帖子</text>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <view class="loading-tip" wx:if="{{loading}}">加载中…</view>
+
+  <view class="empty" wx:elif="{{!posts.length}}">
+    <image class="empty-icon" src="/images/icons/business.png" mode="aspectFit"></image>
+    <text class="empty-text">还没有发布过帖子</text>
+    <view class="empty-btn" bindtap="onPublish">去发帖</view>
+  </view>
+
+  <view
+    class="post-card"
+    wx:for="{{posts}}"
+    wx:key="_id"
+    data-id="{{item._id}}"
+    bindtap="onTapPost"
+    hover-class="post-card--pressed"
+    hover-stay-time="80"
+  >
+    <image
+      class="post-cover"
+      wx:if="{{item.cover}}"
+      src="{{item.cover}}"
+      mode="aspectFill"
+    ></image>
+    <view class="post-body">
+      <view class="post-tag">{{item.tagLabel}}</view>
+      <view class="post-title">{{item.title}}</view>
+      <view class="post-summary" wx:if="{{item.summary}}">{{item.summary}}</view>
+      <view class="post-meta">
+        <text>{{item.createTime}}</text>
+        <text class="post-meta-item">👍 {{item.likeCount}}</text>
+        <text class="post-meta-item">💬 {{item.commentCount}}</text>
+      </view>
+    </view>
   </view>
 </view>
