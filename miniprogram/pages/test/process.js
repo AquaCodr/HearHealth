@@ -39,7 +39,7 @@ Page({
     autoPhase: 'idle',
     countdownSeconds: 0,
     toneError: false,
-    toneStatusText: '开始测试后，系统将自动播放测试音',
+    toneStatusText: '开始后自动播放测试音',
     responses: {
       left: [],
       right: []
@@ -53,9 +53,9 @@ Page({
       { value: 4000, status: 'pending' }
     ],
     preparationItems: [
-      '确认耳机左右方向佩戴正确',
-      '保持坐姿稳定，测试时不要说话',
-      '将设备音量固定在舒适位置，测试中不要调整'
+      '耳机左右佩戴正确',
+      '保持安静，不说话',
+      '测试中不调整音量'
     ]
   },
 
@@ -302,7 +302,7 @@ Page({
       canAnswer: false,
       autoPhase: 'playing',
       toneError: false,
-      toneStatusText: `正在播放 ${this.data.currentFrequency} Hz · 相对强度 ${this.data.currentLevelPercent}%…`
+      toneStatusText: `${this.data.currentFrequency} Hz · ${this.data.currentLevelPercent}%`
     })
     this.prepareTone(requestId)
   },
@@ -435,8 +435,8 @@ Page({
       autoPhase: completed ? 'waiting' : 'paused',
       toneStatusText: completed
         ? isAtMaxLevel
-          ? '测试上限播放完成；仍未听到将自动记录为未测得'
-          : `继续聆听，即将自动提升至 ${nextLevelPercent}%`
+          ? '已到上限，将自动记录'
+          : `即将提升至 ${nextLevelPercent}%`
         : '测试音已暂停'
     }, () => {
       if (completed) this.scheduleLevelAdvance()
@@ -470,7 +470,7 @@ Page({
         isAtMaxLevel: nextLevelIndex === RELATIVE_LEVELS.length - 1,
         canAnswer: false,
         autoPhase: 'playing',
-        toneStatusText: `正在提升至 ${nextLevelPercent}%…`
+        toneStatusText: `提升至 ${nextLevelPercent}%`
       }, () => this.playTone())
     }, LEVEL_ADVANCE_DELAY_MS)
   },
@@ -605,10 +605,10 @@ Page({
       frequencies: completedFrequencies,
       steps: isLastFrequency ? completedSteps : this.data.steps,
       toneStatusText: isLastFrequency
-        ? `${this.data.currentEarName}六个频率阈值测试已完成`
+        ? `${this.data.currentEarName}测试完成`
         : heard
-          ? `已记录 ${this.data.currentLevelPercent}% · 即将进入 ${this.data.nextFrequencyValue} Hz`
-          : `测试上限内未测得 · 即将进入 ${this.data.nextFrequencyValue} Hz`
+          ? `已记录 · 下一频率 ${this.data.nextFrequencyValue} Hz`
+          : `未测得 · 下一频率 ${this.data.nextFrequencyValue} Hz`
     }, () => {
       if (!isLastFrequency) this.scheduleNextFrequency()
     })
