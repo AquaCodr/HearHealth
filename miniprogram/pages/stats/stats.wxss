@@ -1,7 +1,7 @@
 /* 用耳统计 —— Apple 经典浅色数据界面 */
 .stats-page {
   display: grid;
-  grid-template-rows: minmax(0, 2.05fr) auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1.55fr) auto minmax(0, 1.18fr);
   height: 100vh;
   box-sizing: border-box;
   padding: 16rpx 24rpx;
@@ -17,13 +17,13 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 16rpx;
+  padding: 14rpx;
   background: #ffffff;
   border-radius: 24rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.045);
 }
 
-.card-section-head { display: flex; align-items: center; justify-content: space-between; min-height: 42rpx; padding: 0 4rpx 10rpx; }
+.card-section-head { display: flex; align-items: center; justify-content: space-between; min-height: 38rpx; padding: 0 4rpx 6rpx; }
 .card-section-title { color: #1d1d1f; font-size: 30rpx; font-weight: 700; }
 .card-section-caption { color: #7a7a7a; font-size: 19rpx; }
 
@@ -47,11 +47,11 @@
 
 .weekday-row,
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-.weekday-row { margin-top: 10rpx; padding: 0 2rpx; }
+.weekday-row { margin-top: 6rpx; padding: 0 2rpx; }
 .weekday { color: #7a7a7a; font-size: 20rpx; font-weight: 500; line-height: 34rpx; text-align: center; }
 .calendar-grid {
   flex: 1;
-  grid-auto-rows: minmax(0, 1fr);
+  grid-template-rows: repeat(6, minmax(0, 1fr));
   min-height: 0;
   gap: 4rpx;
 }
@@ -65,7 +65,7 @@
   min-height: 0;
   height: auto;
   box-sizing: border-box;
-  padding: 6rpx 4rpx 5rpx;
+  padding: 4rpx;
   overflow: hidden;
   border: 2rpx solid transparent;
   border-radius: 10rpx;
@@ -114,8 +114,8 @@
 .selected-day-label { color: #7a7a7a; font-size: 24rpx; }
 .selected-day-value { color: #1d1d1f; font-size: 26rpx; font-weight: 600; }
 
-.month-summary { display: flex; align-items: stretch; margin-top: 10rpx; border: 2rpx solid #f0f0f0; border-radius: 16rpx; }
-.summary-stat { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 10rpx; }
+.month-summary { display: flex; align-items: stretch; margin-top: 6rpx; border: 2rpx solid #f0f0f0; border-radius: 14rpx; }
+.summary-stat { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 6rpx 10rpx; }
 .summary-stat-label { color: #7a7a7a; font-size: 19rpx; }
 .summary-stat-value { margin-top: 1rpx; color: #1d1d1f; font-size: 25rpx; font-weight: 600; }
 .summary-divider { width: 2rpx; margin: 10rpx 0; background: #e0e0e0; }
@@ -128,23 +128,24 @@
 .legend-swatch--3 { background: #a9d1ff; }
 .legend-swatch--4 { background: #5da7f7; }
 
-.section-header { display: flex; align-items: flex-end; justify-content: space-between; padding: 20rpx 8rpx 10rpx; }
+.section-header { display: flex; align-items: flex-end; justify-content: space-between; padding: 16rpx 8rpx 10rpx; }
 .section-title { color: #1d1d1f; font-size: 32rpx; font-weight: 700; }
 .section-caption { color: #7a7a7a; font-size: 21rpx; }
 .insight-list {
   display: grid;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 210rpx);
+  align-content: start;
   gap: 12rpx;
   min-height: 0;
 }
 .insight-card {
   display: flex;
   align-items: stretch;
-  min-height: 0;
-  height: 100%;
+  min-height: 210rpx;
+  height: 210rpx;
   box-sizing: border-box;
   margin-bottom: 0;
-  padding: 14rpx 16rpx 14rpx 18rpx;
+  padding: 12rpx 16rpx 12rpx 20rpx;
   background: #ffffff;
   border-radius: 20rpx;
   box-shadow: 0 4rpx 18rpx rgba(0, 0, 0, 0.04);
@@ -153,12 +154,12 @@
 .insight-content { display: flex; flex: 1; flex-direction: column; justify-content: center; min-width: 0; }
 .insight-heading { display: flex; align-items: center; }
 .insight-tag { flex-shrink: 0; margin-right: 10rpx; padding: 3rpx 10rpx; color: #0066cc; font-size: 18rpx; font-weight: 600; border-radius: 999rpx; background: #edf5ff; }
-.insight-title { overflow: hidden; color: #1d1d1f; font-size: 27rpx; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.status-line { display: flex; align-items: center; margin-top: 6rpx; }
+.insight-title { overflow: hidden; color: #1d1d1f; font-size: 29rpx; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.status-line { display: flex; align-items: center; margin-top: 10rpx; }
 .status-dot { width: 14rpx; height: 14rpx; margin-right: 10rpx; border-radius: 50%; background: #34c759; }
-.status-text { color: #1d8f40; font-size: 21rpx; font-weight: 600; }
-.insight-meta { display: block; margin-top: 2rpx; overflow: hidden; color: #7a7a7a; font-size: 20rpx; text-overflow: ellipsis; white-space: nowrap; }
-.mini-chart { position: relative; display: flex; align-self: center; align-items: center; justify-content: space-between; width: 126rpx; height: 94rpx; margin-left: 10rpx; padding: 0 4rpx; }
+.status-text { color: #1d8f40; font-size: 22rpx; font-weight: 600; }
+.insight-meta { display: block; margin-top: 6rpx; overflow: hidden; color: #7a7a7a; font-size: 21rpx; text-overflow: ellipsis; white-space: nowrap; }
+.mini-chart { position: relative; display: flex; align-self: center; align-items: center; justify-content: space-between; width: 132rpx; height: 108rpx; margin-left: 12rpx; padding: 0 4rpx; }
 .mini-chart-bar { z-index: 1; width: 8rpx; min-height: 12rpx; border-radius: 8rpx; background: #0071e3; }
 .mini-chart-line { position: absolute; right: 0; left: 0; top: 50%; height: 2rpx; background: rgba(0, 113, 227, 0.28); }
 .insight-arrow { align-self: center; width: 16rpx; height: 28rpx; margin-left: 12rpx; opacity: 0.55; }
@@ -166,7 +167,7 @@
 
 /* 矮屏设备进一步压缩纵向节奏，仍保留完整日期和时长文字 */
 @media (max-height: 580px) {
-  .stats-page { padding: 10rpx 20rpx; }
+  .stats-page { grid-template-rows: minmax(0, 1.48fr) auto minmax(0, 1.2fr); padding: 10rpx 20rpx; }
   .calendar-card { padding: 12rpx; }
   .card-section-head { min-height: 36rpx; padding-bottom: 6rpx; }
   .card-section-title { font-size: 28rpx; }
@@ -178,7 +179,7 @@
   .month-summary { margin-top: 6rpx; }
   .summary-stat { padding: 6rpx 10rpx; }
   .section-header { padding-top: 14rpx; padding-bottom: 8rpx; }
-  .insight-list { gap: 8rpx; }
-  .insight-card { padding-top: 10rpx; padding-bottom: 10rpx; }
-  .mini-chart { width: 108rpx; height: 70rpx; }
+  .insight-list { grid-template-rows: repeat(2, 184rpx); gap: 8rpx; }
+  .insight-card { min-height: 184rpx; height: 184rpx; padding-top: 10rpx; padding-bottom: 10rpx; }
+  .mini-chart { width: 112rpx; height: 82rpx; }
 }

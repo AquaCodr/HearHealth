@@ -102,6 +102,14 @@ Page({
       })
     }
 
+    // 始终补齐 6 周（42 格），避免切换月份时日历和下方卡片上下跳动。
+    while (calendarDays.length < 42) {
+      calendarDays.push({
+        key: `trailing-blank-${calendarDays.length}`,
+        isBlank: true
+      })
+    }
+
     const totalMinutes = minuteValues.reduce((sum, value) => sum + value, 0)
     const averageMinutes = minuteValues.length ? Math.round(totalMinutes / minuteValues.length) : 0
     const selectedItem = calendarDays.find(item => item.day === selectedDay)
