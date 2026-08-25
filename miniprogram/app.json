@@ -58,6 +58,11 @@
       }
     ]
   },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于获取您的位置，为您推荐附近的医院"
+    }
+  },
   "sitemapLocation": "sitemap.json",
   "style": "v2",
   "lazyCodeLoading": "requiredComponents"

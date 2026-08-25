@@ -1,3 +1,31 @@
+// 杭州医院数据库（GCJ-02坐标系，与微信定位/高德地图一致）
+const HOSPITAL_DB = [
+  // 市中心（上城区）
+  { name: '浙江大学医学院附属第一医院(庆春院区)', address: '杭州市上城区庆春路79号', latitude: 30.255920, longitude: 120.177825, department: '耳鼻喉科' },
+  { name: '浙江大学医学院附属第二医院(解放路院区)', address: '杭州市上城区解放路88号', latitude: 30.251172, longitude: 120.177439, department: '耳鼻喉科' },
+  { name: '杭州市第一人民医院(湖滨院区)', address: '杭州市上城区浣纱路261号', latitude: 30.255273, longitude: 120.166749, department: '耳鼻喉科' },
+  { name: '浙江大学医学院附属邵逸夫医院(庆春院区)', address: '杭州市上城区庆春东路3号', latitude: 30.256376, longitude: 120.202351, department: '耳鼻喉科' },
+  { name: '杭州市第三人民医院', address: '杭州市上城区西湖大道18号', latitude: 30.245757, longitude: 120.179770, department: '耳鼻喉科' },
+  { name: '浙江省中医院(湖滨院区)', address: '杭州市上城区邮电路54号', latitude: 30.252314, longitude: 120.165900, department: '耳鼻喉科' },
+  { name: '杭州市第一人民医院(吴山院区)', address: '杭州市上城区严官巷34号', latitude: 30.230181, longitude: 120.168519, department: '耳鼻喉科' },
+  { name: '浙江大学医学院附属妇产科医院(湖滨院区)', address: '杭州市上城区学士路1号', latitude: 30.256546, longitude: 120.168387, department: '耳鼻喉科' },
+  { name: '杭州市红十字会医院(仁爱院区)', address: '杭州市拱墅区环城东路208号', latitude: 30.265493, longitude: 120.187065, department: '耳鼻喉科' },
+  // 城北（拱墅区）
+  { name: '浙江省人民医院(朝晖院区)', address: '杭州市拱墅区上塘路158号', latitude: 30.284640, longitude: 120.168161, department: '耳鼻喉科' },
+  { name: '杭州市第一人民医院(城北院区)', address: '杭州市拱墅区景莘街50号', latitude: 30.351867, longitude: 120.173288, department: '耳鼻喉科' },
+  { name: '树兰(杭州)医院', address: '杭州市拱墅区东新路848号', latitude: 30.328786, longitude: 120.174522, department: '耳鼻喉科' },
+  // 城西/之江（西湖区）
+  { name: '浙江医院(灵隐院区)', address: '杭州市西湖区灵隐路12号', latitude: 30.248959, longitude: 120.124832, department: '耳鼻喉科' },
+  { name: '浙江大学医学院附属第一医院(之江院区)', address: '杭州市西湖区梧桐路366号', latitude: 30.145902, longitude: 120.100094, department: '耳鼻喉科' },
+  // 滨江（滨江区）
+  { name: '浙江大学医学院附属第二医院(滨江院区)', address: '杭州市滨江区江虹路1511号', latitude: 30.201344, longitude: 120.198023, department: '耳鼻喉科' },
+  { name: '浙江大学医学院附属儿童医院(滨江院区)', address: '杭州市滨江区滨盛路3333号', latitude: 30.191132, longitude: 120.174389, department: '耳鼻喉科' },
+  // 下沙（钱塘区）
+  { name: '浙江大学医学院附属邵逸夫医院(钱塘院区)', address: '杭州市钱塘区下沙路368号', latitude: 30.301668, longitude: 120.315971, department: '耳鼻喉科' },
+  // 萧山（萧山区）
+  { name: '浙江大学医学院附属妇产科医院(钱江院区)', address: '杭州市萧山区济仁路368号', latitude: 30.218612, longitude: 120.257258, department: '耳鼻喉科' }
+];
+
 Page({
   data: {
     greeting: '',
@@ -9,6 +37,7 @@ Page({
     healthStatus: 'warning',
     healthText: '今天已戴耳机1h35min，建议摘下休息一会儿',
     healthDismissed: false,
+    locationDenied: false,
     weekData: [
       { day: '一', hours: 1.2, status: 'normal' },
       { day: '二', hours: 2.5, status: 'warning' },
@@ -29,6 +58,7 @@ Page({
   onLoad() {
     this.setGreeting();
     this.calculateHealthStatus();
+    this.loadNearbyHospitals();
   },
 
   onShow() {
@@ -107,6 +137,46 @@ Page({
       default:
         return '#34c759';
     }
+  },
+
+  // 获取用户定位，计算最近3家医院
+  loadNearbyHospitals() {
+    wx.getLocation({
+      type: 'gcj02', // 与医院数据库坐标系一致
+      success: (res) => {
+        const { latitude, longitude } = res;
+        const withDistance = HOSPITAL_DB.map(h => ({
+          ...h,
+          distance: this.calculateDistance(latitude, longitude, h.latitude, h.longitude)
+        }));
+        withDistance.sort((a, b) => a.distance - b.distance);
+        const nearest3 = withDistance.slice(0, 3).map(h => ({
+          ...h,
+          distance: h.distance < 1 ? `${Math.round(h.distance * 1000)}m` : `${h.distance.toFixed(1)}km`
+        }));
+        this.setData({ nearbyHospitals: nearest3, locationDenied: false });
+      },
+      fail: () => {
+        // 用户拒绝授权或获取失败，降级显示默认3家
+        const defaultHospitals = HOSPITAL_DB.slice(0, 3).map(h => ({
+          ...h,
+          distance: '——'
+        }));
+        this.setData({ nearbyHospitals: defaultHospitals, locationDenied: true });
+      }
+    });
+  },
+
+  // Haversine公式计算两点间直线距离（公里）
+  calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   },
 
   dismissHealth() {
