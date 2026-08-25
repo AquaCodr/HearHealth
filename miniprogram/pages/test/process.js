@@ -2,6 +2,9 @@ const TONE_DURATION_SECONDS = 1
 const TONE_FADE_SECONDS = 0.05
 const MAX_TEST_TONE_GAIN = 0.02
 const TONE_START_TIMEOUT_MS = 1500
+const FREQUENCY_COUNTDOWN_SECONDS = 3
+const LEVEL_ADVANCE_DELAY_MS = 900
+const NEXT_FREQUENCY_DELAY_MS = 1400
 const RELATIVE_LEVELS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 const LATEST_TEST_RESULT_KEY = 'latestHearingTestResult'
 
@@ -31,10 +34,12 @@ Page({
     leftThresholdCount: 0,
     rightThresholdCount: 0,
     isTonePlaying: false,
-    hasPlayedTone: false,
     canAnswer: false,
     currentResponse: '',
-    toneStatusText: '点击播放测试音后仔细聆听',
+    autoPhase: 'idle',
+    countdownSeconds: 0,
+    toneError: false,
+    toneStatusText: '开始测试后，系统将自动播放测试音',
     responses: {
       left: [],
       right: []
@@ -62,10 +67,47 @@ Page({
     this.toneRequestId = 0
     this.toneStartTimer = null
     this.toneTimer = null
+    this.countdownTimer = null
+    this.levelAdvanceTimer = null
+    this.nextFrequencyTimer = null
+    this.autoSequenceId = 0
+    this.pageVisible = true
+    this.resumeAutomaticAction = ''
+  },
+
+  onShow() {
+    this.pageVisible = true
+    const resumeAction = this.resumeAutomaticAction
+    this.resumeAutomaticAction = ''
+
+    if (resumeAction === 'next-frequency') {
+      this.nextFrequency()
+    } else if (resumeAction === 'current-frequency') {
+      this.startFrequencyCountdown()
+    }
   },
 
   onHide() {
-    this.stopTone()
+    this.pageVisible = false
+    const shouldRestartCurrentFrequency = this.isAutomaticTestAvailable()
+    const shouldAdvanceFrequency = Boolean(
+      this.data.currentResponse && !this.data.currentEarCompleted
+    )
+    this.resumeAutomaticAction = shouldAdvanceFrequency
+      ? 'next-frequency'
+      : shouldRestartCurrentFrequency
+        ? 'current-frequency'
+        : ''
+    this.cancelAutomaticTimers()
+    this.stopTone(false)
+    if (shouldRestartCurrentFrequency) {
+      this.setData({
+        isTonePlaying: false,
+        canAnswer: false,
+        autoPhase: 'paused',
+        toneStatusText: '测试已暂停，返回页面后将重新倒计时'
+      })
+    }
   },
 
   onUnload() {
@@ -73,6 +115,7 @@ Page({
   },
 
   startLeftEar() {
+    this.primeAudioContext()
     this.setData({
       currentStep: 2,
       currentEar: 'left',
@@ -91,10 +134,12 @@ Page({
       rightEarCompleted: false,
       leftThresholdCount: 0,
       rightThresholdCount: 0,
-      hasPlayedTone: false,
       canAnswer: false,
       currentResponse: '',
-      toneStatusText: '点击播放测试音后仔细聆听',
+      autoPhase: 'countdown',
+      countdownSeconds: FREQUENCY_COUNTDOWN_SECONDS,
+      toneError: false,
+      toneStatusText: `${FREQUENCY_COUNTDOWN_SECONDS} 秒后自动播放 125 Hz`,
       responses: {
         left: [],
         right: []
@@ -110,12 +155,15 @@ Page({
       ]
     }, () => {
       wx.pageScrollTo({ scrollTop: 0, duration: 0 })
+      this.startFrequencyCountdown()
     })
   },
 
   startRightEar() {
     if (this.data.currentStep !== 2 || !this.data.leftEarCompleted) return
 
+    this.primeAudioContext()
+    this.cancelAutomaticTimers()
     this.stopTone(false)
     this.setData({
       currentStep: 3,
@@ -133,10 +181,12 @@ Page({
       isAtMaxLevel: false,
       rightEarCompleted: false,
       rightThresholdCount: 0,
-      hasPlayedTone: false,
       canAnswer: false,
       currentResponse: '',
-      toneStatusText: '点击播放测试音后仔细聆听',
+      autoPhase: 'countdown',
+      countdownSeconds: FREQUENCY_COUNTDOWN_SECONDS,
+      toneError: false,
+      toneStatusText: `${FREQUENCY_COUNTDOWN_SECONDS} 秒后自动播放 125 Hz`,
       responses: {
         left: this.data.responses.left.slice(),
         right: []
@@ -152,7 +202,88 @@ Page({
       ]
     }, () => {
       wx.pageScrollTo({ scrollTop: 0, duration: 0 })
+      this.startFrequencyCountdown()
     })
+  },
+
+  isAutomaticTestAvailable() {
+    const isTestingEar = this.data.currentStep === 2 || this.data.currentStep === 3
+    return Boolean(
+      isTestingEar &&
+      !this.data.currentEarCompleted &&
+      !this.data.currentResponse &&
+      !this.data.toneError
+    )
+  },
+
+  primeAudioContext() {
+    if (typeof wx.createWebAudioContext !== 'function') return
+
+    try {
+      if (!this.audioContext || this.audioContext.state === 'closed') {
+        this.audioContext = wx.createWebAudioContext()
+      }
+      if (this.audioContext.state === 'suspended' && typeof this.audioContext.resume === 'function') {
+        const resumeResult = this.audioContext.resume()
+        if (resumeResult && typeof resumeResult.catch === 'function') {
+          resumeResult.catch(() => {})
+        }
+      }
+    } catch (error) {
+      // 正式播放时会再次初始化，并向用户展示明确错误。
+    }
+  },
+
+  cancelAutomaticTimers() {
+    this.autoSequenceId += 1
+
+    if (this.countdownTimer) {
+      clearTimeout(this.countdownTimer)
+      this.countdownTimer = null
+    }
+    if (this.levelAdvanceTimer) {
+      clearTimeout(this.levelAdvanceTimer)
+      this.levelAdvanceTimer = null
+    }
+    if (this.nextFrequencyTimer) {
+      clearTimeout(this.nextFrequencyTimer)
+      this.nextFrequencyTimer = null
+    }
+  },
+
+  startFrequencyCountdown() {
+    if (!this.pageVisible || !this.isAutomaticTestAvailable()) return
+
+    this.cancelAutomaticTimers()
+    this.stopTone(false)
+    const sequenceId = this.autoSequenceId
+    let remaining = FREQUENCY_COUNTDOWN_SECONDS
+
+    const tick = () => {
+      if (
+        sequenceId !== this.autoSequenceId ||
+        !this.pageVisible ||
+        !this.isAutomaticTestAvailable()
+      ) return
+
+      if (remaining === 0) {
+        this.countdownTimer = null
+        this.setData({ countdownSeconds: 0 }, () => this.playTone())
+        return
+      }
+
+      this.setData({
+        autoPhase: 'countdown',
+        countdownSeconds: remaining,
+        canAnswer: false,
+        toneError: false,
+        toneStatusText: `${remaining} 秒后自动播放 ${this.data.currentFrequency} Hz`
+      })
+      remaining -= 1
+      this.countdownTimer = setTimeout(tick, 1000)
+    }
+
+    tick()
   },
 
   playTone() {
@@ -160,7 +291,7 @@ Page({
     if (!isTestingEar || this.data.currentEarCompleted || this.data.isTonePlaying || this.data.currentResponse) return
 
     if (typeof wx.createWebAudioContext !== 'function') {
-      wx.showToast({ title: '当前微信版本不支持测试音', icon: 'none' })
+      this.handleToneError('当前微信版本不支持测试音')
       return
     }
 
@@ -169,6 +300,8 @@ Page({
     this.setData({
       isTonePlaying: true,
       canAnswer: false,
+      autoPhase: 'playing',
+      toneError: false,
       toneStatusText: `正在播放 ${this.data.currentFrequency} Hz · 相对强度 ${this.data.currentLevelPercent}%…`
     })
     this.prepareTone(requestId)
@@ -191,7 +324,7 @@ Page({
       this.clearToneStartTimer()
       this.toneStartTimer = setTimeout(() => {
         if (requestId === this.toneRequestId && this.data.isTonePlaying && !this.activeOscillator) {
-          this.handleToneError('音频启动超时，请重新播放')
+          this.handleToneError('音频启动超时，请重新尝试')
         }
       }, TONE_START_TIMEOUT_MS)
 
@@ -267,6 +400,10 @@ Page({
       oscillator.start(now)
       oscillator.stop(stopAt)
 
+      if (requestId === this.toneRequestId && !this.data.currentResponse) {
+        this.setData({ canAnswer: true })
+      }
+
       this.toneTimer = setTimeout(() => {
         this.finishTone(oscillator, true)
       }, (TONE_DURATION_SECONDS * 1000) + 200)
@@ -290,14 +427,52 @@ Page({
 
     if (!updateState) return
 
+    const isAtMaxLevel = this.data.currentLevelIndex === RELATIVE_LEVELS.length - 1
+    const nextLevelPercent = RELATIVE_LEVELS[this.data.currentLevelIndex + 1]
     this.setData({
       isTonePlaying: false,
-      hasPlayedTone: completed || this.data.hasPlayedTone,
       canAnswer: completed && !this.data.currentResponse,
+      autoPhase: completed ? 'waiting' : 'paused',
       toneStatusText: completed
-        ? '播放完成，请选择你的真实听感'
-        : '测试音已停止，可以重新播放'
+        ? isAtMaxLevel
+          ? '测试上限播放完成；仍未听到将自动记录为未测得'
+          : `继续聆听，即将自动提升至 ${nextLevelPercent}%`
+        : '测试音已暂停'
+    }, () => {
+      if (completed) this.scheduleLevelAdvance()
     })
+  },
+
+  scheduleLevelAdvance() {
+    if (!this.isAutomaticTestAvailable()) return
+
+    if (this.levelAdvanceTimer) clearTimeout(this.levelAdvanceTimer)
+    const sequenceId = this.autoSequenceId
+    this.levelAdvanceTimer = setTimeout(() => {
+      this.levelAdvanceTimer = null
+      if (
+        sequenceId !== this.autoSequenceId ||
+        !this.pageVisible ||
+        !this.isAutomaticTestAvailable()
+      ) return
+
+      const isAtMaxLevel = this.data.currentLevelIndex === RELATIVE_LEVELS.length - 1
+      if (isAtMaxLevel) {
+        this.completeCurrentFrequency(false)
+        return
+      }
+
+      const nextLevelIndex = this.data.currentLevelIndex + 1
+      const nextLevelPercent = RELATIVE_LEVELS[nextLevelIndex]
+      this.setData({
+        currentLevelIndex: nextLevelIndex,
+        currentLevelPercent: nextLevelPercent,
+        isAtMaxLevel: nextLevelIndex === RELATIVE_LEVELS.length - 1,
+        canAnswer: false,
+        autoPhase: 'playing',
+        toneStatusText: `正在提升至 ${nextLevelPercent}%…`
+      }, () => this.playTone())
+    }, LEVEL_ADVANCE_DELAY_MS)
   },
 
   stopTone(updateState = true) {
@@ -320,7 +495,8 @@ Page({
       this.setData({
         isTonePlaying: false,
         canAnswer: false,
-        toneStatusText: '测试音已停止，可以重新播放'
+        autoPhase: 'paused',
+        toneStatusText: '测试音已暂停'
       })
     }
   },
@@ -342,41 +518,40 @@ Page({
   },
 
   handleToneError(message) {
-    this.stopTone()
+    this.cancelAutomaticTimers()
+    this.stopTone(false)
     this.setData({
       isTonePlaying: false,
       canAnswer: false,
+      autoPhase: 'error',
+      toneError: true,
       toneStatusText: message
     })
     wx.showToast({ title: message, icon: 'none' })
   },
 
-  recordResponse(e) {
-    if (!this.data.canAnswer || this.data.isTonePlaying || this.data.currentResponse) return
+  retryAutomaticTone() {
+    if (!this.data.toneError || this.data.currentResponse || this.data.currentEarCompleted) return
 
-    const responseValue = e.currentTarget.dataset.response
-    if (responseValue !== 'heard' && responseValue !== 'not-heard') return
+    this.primeAudioContext()
+    this.setData({ toneError: false }, () => this.startFrequencyCountdown())
+  },
+
+  recordHeard() {
+    if (!this.data.canAnswer || this.data.currentResponse || this.data.toneError) return
+
+    this.completeCurrentFrequency(true)
+  },
+
+  completeCurrentFrequency(heard) {
+    if (this.data.currentResponse || this.data.currentEarCompleted) return
 
     const ear = this.data.currentEar
     if (ear !== 'left' && ear !== 'right') return
 
-    const heard = responseValue === 'heard'
-    const isAtMaxLevel = this.data.currentLevelIndex === RELATIVE_LEVELS.length - 1
-    if (!heard && !isAtMaxLevel) {
-      const nextLevelIndex = this.data.currentLevelIndex + 1
-      const nextLevelPercent = RELATIVE_LEVELS[nextLevelIndex]
-
-      this.setData({
-        currentLevelIndex: nextLevelIndex,
-        currentLevelPercent: nextLevelPercent,
-        isAtMaxLevel: nextLevelIndex === RELATIVE_LEVELS.length - 1,
-        hasPlayedTone: false,
-        canAnswer: false,
-        currentResponse: '',
-        toneStatusText: `未听到，已提升至 ${nextLevelPercent}%，请再次播放`
-      })
-      return
-    }
+    this.cancelAutomaticTimers()
+    this.stopTone(false)
+    const responseValue = heard ? 'heard' : 'not-heard'
 
     const responses = {
       left: this.data.responses.left.slice(),
@@ -411,7 +586,11 @@ Page({
     this.setData({
       responses,
       currentResponse: responseValue,
+      isTonePlaying: false,
       canAnswer: false,
+      autoPhase: 'recorded',
+      countdownSeconds: 0,
+      toneError: false,
       currentEarCompleted: isLastFrequency,
       currentThresholdCount: thresholdCount,
       currentEarResults: responses[ear].slice(),
@@ -428,13 +607,24 @@ Page({
       toneStatusText: isLastFrequency
         ? `${this.data.currentEarName}六个频率阈值测试已完成`
         : heard
-          ? `已记录相对阈值：${this.data.currentLevelPercent}%`
-          : '达到测试上限仍未听到，已记录本频率结果'
+          ? `已记录 ${this.data.currentLevelPercent}% · 即将进入 ${this.data.nextFrequencyValue} Hz`
+          : `测试上限内未测得 · 即将进入 ${this.data.nextFrequencyValue} Hz`
+    }, () => {
+      if (!isLastFrequency) this.scheduleNextFrequency()
     })
   },
 
+  scheduleNextFrequency() {
+    const sequenceId = this.autoSequenceId
+    this.nextFrequencyTimer = setTimeout(() => {
+      this.nextFrequencyTimer = null
+      if (sequenceId !== this.autoSequenceId || !this.pageVisible) return
+      this.nextFrequency()
+    }, NEXT_FREQUENCY_DELAY_MS)
+  },
+
   nextFrequency() {
-    if (!this.data.currentResponse || this.data.currentEarCompleted || this.data.isTonePlaying) return
+    if (!this.data.currentResponse || this.data.currentEarCompleted) return
 
     const nextIndex = this.data.currentFrequencyIndex + 1
     if (nextIndex >= this.data.frequencies.length) return
@@ -457,12 +647,15 @@ Page({
       currentLevelPercent: RELATIVE_LEVELS[0],
       isAtMaxLevel: false,
       frequencies,
-      hasPlayedTone: false,
       canAnswer: false,
       currentResponse: '',
-      toneStatusText: '点击播放测试音后仔细聆听'
+      autoPhase: 'countdown',
+      countdownSeconds: FREQUENCY_COUNTDOWN_SECONDS,
+      toneError: false,
+      toneStatusText: `${FREQUENCY_COUNTDOWN_SECONDS} 秒后自动播放 ${frequencies[nextIndex].value} Hz`
     }, () => {
       wx.pageScrollTo({ scrollTop: 0, duration: 200 })
+      this.startFrequencyCountdown()
     })
   },
 
@@ -494,6 +687,7 @@ Page({
   },
 
   destroyAudioContext() {
+    this.cancelAutomaticTimers()
     this.stopTone(false)
 
     const context = this.audioContext

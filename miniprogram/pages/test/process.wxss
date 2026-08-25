@@ -500,85 +500,103 @@
   line-height: var(--leading-caption);
 }
 
-.play-tone-button {
+.auto-tone-panel {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 100%;
-  height: 100rpx;
-  margin: 0;
-  border-radius: var(--radius-pill);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-size: var(--text-button-large);
-  font-weight: 600;
-}
-
-.play-tone-button::after,
-.response-button::after {
-  border: none;
-}
-
-.play-tone-button--pressed {
-  background: var(--color-primary-focus);
-}
-
-.play-tone-button--disabled {
-  opacity: 0.72;
-}
-
-.play-tone-icon {
-  margin-right: var(--spacing-xs);
-  font-size: var(--text-caption);
-}
-
-.response-row {
-  display: flex;
-  margin-top: var(--spacing-sm);
-  gap: var(--spacing-sm);
-}
-
-.response-button {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  height: 88rpx;
-  margin: 0;
+  min-height: 180rpx;
+  padding: var(--spacing-md);
   border: 2rpx solid var(--color-hairline);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-lg);
   background: var(--color-canvas);
-  color: var(--color-ink-muted-80);
-  font-size: var(--text-button-utility);
-  font-weight: 600;
 }
 
-.response-button--primary {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+.auto-tone-panel--playing {
+  border-color: rgba(0, 102, 204, 0.24);
+  background: var(--color-surface-pearl);
 }
 
-.response-button--disabled {
-  opacity: 0.48;
+.auto-tone-panel--recorded {
+  border-color: rgba(52, 199, 89, 0.32);
 }
 
-.response-button--selected {
-  border-color: var(--color-primary);
+.auto-tone-panel--error {
+  border-color: rgba(255, 149, 0, 0.36);
+}
+
+.countdown-badge,
+.auto-tone-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-section);
+  height: var(--spacing-section);
+  border-radius: var(--radius-full);
   background: var(--color-primary);
   color: var(--color-on-primary);
-  opacity: 1;
+  font-size: var(--text-display-lg);
+  font-weight: 700;
 }
 
-.response-button--muted {
-  opacity: 0.48;
+.auto-tone-symbol--error {
+  background: var(--color-warning);
 }
 
-.next-frequency-button {
+.sound-wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-section);
+  height: var(--spacing-section);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  gap: 6rpx;
+}
+
+.sound-wave-bar {
+  width: 6rpx;
+  height: 24rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-on-primary);
+  animation: tone-wave 600ms ease-in-out infinite alternate;
+}
+
+.sound-wave-bar--two {
+  height: 40rpx;
+  animation-delay: 120ms;
+}
+
+.sound-wave-bar--three {
+  height: 30rpx;
+  animation-delay: 240ms;
+}
+
+@keyframes tone-wave {
+  from {
+    transform: scaleY(0.45);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.auto-tone-status {
+  margin-top: var(--spacing-sm);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  line-height: var(--leading-caption);
+}
+
+.heard-button {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100rpx;
+  height: 104rpx;
   margin: var(--spacing-md) 0 0;
   border-radius: var(--radius-pill);
   background: var(--color-primary);
@@ -587,12 +605,34 @@
   font-weight: 600;
 }
 
-.next-frequency-button::after {
+.heard-button::after,
+.retry-tone-button::after {
   border: none;
 }
 
-.next-frequency-button--pressed {
+.heard-button--pressed {
   background: var(--color-primary-focus);
+}
+
+.heard-button--disabled {
+  background: var(--color-divider-soft);
+  color: var(--color-ink-muted-48);
+}
+
+.heard-button-icon {
+  margin-right: var(--spacing-xs);
+}
+
+.retry-tone-button {
+  width: 100%;
+  height: 88rpx;
+  margin: var(--spacing-sm) 0 0;
+  border: 2rpx solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  background: var(--color-canvas);
+  color: var(--color-primary);
+  font-size: var(--text-button-utility);
+  font-weight: 600;
 }
 
 /* ========== 单耳 / 双耳完成 ========== */
