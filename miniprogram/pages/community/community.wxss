@@ -20,23 +20,33 @@
   border-bottom: 1rpx solid #e0e0e0;
 }
 
+/* 分区变多后改为横向滚动（参考发帖页图片横滚样式） */
+.tab-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
 .tab-list {
-  display: flex;
+  display: inline-flex;
   padding-bottom: 14rpx;
 }
 
 .tab-item {
   position: relative;
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 14rpx 8rpx;
+  padding: 14rpx 30rpx;
+  margin-right: 12rpx;
   border-radius: 9999rpx;
   text-align: center;
   color: #7a7a7a;
   transition: color 0.25s ease;
+}
+
+.tab-item:last-child {
+  margin-right: 0;
 }
 
 .tab-bg {
@@ -72,6 +82,43 @@
 .tab-item--active .tab-text {
   font-weight: 600;
   color: #0066cc;
+}
+
+/* 顶部公告条：浅蓝底 + 实心「公告」徽标，引导长按 tabBar 发帖 */
+.notice-bar {
+  display: flex;
+  align-items: center;
+  margin: 20rpx 32rpx 0;
+  padding: 14rpx 20rpx;
+  background: rgba(0, 102, 204, 0.06);
+  border-radius: 12rpx;
+}
+
+.notice-badge {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  line-height: 1;
+  color: #ffffff;
+  background: #0066cc;
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
+  margin-right: 14rpx;
+}
+
+.notice-text {
+  font-size: 26rpx;
+  line-height: 1.4;
+  color: #0066cc;
+}
+
+/* 关闭按钮：× 字符随主题蓝，加大点击热区 */
+.notice-close {
+  margin-left: auto;
+  padding: 8rpx 4rpx 8rpx 20rpx;
+  margin-right: -8rpx;
+  font-size: 36rpx;
+  line-height: 1;
+  color: rgba(0, 102, 204, 0.55);
 }
 
 /* 帖子流：参考 Twitter 扁平样式——头像在左、正文在右，

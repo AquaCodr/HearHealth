@@ -1,203 +1,139 @@
-/* 护耳技能库 页面样式 */
+/* 护耳技能库 页面样式 —— Apple 简约风：白底、发丝线分组列表、单一交互色 */
 
-.skill-library-page {
+.skill-page {
+  min-height: 100vh;
   padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom));
   background: var(--color-canvas-parchment);
 }
 
-.skill-library-header {
-  padding-bottom: var(--spacing-md);
-}
-
-.header-kicker {
-  color: var(--color-primary);
-  font-size: var(--text-micro-legal);
-  font-weight: 600;
-  letter-spacing: 2rpx;
-}
-
-.header-description {
-  max-width: 620rpx;
-  margin-top: var(--spacing-sm);
-  color: var(--color-ink-muted-48);
-  font-size: var(--text-caption);
-  line-height: var(--leading-caption);
-}
-
+/* 来源切换（iOS 分段控件） */
 .source-switch {
   display: flex;
-  margin: 0 var(--spacing-md) var(--spacing-md);
-  padding: 6rpx;
+  margin: var(--spacing-sm) var(--spacing-md) 0;
+  padding: 4rpx;
   border-radius: var(--radius-pill);
-  background: var(--color-divider-soft);
+  background: #e8e8ed;
 }
 
 .source-tab {
   flex: 1;
-  padding: 18rpx var(--spacing-xs);
+  height: 64rpx;
+  line-height: 64rpx;
   border-radius: var(--radius-pill);
-  color: var(--color-ink-muted-48);
-  font-size: var(--text-caption);
-  font-weight: 600;
+  color: var(--color-ink);
+  font-size: var(--text-button-utility);
+  font-weight: 500;
   text-align: center;
-  transition: background 180ms ease, color 180ms ease;
 }
 
 .source-tab--active {
   background: var(--color-canvas);
-  color: var(--color-ink);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08);
 }
 
-.source-card {
-  box-sizing: border-box;
-  margin: 0 var(--spacing-md);
-  padding: var(--spacing-md);
-  border: 2rpx solid var(--color-hairline);
-  border-radius: var(--radius-lg);
-  background: var(--color-canvas);
+/* 分类筛选 chips（与上方分段控件同款处理：选中白底浮起，未选中透明融入底色） */
+.chip-scroll {
+  width: 100%;
+  white-space: nowrap;
 }
 
-.source-card-header {
-  display: flex;
-  align-items: center;
-}
-
-.source-badge {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: var(--spacing-xl);
-  height: var(--spacing-xl);
-  margin-right: var(--spacing-sm);
-  border-radius: var(--radius-full);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-size: var(--text-caption-strong);
-  font-weight: 700;
-}
-
-.source-badge--community {
-  background: var(--color-ink);
-}
-
-.source-copy {
-  min-width: 0;
-}
-
-.source-title {
-  color: var(--color-ink);
-  font-size: var(--text-body-strong);
-  font-weight: 600;
-}
-
-.source-description {
-  margin-top: var(--spacing-xxs);
-  color: var(--color-ink-muted-48);
-  font-size: var(--text-fine-print);
-  line-height: var(--leading-caption);
-}
-
-.source-label {
+.chip-list {
   display: inline-flex;
-  margin-top: var(--spacing-md);
-  padding: 10rpx 18rpx;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+}
+
+.chip {
+  height: 60rpx;
+  line-height: 60rpx;
+  flex-shrink: 0;
+  padding: 0 var(--spacing-md);
   border-radius: var(--radius-pill);
-  background: rgba(0, 102, 204, 0.08);
-  color: var(--color-primary);
-  font-size: var(--text-micro-legal);
-  font-weight: 600;
-}
-
-.source-label--community {
-  background: var(--color-surface-pearl);
-  color: var(--color-ink-muted-80);
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: var(--spacing-lg) var(--spacing-md) var(--spacing-sm);
-}
-
-.section-title {
-  color: var(--color-ink);
-  font-size: var(--text-body-strong);
-  font-weight: 600;
-}
-
-.section-count {
+  background: transparent;
   color: var(--color-ink-muted-48);
   font-size: var(--text-fine-print);
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  min-height: 300rpx;
-  margin: 0 var(--spacing-md);
-  padding: var(--spacing-xl) var(--spacing-md);
-  border: 2rpx solid var(--color-hairline);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-pearl);
-  text-align: center;
-}
-
-.empty-symbol {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--spacing-xl);
-  height: var(--spacing-xl);
-  border-radius: var(--radius-full);
-  background: var(--color-canvas);
-  color: var(--color-primary);
-  font-size: var(--text-lead-airy);
   font-weight: 400;
 }
 
-.empty-symbol--community {
-  color: var(--color-ink-muted-80);
-  font-size: var(--text-caption-strong);
-  letter-spacing: 3rpx;
+.chip--selected {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-weight: 600;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 行级差异样式（基础 .group-list/.group-row/.row-* 见 app.wxss） */
+.row-meta--stats {
+  margin-top: var(--spacing-xxs);
+}
+
+/* 耳友妙招：feed 式单文本（同耳友圈广场风格，不区分标题/摘要） */
+.row-text {
+  color: var(--color-ink);
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 耳友妙招行内的头像与封面 */
+.post-avatar {
+  flex-shrink: 0;
+  width: 72rpx;
+  height: 72rpx;
+  margin-right: var(--spacing-sm);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-pearl);
+}
+
+.post-cover {
+  flex-shrink: 0;
+  width: 112rpx;
+  height: 112rpx;
+  margin-left: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-pearl);
+}
+
+.list-caption {
+  margin: 0 var(--spacing-md) var(--spacing-sm);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+}
+
+/* 加载 / 空状态 / 法律声明：安静的小字，不加框 */
+.inline-tip {
+  padding: var(--spacing-xl) 0;
+  text-align: center;
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+}
+
+.empty-tip {
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  text-align: center;
 }
 
 .empty-title {
-  margin-top: var(--spacing-md);
   color: var(--color-ink);
   font-size: var(--text-caption-strong);
   font-weight: 600;
 }
 
-.empty-description {
-  max-width: 540rpx;
-  margin-top: var(--spacing-xs);
+.empty-desc {
+  max-width: 520rpx;
+  margin: var(--spacing-xs) auto 0;
   color: var(--color-ink-muted-48);
   font-size: var(--text-fine-print);
   line-height: var(--leading-caption);
 }
 
-.community-note {
-  margin: var(--spacing-md);
-  padding: var(--spacing-md);
-  border-left: 8rpx solid var(--color-primary);
-  border-radius: var(--radius-md);
-  background: var(--color-canvas);
-}
-
-.community-note-title {
-  color: var(--color-ink);
-  font-size: var(--text-fine-print);
-  font-weight: 600;
-}
-
-.community-note-text {
-  margin-top: var(--spacing-xs);
+.legal-note {
+  margin: var(--spacing-lg) var(--spacing-lg) 0;
+  text-align: center;
   color: var(--color-ink-muted-48);
   font-size: var(--text-micro-legal);
-  line-height: var(--leading-caption);
+  line-height: 1.3;
 }

@@ -168,6 +168,52 @@ const SEED_POSTS = [
     likeCount: 156,
     commentCount: 38,
     favCount: 67
+  },
+  // —— 新板块种子：护耳打卡 / 求助提问 / 测听报告 ——
+  {
+    _id: 'seed-12',
+    tag: 'checkin',
+    nickname: '音量50%选手',
+    avatar: '',
+    device: 'AirPods 4',
+    createTime: ago(1.5),
+    title: '护耳打卡 Day 21：音量连续三周没超过 50%',
+    summary: '护耳打卡 Day 21：音量连续三周没超过 50%。',
+    content: '护耳打卡 Day 21：连续三周音量没超过 50%，地铁上开降噪就够了，不再手滑拉满。每天用耳时长也压在 2 小时以内，耳鸣基本没再来过。一起打卡的耳友评论区集合～',
+    cover: '',
+    likeCount: 52,
+    commentCount: 14,
+    favCount: 8
+  },
+  {
+    _id: 'seed-13',
+    tag: 'question',
+    nickname: '右耳发闷中',
+    avatar: '',
+    device: '',
+    createTime: ago(5),
+    title: '最近右耳总闷闷的，是耳机戴多了吗？',
+    summary: '最近右耳总感觉闷闷的，像隔了一层，是耳机戴多了吗？',
+    content: '最近一周右耳总感觉闷闷的，像隔了一层水，捏住鼻子鼓气会缓解一会儿，然后又闷回去。每天戴入耳式耳机大概 4 小时，音量中等。\n\n想问问大家有过类似经历吗？是先停戴观察几天，还是直接去医院？挂号的话选耳鼻喉科对吗？',
+    cover: '',
+    likeCount: 23,
+    commentCount: 18,
+    favCount: 3
+  },
+  {
+    _id: 'seed-14',
+    tag: 'report',
+    nickname: '三个月复查',
+    avatar: '',
+    device: '',
+    createTime: ago(10),
+    title: '坚持护耳三个月，听力自测对比来了',
+    summary: '坚持护耳三个月，相对阈值平均下降约 10%，把两次自测结果贴出来给大家参考。',
+    content: '我完成了一次听力相对阈值筛查。\n\n左耳：平均相对阈值 34%，测得 6 / 6\n右耳：平均相对阈值 38%，测得 6 / 6\n\n三个月前第一次自测时平均阈值在 45% 左右，坚持 60-60 原则、把每天佩戴时长从 5 小时压到 2 小时后，这次整体下降了不少。\n\n说明：百分比是固定设备音量下的小程序相对测试值，不是真实分贝，也不代表医学诊断。',
+    cover: '',
+    likeCount: 76,
+    commentCount: 25,
+    favCount: 33
   }
 ]
 
@@ -181,7 +227,10 @@ const SEED_COMMENTS = [
   { _id: 'seed-c6', postId: 'seed-1', nickname: '音频工程师老王', avatar: '', createTime: ago(41), content: '补充个专业视角：长期暴露 85dB 以上就会有累积性损伤，大家可以用小程序的统计页关注下每日暴露时长。' },
   // 长文帖（seed-9）的评论
   { _id: 'seed-c7', postId: 'seed-9', nickname: '夜跑爱好者', avatar: '', createTime: ago(90), content: '写得真好，正在戒耳机中，共勉。' },
-  { _id: 'seed-c8', postId: 'seed-9', nickname: '考研人', avatar: '', createTime: ago(88), content: '图书馆外放不方便，我改成了骨传导+定时，亲测有效。' }
+  { _id: 'seed-c8', postId: 'seed-9', nickname: '考研人', avatar: '', createTime: ago(88), content: '图书馆外放不方便，我改成了骨传导+定时，亲测有效。' },
+  // 求助帖（seed-13）的评论
+  { _id: 'seed-c9', postId: 'seed-13', nickname: '过来人老陈', avatar: '', createTime: ago(4), content: '建议先停戴耳机观察两三天，没有缓解就去耳鼻喉科，别拖。' },
+  { _id: 'seed-c10', postId: 'seed-13', nickname: '康复中的小李', avatar: '', createTime: ago(3), content: '我之前也是闷，医生说是耵聍（耳屎）堵塞，冲洗完立刻清爽了，先去查查更放心。' }
 ]
 
 module.exports = { SEED_POSTS, SEED_COMMENTS }

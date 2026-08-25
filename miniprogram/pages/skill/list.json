@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "护耳技能库"
+  "navigationBarTitleText": "护耳技能库",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }

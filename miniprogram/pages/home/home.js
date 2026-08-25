@@ -29,6 +29,7 @@ const HOSPITAL_DB = [
 Page({
   data: {
     greeting: '',
+    tipVisible: false,
     todayHours: 1,
     todayMinutes: 35,
     threshold: 2,
@@ -67,6 +68,14 @@ Page({
     }
   },
 
+  onHide() {
+    this.clearTipTimer();
+  },
+
+  onUnload() {
+    this.clearTipTimer();
+  },
+
   setGreeting() {
     const hour = new Date().getHours();
     let greeting = '';
@@ -78,6 +87,26 @@ Page({
       greeting = '晚上好';
     }
     this.setData({ greeting });
+  },
+
+  // 轻点顶部问候卡片，显示 WHO 护耳小知识，3 秒后自动恢复
+  toggleTip() {
+    // 重复点击时先清掉上一次的定时器，避免提前收回或重复触发
+    this.clearTipTimer();
+    if (!this.data.tipVisible) {
+      this.tipTimer = setTimeout(() => {
+        this.tipTimer = null;
+        this.setData({ tipVisible: false });
+      }, 3000);
+    }
+    this.setData({ tipVisible: !this.data.tipVisible });
+  },
+
+  clearTipTimer() {
+    if (this.tipTimer) {
+      clearTimeout(this.tipTimer);
+      this.tipTimer = null;
+    }
   },
 
   calculateHealthStatus() {

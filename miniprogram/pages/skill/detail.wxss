@@ -1,1 +1,215 @@
-/* 技能详情 页面样式 */
+/* 技能详情 页面样式 —— Apple 文章式排版：大标题 + 单栏正文 + 无装饰 */
+
+/* 文章头部 */
+.article-header {
+  padding: var(--spacing-lg) var(--spacing-md) 0;
+}
+
+.article-eyebrow {
+  color: var(--color-primary);
+  font-size: var(--text-fine-print);
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.article-title {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink);
+  font-size: var(--text-lead);
+  font-weight: 700;
+  line-height: var(--leading-display);
+  letter-spacing: -0.5rpx;
+}
+
+.article-meta {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+}
+
+.article-intro {
+  margin-top: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2rpx solid var(--color-divider-soft);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption-strong);
+  line-height: var(--leading-caption);
+}
+
+/* 要点块（parchment 色块） */
+.keypoint-block {
+  box-sizing: border-box;
+  margin: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas-parchment);
+}
+
+.keypoint-title {
+  color: var(--color-ink);
+  font-size: var(--text-caption-strong);
+  font-weight: 600;
+}
+
+.keypoint-line {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+/* 正文章节 */
+.article-section {
+  margin: 0 var(--spacing-md) var(--spacing-lg);
+}
+
+.section-heading-text {
+  margin-top: var(--spacing-sm);
+  color: var(--color-ink);
+  font-size: var(--text-body-strong);
+  font-weight: 600;
+  line-height: var(--leading-caption);
+  letter-spacing: -0.3rpx;
+}
+
+.section-paragraph {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption);
+  line-height: 1.7;
+}
+
+.section-points {
+  margin-top: var(--spacing-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.point-line {
+  position: relative;
+  padding-left: var(--spacing-sm);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption);
+  line-height: 1.7;
+}
+
+/* 列表项左侧发丝竖线，替代符号标记 */
+.point-line::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14rpx;
+  bottom: 6rpx;
+  width: 2rpx;
+  background: var(--color-hairline);
+}
+
+/* 来源与法律声明：居中小字 */
+.article-source {
+  margin: 0 var(--spacing-lg);
+  text-align: center;
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+  line-height: 1.3;
+}
+
+.legal-note {
+  margin: var(--spacing-sm) var(--spacing-lg) 0;
+  text-align: center;
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+  line-height: 1.3;
+}
+
+/* 相关技能 */
+.related-header {
+  margin: var(--spacing-lg) var(--spacing-md) var(--spacing-sm);
+  color: var(--color-ink);
+  font-size: var(--text-body-strong);
+  font-weight: 600;
+}
+
+.row-title--small {
+  font-size: var(--text-caption-strong);
+}
+
+.bar-placeholder {
+  height: calc(180rpx + env(safe-area-inset-bottom));
+}
+
+/* 底部操作栏（floating sticky bar 组件规范） */
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md) calc(var(--spacing-sm) + env(safe-area-inset-bottom));
+  border-top: 2rpx solid var(--color-divider-soft);
+  background: var(--color-canvas-parchment);
+}
+
+.btn-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-button-large);
+  font-weight: 600;
+}
+
+.btn-primary-pill {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: normal;
+}
+
+.share-button::after {
+  border: none;
+}
+
+.btn-secondary-pill {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+.btn-secondary-pill--active {
+  color: var(--color-primary);
+}
+
+/* 未找到状态：安静的居中文本 + 文字链 */
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--spacing-section);
+}
+
+.empty-title {
+  color: var(--color-ink);
+  font-size: var(--text-caption-strong);
+  font-weight: 600;
+}
+
+.empty-desc {
+  max-width: 520rpx;
+  margin-top: var(--spacing-xs);
+  text-align: center;
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+}
+
+.text-link {
+  margin-top: var(--spacing-md);
+  color: var(--color-primary);
+  font-size: var(--text-body);
+}

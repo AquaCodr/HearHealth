@@ -287,7 +287,7 @@ Page({
 
     return {
       source: 'hearing-report',
-      tag: 'tip',
+      tag: 'report',
       content: content.slice(0, 500),
       createdAt: Date.now()
     }

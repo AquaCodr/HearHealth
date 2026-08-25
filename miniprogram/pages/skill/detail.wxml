@@ -1,8 +1,66 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">技能详情</text>
+<!-- 技能详情页 —— Apple 文章式排版 -->
+<view class="detail-page" wx:if="{{skill}}">
+
+  <view class="article-header">
+    <view class="article-eyebrow">{{skill.category}}</view>
+    <view class="article-title">{{skill.title}}</view>
+    <view class="article-meta">{{skill.readMinutes}} 分钟阅读 · {{skill.updated}} 更新</view>
+    <view class="article-intro">{{skill.summary}}</view>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <!-- 要点（parchment 色块，无装饰符号） -->
+  <view class="keypoint-block" wx:if="{{skill.keyPoints.length}}">
+    <view class="keypoint-title">要点</view>
+    <view class="keypoint-line" wx:for="{{skill.keyPoints}}" wx:key="*this">{{item}}</view>
   </view>
+
+  <!-- 正文 -->
+  <view class="article-section" wx:for="{{skill.sections}}" wx:key="heading">
+    <view class="section-heading-text">{{item.heading}}</view>
+    <view class="section-paragraph" wx:for="{{item.paragraphs}}" wx:for-item="para" wx:key="*this">{{para}}</view>
+    <view class="section-points" wx:if="{{item.points}}">
+      <view class="point-line" wx:for="{{item.points}}" wx:for-item="point" wx:key="*this">{{point}}</view>
+    </view>
+  </view>
+
+  <view class="article-source">HearHealth 官方整理 · 参考世界卫生组织安全用耳建议与耳鼻喉科常识</view>
+  <view class="legal-note">本文为健康科普内容，不构成医疗建议。如有持续耳部不适或听力变化，请及时前往医院耳鼻喉科就诊。</view>
+
+  <!-- 相关技能 -->
+  <block wx:if="{{relatedSkills.length}}">
+    <view class="related-header">继续了解</view>
+    <view class="group-list">
+      <view
+        class="group-row"
+        wx:for="{{relatedSkills}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onTapRelated"
+        hover-class="group-row--hover"
+      >
+        <view class="row-main">
+          <view class="row-title row-title--small">{{item.title}}</view>
+          <view class="row-meta">{{item.readMinutes}} 分钟阅读</view>
+        </view>
+        <view class="row-chevron">›</view>
+      </view>
+    </view>
+  </block>
+
+  <view class="bar-placeholder"></view>
+
+  <!-- 底部操作栏（floating sticky bar：parchment 底 + 主/次 pill 按钮） -->
+  <view class="action-bar">
+    <view class="btn-pill btn-secondary-pill {{faved ? 'btn-secondary-pill--active' : ''}}" bindtap="onToggleFav">
+      {{faved ? '已收藏' : '收藏'}}
+    </view>
+    <button class="btn-pill btn-primary-pill share-button" open-type="share">分享</button>
+  </view>
+</view>
+
+<!-- 未找到 -->
+<view class="not-found" wx:if="{{notFound}}">
+  <view class="empty-title">没有找到这篇技能</view>
+  <view class="empty-desc">内容可能已下架或链接有误。</view>
+  <navigator class="text-link" url="/pages/skill/list" open-type="navigateBack">返回技能库</navigator>
 </view>

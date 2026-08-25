@@ -10,7 +10,14 @@ const { SEED_POSTS, SEED_COMMENTS } = require('./seedData')
 const TAGS = {
   tip: '护耳妙招',
   fail: '用耳翻车',
-  recommend: '耳机安利'
+  recommend: '耳机安利',
+  checkin: '护耳打卡',
+  question: '求助提问',
+  report: '测听报告',
+  science: '听力科普',
+  device: '助听设备',
+  hospital: '就医经验',
+  mood: '心情树洞'
 }
 
 // 确保集合存在（不存在则创建，已存在则忽略报错）

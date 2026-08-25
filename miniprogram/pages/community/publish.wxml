@@ -18,7 +18,7 @@
   <view class="editor">
     <textarea
       class="content-input"
-      placeholder="分享你的护耳经验、翻车经历或耳机测评…"
+      placeholder="分享护耳经验、日常打卡、提问求助或耳机测评…"
       maxlength="{{maxLen}}"
       value="{{content}}"
       bindinput="onContentInput"

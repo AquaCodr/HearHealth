@@ -6,14 +6,43 @@
 
 /* ========== 顶部卡片 ========== */
 .top-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: relative;
   background: var(--color-canvas);
   border-radius: var(--radius-lg);
   margin: 32rpx 34rpx 28rpx;
   padding: 40rpx 36rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 卡片正面：问候语 + 进度环，点击后模糊淡出 */
+.card-front {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: filter 0.35s ease, opacity 0.35s ease;
+}
+
+.show-tip .card-front {
+  filter: blur(6px);
+  -webkit-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 卡片背面：护耳小知识，待正面淡出后再淡入 */
+.tip-face {
+  position: absolute;
+  top: 50%;
+  left: 40rpx;
+  right: 40rpx;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.show-tip .tip-face {
+  opacity: 1;
+  transition-delay: 0.25s;
 }
 
 .top-left {
@@ -32,6 +61,41 @@
   font-size: var(--text-caption);
   color: var(--color-ink-muted-48);
   margin-top: 12rpx;
+}
+
+/* 护耳小知识（背面层）：标题 + 三条要点 */
+.tip-title {
+  font-size: var(--text-fine-print);
+  color: var(--color-ink-muted-48);
+  margin-bottom: 14rpx;
+  letter-spacing: 1rpx;
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+  color: var(--color-ink);
+}
+
+.tip-item:first-of-type {
+  margin-top: 0;
+}
+
+.tip-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: var(--color-primary);
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.tip-num {
+  color: var(--color-primary);
+  font-weight: 700;
 }
 
 .top-right {

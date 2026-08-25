@@ -152,6 +152,71 @@ page {
   margin: var(--spacing-sm) 0;
 }
 
+/* 内嵌分组列表（iOS inset grouped list）：单一白色容器，行间发丝线分隔 */
+.group-list {
+  margin: 0 var(--spacing-md);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-canvas);
+}
+
+.group-row {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-bottom: 2rpx solid var(--color-divider-soft);
+}
+
+.group-row:last-child {
+  border-bottom: none;
+}
+
+.group-row--hover {
+  background: var(--color-surface-pearl);
+}
+
+.row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-title {
+  color: var(--color-ink);
+  font-size: var(--text-body-strong);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.5rpx;
+}
+
+.row-summary {
+  margin-top: var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 行摘要默认 1 行截断，需要多行时用行内 style 覆盖 */
+.row-summary {
+  -webkit-line-clamp: 1;
+}
+
+.row-meta {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+}
+
+.row-chevron {
+  flex-shrink: 0;
+  margin-left: var(--spacing-xs);
+  color: var(--color-body-muted);
+  font-size: var(--text-tagline);
+  font-weight: 300;
+}
+
 /* 底部 tabBar 安全区占位 */
 .tabbar-placeholder {
   height: calc(100rpx + env(safe-area-inset-bottom));

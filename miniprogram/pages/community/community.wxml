@@ -1,20 +1,28 @@
 <!-- 耳友圈广场（tabBar 页） -->
 <view class="community-page">
 
-  <!-- 分区导航栏（胶囊选中态，参考 custom-tab-bar 风格） -->
+  <!-- 分区导航栏（胶囊选中态，横向可滚动，参考 custom-tab-bar 风格） -->
   <view class="tab-bar">
-    <view class="tab-list">
-      <view
-        class="tab-item {{activeTab === item.key ? 'tab-item--active' : ''}}"
-        wx:for="{{tabs}}"
-        wx:key="key"
-        data-key="{{item.key}}"
-        bindtap="onSwitchTab"
-      >
-        <view class="tab-bg"></view>
-        <text class="tab-text">{{item.label}}</text>
+    <scroll-view
+      class="tab-scroll"
+      scroll-x="{{true}}"
+      enhanced="{{true}}"
+      bounce="{{false}}"
+      show-scrollbar="{{false}}"
+    >
+      <view class="tab-list">
+        <view
+          class="tab-item {{activeTab === item.key ? 'tab-item--active' : ''}}"
+          wx:for="{{tabs}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onSwitchTab"
+        >
+          <view class="tab-bg"></view>
+          <text class="tab-text">{{item.label}}</text>
+        </view>
       </view>
-    </view>
+    </scroll-view>
   </view>
 
   <!-- 可滚动内容区：关闭 iOS 橡皮筋回弹，避免强行拖拽整个页面移动 -->
@@ -25,6 +33,13 @@
     bounce="{{false}}"
     show-scrollbar="{{false}}"
   >
+    <!-- 顶部公告：引导长按 tabBar 耳友圈发帖（可关闭，关闭后本地记忆不再展示） -->
+    <view class="notice-bar" wx:if="{{showNotice}}">
+      <text class="notice-badge">公告</text>
+      <text class="notice-text">长按下方耳友圈可以发帖哦</text>
+      <text class="notice-close" bindtap="onCloseNotice">×</text>
+    </view>
+
     <!-- 帖子流（无卡片，细分隔线，参考 Twitter 扁平样式：单一字号正文） -->
     <view class="post-list" wx:if="{{postList.length}}">
       <view class="post-item" wx:for="{{postList}}" wx:key="_id" bindtap="onTapPost" data-id="{{item._id}}">

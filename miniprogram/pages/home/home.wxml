@@ -1,22 +1,39 @@
 <view class="container home-page">
-  <!-- 顶部卡片：问候语 + 进度环 -->
-  <view class="top-card">
-    <view class="top-left">
-      <view class="greeting">{{greeting}}，耳友</view>
-      <view class="subtitle">今天也要好好爱护耳朵哦</view>
+  <!-- 顶部卡片：问候语 + 进度环（轻点后内容模糊淡出，浮现护耳小知识） -->
+  <view class="top-card {{tipVisible ? 'show-tip' : ''}}" bindtap="toggleTip">
+    <view class="card-front">
+      <view class="top-left">
+        <view class="greeting">{{greeting}}，耳友</view>
+        <view class="subtitle">今天也要好好爱护耳朵哦</view>
+      </view>
+      <view class="top-right">
+        <view class="progress-ring">
+          <view class="progress-track" style="background: {{progressGradient}}">
+            <view class="progress-hole"></view>
+            <view class="progress-cap" wx:if="{{progressPercent > 0}}" style="background: {{progressColor}}; left: {{capStartLeft}}rpx; top: {{capStartTop}}rpx;"></view>
+            <view class="progress-cap" wx:if="{{progressPercent > 0 && progressPercent < 100}}" style="background: {{progressColor}}; left: {{capEndLeft}}rpx; top: {{capEndTop}}rpx;"></view>
+            <view class="progress-cap" style="background: #e8e8ed; left: {{trackCapEndLeft}}rpx; top: {{trackCapEndTop}}rpx;"></view>
+          </view>
+          <view class="progress-overlay">
+            <view class="progress-label">今日</view>
+            <view class="progress-value">{{todayHours}}h{{todayMinutes}}min</view>
+          </view>
+        </view>
+      </view>
     </view>
-    <view class="top-right">
-      <view class="progress-ring">
-        <view class="progress-track" style="background: {{progressGradient}}">
-          <view class="progress-hole"></view>
-          <view class="progress-cap" wx:if="{{progressPercent > 0}}" style="background: {{progressColor}}; left: {{capStartLeft}}rpx; top: {{capStartTop}}rpx;"></view>
-          <view class="progress-cap" wx:if="{{progressPercent > 0 && progressPercent < 100}}" style="background: {{progressColor}}; left: {{capEndLeft}}rpx; top: {{capEndTop}}rpx;"></view>
-          <view class="progress-cap" style="background: #e8e8ed; left: {{trackCapEndLeft}}rpx; top: {{trackCapEndTop}}rpx;"></view>
-        </view>
-        <view class="progress-overlay">
-          <view class="progress-label">今日</view>
-          <view class="progress-value">{{todayHours}}h{{todayMinutes}}min</view>
-        </view>
+    <view class="tip-face">
+      <view class="tip-title">🌍 世界卫生组织建议</view>
+      <view class="tip-item">
+        <view class="tip-dot"></view>
+        <text class="tip-item-text">耳机音量不超过最大音量的 <text class="tip-num">60%</text></text>
+      </view>
+      <view class="tip-item">
+        <view class="tip-dot"></view>
+        <text class="tip-item-text">单次连续佩戴不超过 <text class="tip-num">60分钟</text></text>
+      </view>
+      <view class="tip-item">
+        <view class="tip-dot"></view>
+        <text class="tip-item-text">每周使用总时长控制在 <text class="tip-num">40小时</text> 以内</text>
       </view>
     </view>
   </view>

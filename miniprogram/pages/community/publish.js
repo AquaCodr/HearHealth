@@ -14,7 +14,14 @@ Page({
     tags: [
       { key: 'tip', label: '护耳妙招' },
       { key: 'fail', label: '用耳翻车' },
-      { key: 'recommend', label: '耳机安利' }
+      { key: 'recommend', label: '耳机安利' },
+      { key: 'checkin', label: '护耳打卡' },
+      { key: 'question', label: '求助提问' },
+      { key: 'report', label: '测听报告' },
+      { key: 'science', label: '听力科普' },
+      { key: 'device', label: '助听设备' },
+      { key: 'hospital', label: '就医经验' },
+      { key: 'mood', label: '心情树洞' }
     ],
     activeTag: 'tip',
     content: '',
