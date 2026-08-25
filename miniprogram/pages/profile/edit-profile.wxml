@@ -1,0 +1,94 @@
+<view class="edit-profile-page">
+  <form class="edit-profile-form" bindsubmit="onSave">
+    <view class="edit-profile-content">
+      <view class="avatar-section">
+        <view class="avatar-frame">
+          <button
+            class="avatar-button"
+            open-type="chooseAvatar"
+            bindchooseavatar="onChooseAvatar"
+            disabled="{{saving}}"
+          >
+            <image class="avatar-image" src="{{avatar}}" mode="aspectFill"></image>
+          </button>
+        </view>
+        <view class="avatar-hint">更换头像</view>
+      </view>
+
+      <view class="form-section">
+        <view class="section-title">个人信息</view>
+        <view class="grouped-card">
+          <view class="form-row form-row--divided">
+            <text class="field-label">昵称</text>
+            <input
+              class="field-input"
+              name="nickname"
+              type="nickname"
+              value="{{nickname}}"
+              maxlength="{{nicknameMaxLength}}"
+              placeholder="请输入昵称"
+              bindinput="onNicknameInput"
+              bindnicknamereview="onNicknameReview"
+              disabled="{{saving}}"
+            />
+          </view>
+
+          <view class="form-row form-row--divided">
+            <text class="field-label">个人签名</text>
+            <input
+              class="field-input"
+              name="bio"
+              type="text"
+              value="{{bio}}"
+              maxlength="{{bioMaxLength}}"
+              placeholder="请输入个人签名"
+              bindinput="onBioInput"
+              disabled="{{saving}}"
+            />
+          </view>
+
+          <picker
+            mode="selector"
+            range="{{deviceOptions}}"
+            value="{{deviceIndex}}"
+            bindchange="onDeviceChange"
+            disabled="{{saving}}"
+          >
+            <view class="form-row {{showCustomDevice ? 'form-row--divided' : ''}}">
+              <text class="field-label">耳机型号</text>
+              <view class="field-value-wrap">
+                <text class="field-value">{{deviceDisplay}}</text>
+                <image class="field-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
+              </view>
+            </view>
+          </picker>
+
+          <view class="form-row" wx:if="{{showCustomDevice}}">
+            <text class="field-label">其他型号</text>
+            <input
+              class="field-input"
+              name="customDeviceModel"
+              type="text"
+              value="{{customDeviceModel}}"
+              maxlength="{{deviceMaxLength}}"
+              placeholder="请输入耳机型号"
+              bindinput="onCustomDeviceInput"
+              disabled="{{saving}}"
+            />
+          </view>
+        </view>
+        <view class="privacy-note">资料仅保存在当前设备，可随时修改。</view>
+      </view>
+    </view>
+
+    <view class="edit-profile-footer">
+      <button
+        class="save-button"
+        form-type="submit"
+        loading="{{saving}}"
+        disabled="{{saving}}"
+        hover-class="save-button--pressed"
+      >{{saving ? '保存中…' : '保存'}}</button>
+    </view>
+  </form>
+</view>

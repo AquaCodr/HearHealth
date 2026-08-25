@@ -1,8 +1,75 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">设置</text>
+<view class="settings-page">
+  <view class="settings-title">设置</view>
+
+  <view class="settings-section">
+    <view class="section-title">用耳提醒</view>
+    <view class="grouped-card">
+      <picker
+        mode="selector"
+        range="{{thresholdOptions}}"
+        value="{{thresholdIndex}}"
+        bindchange="onThresholdChange"
+      >
+        <view class="settings-row" hover-class="settings-row--pressed" hover-stay-time="80">
+          <text class="row-label">用耳提醒阈值</text>
+          <view class="row-trailing">
+            <text class="row-value">{{settings.reminderThreshold}}小时</text>
+            <image class="row-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
+          </view>
+        </view>
+      </picker>
+    </view>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <view class="settings-section">
+    <view class="section-title">通知</view>
+    <view class="grouped-card">
+      <view class="settings-row settings-row--divided">
+        <text class="row-label">健康提醒弹窗</text>
+        <switch
+          class="settings-switch"
+          checked="{{settings.healthReminder}}"
+          color="#0066cc"
+          data-key="healthReminder"
+          bindchange="onNotificationChange"
+        />
+      </view>
+      <view class="settings-row settings-row--divided">
+        <text class="row-label">测试提醒</text>
+        <switch
+          class="settings-switch"
+          checked="{{settings.testReminder}}"
+          color="#0066cc"
+          data-key="testReminder"
+          bindchange="onNotificationChange"
+        />
+      </view>
+      <view class="settings-row">
+        <text class="row-label">社区消息</text>
+        <switch
+          class="settings-switch"
+          checked="{{settings.communityMessage}}"
+          color="#0066cc"
+          data-key="communityMessage"
+          bindchange="onNotificationChange"
+        />
+      </view>
+    </view>
   </view>
+
+  <view class="settings-section">
+    <view class="section-title">数据</view>
+    <view class="grouped-card">
+      <view
+        class="settings-row"
+        bindtap="onClearLocalData"
+        hover-class="settings-row--pressed"
+        hover-stay-time="80"
+      >
+        <text class="danger-label">清除本地数据</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-version">用耳健康 v1.0.0</view>
 </view>

@@ -1,8 +1,40 @@
-<view class="container">
-  <view class="page-header">
-    <text class="page-title">关于我们</text>
+<view class="about-page">
+  <view class="brand-section">
+    <view class="brand-mark">
+      <image class="brand-icon" src="/images/icons/headphones.svg" mode="aspectFit"></image>
+    </view>
+    <view class="brand-name">用耳健康</view>
+    <view class="brand-name-en">Hearing Health</view>
+    <view class="brand-version">v1.0.0</view>
   </view>
-  <view class="card">
-    <text class="text-muted">页面开发中...</text>
+
+  <view class="about-section">
+    <view class="section-title">关于产品</view>
+    <view class="about-card">
+      <view class="about-paragraph">“用耳健康”是一款面向日常听力健康管理的微信小程序，旨在帮助用户更便捷地了解自己的用耳习惯和听力状态。</view>
+      <view class="about-paragraph">我们提供听力健康初步筛查、用耳提醒、听力测试记录及耳友交流等功能，希望通过轻量、易用的方式提升大家对听力健康的关注。</view>
+    </view>
+  </view>
+
+  <view class="about-section">
+    <view class="section-title">关于团队</view>
+    <view class="about-card">
+      <view class="about-paragraph">我们是来自浙江大学“智创实践”课程的学生团队。团队成员围绕听力健康场景，从产品设计、交互体验、前端开发到数据与功能实现，共同完成“用耳健康”小程序。</view>
+      <view class="about-paragraph">我们希望把专业的健康理念转化为简单、友好、易理解的数字产品，让更多人从日常生活开始关注自己的听力健康。</view>
+      <view class="about-note">我们也相信，我们正在努力成为这门课里最懂“如何保护耳朵”的一组人。</view>
+    </view>
+  </view>
+
+  <view class="about-section">
+    <view class="section-title">免责声明</view>
+    <view class="about-card about-card--disclaimer">
+      <view class="about-paragraph">“用耳健康”提供的听力测试及相关结果仅用于日常听力健康的初步了解与筛查，不构成医学诊断，也不能替代专业听力检测、医生诊断或医疗建议。</view>
+      <view class="about-paragraph">由于手机型号、耳机型号、环境噪声、音量设置及个人操作等因素均可能影响测试结果，如出现持续耳鸣、耳痛、听力下降或其他听力异常，建议及时前往正规医疗机构或专业听力机构进行进一步检查。</view>
+    </view>
+  </view>
+
+  <view class="about-footer">
+    <view>浙江大学 · 智创实践</view>
+    <view class="about-footer-version">用耳健康 v1.0.0</view>
   </view>
 </view>

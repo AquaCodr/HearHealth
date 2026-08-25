@@ -1,1 +1,111 @@
-/* 关于我们 页面样式 */
+.about-page {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: var(--spacing-md) var(--spacing-md)
+    calc(var(--spacing-xl) + env(safe-area-inset-bottom));
+  background: var(--color-canvas-parchment);
+}
+
+.brand-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-sm) var(--spacing-xl);
+  text-align: center;
+}
+
+.brand-mark {
+  display: flex;
+  width: 112rpx;
+  height: 112rpx;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid var(--color-divider-soft);
+  border-radius: var(--radius-lg);
+  background: rgba(0, 102, 204, 0.06);
+}
+
+.brand-icon {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.brand-name {
+  margin-top: var(--spacing-md);
+  color: var(--color-ink);
+  font-size: var(--text-lead);
+  font-weight: 700;
+  line-height: var(--leading-display);
+}
+
+.brand-name-en {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.brand-version {
+  margin-top: var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+}
+
+.about-section + .about-section {
+  margin-top: var(--spacing-lg);
+}
+
+.section-title {
+  margin: 0 0 var(--spacing-xs) var(--spacing-xxs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  font-weight: 600;
+  line-height: var(--leading-caption);
+}
+
+.about-card {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 2rpx solid var(--color-divider-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
+}
+
+.about-paragraph {
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption);
+  line-height: 1.75;
+}
+
+.about-paragraph + .about-paragraph,
+.about-note {
+  margin-top: var(--spacing-md);
+}
+
+.about-note {
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-pearl);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-fine-print);
+  line-height: var(--leading-caption);
+}
+
+.about-card--disclaimer .about-paragraph {
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-fine-print);
+  line-height: 1.7;
+}
+
+.about-footer {
+  padding: var(--spacing-xl) 0 0;
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-micro-legal);
+  line-height: var(--leading-caption);
+  text-align: center;
+}
+
+.about-footer-version {
+  margin-top: var(--spacing-xxs);
+}

@@ -1,48 +1,61 @@
 <view class="profile-page">
-  <view class="profile-header">
+  <view class="profile-content">
     <view class="profile-title">我的</view>
-    <view class="user-summary">
-      <image class="user-avatar" src="{{user.avatar}}" mode="aspectFill"></image>
-      <view class="user-copy">
-        <view class="user-nickname">{{user.nickname}}</view>
-        <view class="user-bio">{{user.bio}}</view>
-      </view>
-    </view>
-  </view>
-
-  <view class="stats-card">
     <view
-      class="stat-item {{index < stats.length - 1 ? 'stat-item--divided' : ''}}"
-      wx:for="{{stats}}"
-      wx:key="label"
-    >
-      <text class="stat-value">{{item.value}}</text>
-      <text class="stat-label">{{item.label}}</text>
-    </view>
-  </view>
-
-  <view
-    class="menu-group"
-    wx:for="{{menuGroups}}"
-    wx:key="id"
-    wx:for-item="group"
-  >
-    <view
-      class="menu-row {{menuIndex < group.items.length - 1 ? 'menu-row--divided' : ''}}"
-      wx:for="{{group.items}}"
-      wx:key="id"
-      wx:for-item="menuItem"
-      wx:for-index="menuIndex"
-      data-url="{{menuItem.url}}"
-      bindtap="onMenuTap"
-      hover-class="menu-row--pressed"
+      class="user-summary"
+      bindtap="onEditProfile"
+      hover-class="user-summary--pressed"
       hover-stay-time="80"
     >
-      <view class="menu-icon-box">
-        <image class="menu-icon" src="{{menuItem.icon}}" mode="aspectFit"></image>
+      <image class="user-avatar" src="{{userProfile.avatar}}" mode="aspectFill"></image>
+      <view class="user-copy">
+        <view class="user-nickname">{{userProfile.nickname}}</view>
+        <view class="user-bio">{{userProfile.bio || defaultBio}}</view>
+        <view class="user-device">{{userProfile.deviceModel || '尚未选择耳机型号'}}</view>
       </view>
-      <text class="menu-title">{{menuItem.title}}</text>
-      <image class="menu-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
+      <image class="user-summary-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
+    </view>
+
+    <view class="stats-card">
+      <view
+        class="stat-item {{index < stats.length - 1 ? 'stat-item--divided' : ''}}"
+        wx:for="{{stats}}"
+        wx:key="label"
+      >
+        <text class="stat-value">{{item.value}}</text>
+        <text class="stat-label">{{item.label}}</text>
+      </view>
+    </view>
+
+    <view class="profile-actions">
+      <view
+        class="menu-group"
+        wx:for="{{menuGroups}}"
+        wx:key="id"
+        wx:for-item="group"
+      >
+        <view
+          class="menu-row {{menuIndex < group.items.length - 1 ? 'menu-row--divided' : ''}}"
+          wx:for="{{group.items}}"
+          wx:key="id"
+          wx:for-item="menuItem"
+          wx:for-index="menuIndex"
+          data-url="{{menuItem.url}}"
+          bindtap="onMenuTap"
+          hover-class="menu-row--pressed"
+          hover-stay-time="80"
+        >
+          <view class="menu-icon-box menu-icon-box--{{menuItem.id}}">
+            <image
+              class="menu-icon"
+              src="{{menuItem.id === 'my-posts' ? '/images/icons/posts.svg' : menuItem.id === 'skill-library' ? '/images/icons/skills.svg' : menuItem.icon}}"
+              mode="aspectFit"
+            ></image>
+          </view>
+          <text class="menu-title">{{menuItem.title}}</text>
+          <image class="menu-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
+        </view>
+      </view>
     </view>
   </view>
 </view>

@@ -1,12 +1,11 @@
 const { callCommunity } = require('../community/util')
+const { DEFAULT_BIO, getUserProfile } = require('../../utils/user-profile')
+const initialUserProfile = getUserProfile()
 
 Page({
   data: {
-    user: {
-      avatar: '/images/icons/avatar.png',
-      nickname: '耳朵守护者',
-      bio: '关注听力健康，从每天开始'
-    },
+    defaultBio: DEFAULT_BIO,
+    userProfile: initialUserProfile,
     stats: [
       { value: '32h', label: '累计用耳' },
       { value: '6', label: '测试次数' },
@@ -54,7 +53,12 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 3 });
     }
+    this.loadUserProfile()
     this.loadPostCount()
+  },
+
+  loadUserProfile() {
+    this.setData({ userProfile: getUserProfile() })
   },
 
   loadPostCount() {
@@ -73,5 +77,9 @@ Page({
     if (!url) return
 
     wx.navigateTo({ url })
+  },
+
+  onEditProfile() {
+    wx.navigateTo({ url: '/pages/profile/edit-profile' })
   }
 })
