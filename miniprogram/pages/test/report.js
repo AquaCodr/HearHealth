@@ -1,5 +1,6 @@
 const LATEST_TEST_RESULT_KEY = 'latestHearingTestResult'
 const COMMUNITY_SHARE_DRAFT_KEY = 'hearingReportShareDraft'
+const { callUser } = require('../../utils/auth')
 
 Page({
   data: {
@@ -33,8 +34,26 @@ Page({
       result = null
     }
 
-    if (!this.isValidResult(result)) return
+    if (this.isValidResult(result)) {
+      this.renderResult(result)
+      return
+    }
 
+    // 本地无有效结果时从云端兜底拉取（换设备场景）
+    callUser('getLatestTestRecord')
+      .then(cloudResult => {
+        if (!this.isValidResult(cloudResult)) return
+        try {
+          wx.setStorageSync(LATEST_TEST_RESULT_KEY, cloudResult)
+        } catch (error) {
+          // 本地缓存失败不影响展示
+        }
+        this.renderResult(cloudResult)
+      })
+      .catch(() => {})
+  },
+
+  renderResult(result) {
     const leftSummary = this.buildEarSummary('left', 'L', '左耳', result.ears.left)
     const rightSummary = this.buildEarSummary('right', 'R', '右耳', result.ears.right)
     const totalDetected = leftSummary.detectedCount + rightSummary.detectedCount

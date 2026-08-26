@@ -52,7 +52,7 @@
   </view>
 
   <view class="insight-list">
-    <view class="insight-card" hover-class="insight-card--pressed" bindtap="onOpenHeadphoneStats" aria-role="button" aria-label="查看耳机使用统计，七日暴露状态良好">
+    <view class="insight-card" hover-class="insight-card--pressed" bindtap="onOpenHeadphoneStats" aria-role="button" aria-label="查看耳机使用统计">
       <view class="insight-content">
         <view class="insight-heading">
           <text class="insight-tag">耳机</text>
@@ -60,9 +60,9 @@
         </view>
         <view class="status-line">
           <view class="status-dot"></view>
-          <text class="status-text">七日暴露良好</text>
+          <text class="status-text">{{headphoneStatus}}</text>
         </view>
-        <text class="insight-meta">平均 62 dB · 使用 13小时23分</text>
+        <text class="insight-meta">{{headphoneMeta}}</text>
       </view>
       <view class="mini-chart" aria-hidden="true">
         <view class="mini-chart-bar" wx:for="{{headphoneMiniBars}}" wx:key="*this" style="height: {{item}}%;"></view>
@@ -71,7 +71,7 @@
       <image class="insight-arrow" src="/images/arrow.svg" mode="aspectFit"></image>
     </view>
 
-    <view class="insight-card" hover-class="insight-card--pressed" bindtap="onOpenEnvironmentStats" aria-role="button" aria-label="查看环境音量统计，七日暴露状态良好">
+    <view class="insight-card" hover-class="insight-card--pressed" bindtap="onOpenEnvironmentStats" aria-role="button" aria-label="查看环境音量统计">
       <view class="insight-content">
         <view class="insight-heading">
           <text class="insight-tag">环境</text>
@@ -79,9 +79,9 @@
         </view>
         <view class="status-line">
           <view class="status-dot"></view>
-          <text class="status-text">七日暴露良好</text>
+          <text class="status-text">{{environmentStatus}}</text>
         </view>
-        <text class="insight-meta">平均 58 dB · 峰值 76 dB</text>
+        <text class="insight-meta">{{environmentMeta}}</text>
       </view>
       <view class="mini-chart" aria-hidden="true">
         <view class="mini-chart-bar" wx:for="{{environmentMiniBars}}" wx:key="*this" style="height: {{item}}%;"></view>

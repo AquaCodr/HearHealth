@@ -26,28 +26,42 @@ const HOSPITAL_DB = [
   { name: '浙江大学医学院附属妇产科医院(钱江院区)', address: '杭州市萧山区济仁路368号', latitude: 30.218612, longitude: 120.257258, department: '耳鼻喉科' }
 ];
 
+const { getSettings } = require('../../utils/app-settings');
+const usageTracker = require('../../utils/usage-tracker');
+
+// 本周一到周日的柱状图标签（周一起始，与统计页日历一致）
+const WEEK_LABELS = ['一', '二', '三', '四', '五', '六', '日'];
+
+function pad2(value) {
+  return value < 10 ? `0${value}` : `${value}`;
+}
+
+function dateKeyOf(date) {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+function formatDuration(minutes) {
+  if (!minutes) return '0分钟';
+  if (minutes < 60) return `${minutes}分钟`;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return remainder ? `${hours}小时${remainder}分` : `${hours}小时`;
+}
+
 Page({
   data: {
     greeting: '',
     tipVisible: false,
-    todayHours: 1,
-    todayMinutes: 35,
+    todayHours: 0,
+    todayMinutes: 0,
     threshold: 2,
     progressPercent: 0,
     progressGradient: '',
-    healthStatus: 'warning',
-    healthText: '今天已戴耳机1h35min，建议摘下休息一会儿',
+    healthStatus: 'normal',
+    healthText: '正在加载今天的用耳数据…',
     healthDismissed: false,
     locationDenied: false,
-    weekData: [
-      { day: '一', hours: 1.2, status: 'normal' },
-      { day: '二', hours: 2.5, status: 'warning' },
-      { day: '三', hours: 0.8, status: 'normal' },
-      { day: '四', hours: 3.1, status: 'danger' },
-      { day: '五', hours: 1.7, status: 'normal' },
-      { day: '六', hours: 2.2, status: 'warning' },
-      { day: '日', hours: 1.6, status: 'normal' }
-    ],
+    weekData: WEEK_LABELS.map(day => ({ day, hours: 0, status: 'normal' })),
     maxWeekHours: 4,
     nearbyHospitals: [
       { name: '浙江大学医学院附属第一医院(庆春院区)', address: '杭州市上城区庆春路79号', latitude: 30.255920, longitude: 120.177825, distance: '1.2km', department: '耳鼻喉科' },
@@ -58,7 +72,6 @@ Page({
 
   onLoad() {
     this.setGreeting();
-    this.calculateHealthStatus();
     this.loadNearbyHospitals();
   },
 
@@ -66,6 +79,9 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 });
     }
+    // 阈值可能刚在设置页改过；每次回到首页都按最新配置加载用量数据
+    this.setData({ threshold: getSettings().reminderThreshold });
+    this.loadUsageData();
   },
 
   onHide() {
@@ -87,6 +103,71 @@ Page({
       greeting = '晚上好';
     }
     this.setData({ greeting });
+  },
+
+  // 今日圆环与本周概览共用一份数据：先读本地立即渲染，再异步拉云端合并刷新。
+  // 数据来自前台时长追踪（见 utils/usage-tracker.js），按用户账号存在 usage_records 里。
+  loadUsageData() {
+    const now = new Date();
+    // 本周一（getDay：周日=0，换算成周一起始）
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+    const mondayKey = dateKeyOf(monday);
+    const todayKey = dateKeyOf(now);
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+    const render = (days) => {
+      const byKey = {};
+      (days || []).forEach(record => { byKey[record.dateKey] = record; });
+
+      const threshold = this.data.threshold || 1;
+      let peakHours = 0;
+      const weekData = WEEK_LABELS.map((day, index) => {
+        const date = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index);
+        // 本周尚未到来的日期不画柱子
+        if (date.getTime() > todayMidnight) {
+          return { day, hours: 0, status: 'normal' };
+        }
+        const record = byKey[dateKeyOf(date)];
+        const hours = record ? Math.round((record.seconds / 3600) * 10) / 10 : 0;
+        peakHours = Math.max(peakHours, hours);
+        const ratio = hours / threshold;
+        return {
+          day,
+          hours,
+          // 与圆环一致：<50% 阈值正常绿，50%-100% 警告黄，超阈值危险红
+          status: ratio > 1 ? 'danger' : ratio >= 0.5 ? 'warning' : 'normal'
+        };
+      });
+
+      const todaySeconds = (byKey[todayKey] && byKey[todayKey].seconds) || 0;
+      const totalMinutes = Math.round(todaySeconds / 60);
+
+      this.setData({
+        todayHours: Math.floor(totalMinutes / 60),
+        todayMinutes: totalMinutes % 60,
+        weekData,
+        maxWeekHours: Math.max(threshold, Math.ceil(peakHours * 10) / 10 || 0, 1),
+        healthText: this.buildHealthText(totalMinutes, threshold)
+      });
+      this.calculateHealthStatus();
+    };
+
+    render(usageTracker.getDays(mondayKey, todayKey));
+    usageTracker.refreshRange(mondayKey, todayKey).then(render);
+  },
+
+  buildHealthText(totalMinutes, threshold) {
+    if (!totalMinutes) {
+      return '今天还没有用耳记录，戴上耳机前记得控制音量';
+    }
+    const durationText = formatDuration(totalMinutes);
+    if (totalMinutes > threshold * 60) {
+      return `今天已戴耳机${durationText}，超过 ${threshold} 小时阈值了，建议摘下休息一会儿`;
+    }
+    if (totalMinutes >= threshold * 30) {
+      return `今天已戴耳机${durationText}，接近 ${threshold} 小时提醒阈值，注意让耳朵歇歇`;
+    }
+    return `今天已戴耳机${durationText}，用耳状态良好，继续保持`;
   },
 
   // 轻点顶部问候卡片，显示 WHO 护耳小知识，3 秒后自动恢复

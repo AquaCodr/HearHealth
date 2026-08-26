@@ -1,14 +1,24 @@
 const { callCommunity } = require('../community/util')
 const { DEFAULT_BIO, getUserProfile } = require('../../utils/user-profile')
+const { ensureLogin, getSession, isLoggedIn } = require('../../utils/auth')
 const initialUserProfile = getUserProfile()
+const initialUser = (getSession() || {}).user || {}
+
+// 累计用耳展示：满 1 小时按小时取整，不足 1 小时按分钟
+function formatTotalUsage(seconds) {
+  const total = Number(seconds) || 0
+  if (!total) return '0分钟'
+  if (total >= 3600) return `${Math.floor(total / 3600)}h`
+  return `${Math.max(1, Math.round(total / 60))}分钟`
+}
 
 Page({
   data: {
     defaultBio: DEFAULT_BIO,
     userProfile: initialUserProfile,
     stats: [
-      { value: '32h', label: '累计用耳' },
-      { value: '6', label: '测试次数' },
+      { value: formatTotalUsage(initialUser.usageSeconds), label: '累计用耳' },
+      { value: String(initialUser.testCount || 0), label: '测试次数' },
       { value: '4', label: '发帖数' }
     ],
     menuGroups: [
@@ -55,10 +65,31 @@ Page({
     }
     this.loadUserProfile()
     this.loadPostCount()
+    // 登录后用云端档案刷新测试次数；未登录时补一次静默登录（失败不打扰）
+    if (!isLoggedIn()) {
+      ensureLogin()
+        .then(() => this.applySession())
+        .catch(() => {})
+    } else {
+      this.applySession()
+    }
   },
 
   loadUserProfile() {
     this.setData({ userProfile: getUserProfile() })
+  },
+
+  applySession() {
+    const session = getSession() || {}
+    const user = session.user || {}
+    this.setData({
+      userProfile: getUserProfile(),
+      stats: this.data.stats.map(s => {
+        if (s.label === '累计用耳') return { ...s, value: formatTotalUsage(user.usageSeconds) }
+        if (s.label === '测试次数') return { ...s, value: String(user.testCount || 0) }
+        return s
+      })
+    })
   },
 
   loadPostCount() {

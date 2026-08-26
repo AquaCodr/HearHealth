@@ -1,1 +1,91 @@
-/*  页面样式 */
+/* 开屏登录页 */
+.splash-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  padding: 220rpx var(--spacing-lg) calc(env(safe-area-inset-bottom) + 120rpx);
+  background: var(--color-canvas-parchment);
+}
+
+.splash-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.splash-logo {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: var(--spacing-md);
+}
+
+.splash-name {
+  color: var(--color-ink);
+  font-size: 56rpx;
+  font-weight: 700;
+  line-height: var(--leading-display);
+  letter-spacing: 2rpx;
+}
+
+.splash-slogan {
+  margin-top: var(--spacing-xs);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-body);
+  line-height: 1.5;
+}
+
+.splash-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.splash-login-btn {
+  width: 100%;
+  height: 104rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-button-large);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.splash-login-btn--pressed {
+  background: var(--color-primary-focus);
+}
+
+.splash-login-btn--loading {
+  opacity: 0.7;
+}
+
+.splash-error {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-xxs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 59, 48, 0.08);
+  color: var(--color-danger);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.splash-skip {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-xxs) var(--spacing-md);
+  color: var(--color-ink-muted-48);
+  font-size: var(--text-body);
+  line-height: 1.5;
+}
+
+.splash-skip--pressed {
+  color: var(--color-ink-muted-80);
+}

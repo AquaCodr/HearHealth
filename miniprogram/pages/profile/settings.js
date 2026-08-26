@@ -4,6 +4,7 @@ const {
   getSettings,
   saveSettings
 } = require('../../utils/app-settings')
+const { callUser, isLoggedIn } = require('../../utils/auth')
 
 const THRESHOLD_OPTIONS = REMINDER_THRESHOLDS.map(value => `${value}小时`)
 
@@ -30,6 +31,10 @@ Page({
   persistSettings(settings) {
     const savedSettings = saveSettings(settings)
     this.setData({ settings: savedSettings })
+    // 登录状态下同步到 users.settings；未登录时下次登录会以本地播种
+    if (isLoggedIn()) {
+      callUser('updateSettings', { settings: savedSettings }).catch(() => {})
+    }
   },
 
   onThresholdChange(e) {

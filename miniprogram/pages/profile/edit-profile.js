@@ -5,6 +5,7 @@ const {
   getUserProfile,
   saveUserProfile
 } = require('../../utils/user-profile')
+const { callUser, ensureLogin } = require('../../utils/auth')
 
 const DEVICE_OPTIONS = [
   '未选择',
@@ -125,6 +126,51 @@ Page({
     })
   },
 
+  // 本地临时/持久文件路径才需要上传；cloud:// 与内置图片直接复用
+  isLocalUploadable(filePath) {
+    return Boolean(
+      filePath &&
+      !/^cloud:\/\//.test(filePath) &&
+      !/^\/images\//.test(filePath)
+    )
+  },
+
+  uploadAvatar(openid, filePath) {
+    return new Promise(resolve => {
+      const match = /\.(\w+)$/.exec(filePath)
+      const ext = match ? match[1] : 'png'
+      wx.cloud.uploadFile({
+        cloudPath: `avatars/${openid}-${Date.now()}.${ext}`,
+        filePath,
+        success: res => resolve(res.fileID || ''),
+        fail: () => resolve('')
+      })
+    })
+  },
+
+  // 云端同步：登录 → 头像上传云存储（跨设备可见）→ 更新 users 档案
+  async syncProfileToCloud(profile) {
+    try {
+      const session = await ensureLogin()
+      let avatar = profile.avatar
+      if (this.isLocalUploadable(avatar)) {
+        const fileID = await this.uploadAvatar(session.user.openid, avatar)
+        if (fileID) {
+          avatar = fileID
+          // 本地也回写为 fileID，换设备后头像仍可显示
+          try {
+            saveUserProfile({ ...profile, avatar })
+          } catch (error) {
+            // 回写失败不影响云端同步
+          }
+        }
+      }
+      await callUser('updateProfile', { profile: { ...profile, avatar } })
+    } catch (error) {
+      // 静默失败：下次保存或重新登录时会再合并
+    }
+  },
+
   async onSave(e) {
     if (this.data.saving) return
 
@@ -173,6 +219,8 @@ Page({
       const savedProfile = saveUserProfile({ nickname, avatar, bio, deviceModel })
       this.originalAvatar = savedProfile.avatar
       this.avatarNeedsPersist = false
+      // 本地已保存，云端异步补同步（失败不阻塞返回）
+      this.syncProfileToCloud(savedProfile)
     } catch (error) {
       this.setData({ saving: false })
       wx.showToast({

@@ -114,19 +114,33 @@ async function getPost(event) {
   }
 }
 
+// 按 openid 读取 users 集合中的用户档案；未建档时返回 null
+async function getUserProfileByOpenid(openid) {
+  if (!openid) return null
+  try {
+    const res = await db.collection('users').where({ openid }).limit(1).get()
+    return res.data[0] || null
+  } catch (e) {
+    // users 集合尚未创建等异常时不阻塞发帖
+    return null
+  }
+}
+
 // 发布帖子（images 为云存储 fileID 数组，cover 取第一张）
+// 身份信息以云端 users 档案为准，避免伪造与默认“耳友”问题
 async function addPost(event) {
   const { OPENID } = cloud.getWXContext()
-  const { tag, title, content, summary, nickname, avatar, device, images } = event
+  const { tag, title, content, summary, images } = event
+  const userProfile = await getUserProfileByOpenid(OPENID)
   const imgList = Array.isArray(images) ? images : []
   const post = {
     tag,
     title,
     content: content || '',
     summary: summary || (content && content.length > 60 ? content.slice(0, 60) + '…' : content || ''),
-    nickname: nickname || '耳友',
-    avatar: avatar || '',
-    device: device || '',
+    nickname: (userProfile && userProfile.nickname) || '耳友',
+    avatar: (userProfile && userProfile.avatar) || '',
+    device: (userProfile && userProfile.deviceModel) || '',
     openid: OPENID || '',
     images: imgList,
     cover: imgList[0] || '',
@@ -168,13 +182,16 @@ async function listComments(event) {
   return { success: true, data: res.data }
 }
 
-// 发表评论（同时给帖子评论数 +1）
+// 发表评论（同时给帖子评论数 +1；记录 openid 并快照用户档案）
 async function addComment(event) {
-  const { postId, nickname, avatar, content } = event
+  const { OPENID } = cloud.getWXContext()
+  const { postId, content } = event
+  const userProfile = await getUserProfileByOpenid(OPENID)
   const comment = {
     postId,
-    nickname: nickname || '耳友',
-    avatar: avatar || '',
+    openid: OPENID || '',
+    nickname: (userProfile && userProfile.nickname) || '耳友',
+    avatar: (userProfile && userProfile.avatar) || '',
     content,
     createTime: new Date()
   }

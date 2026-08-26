@@ -1,14 +1,18 @@
+const usageTracker = require('../../utils/usage-tracker')
+
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
-const AUGUST_2026_MINUTES = [
-  45, 70, 85, 140, 95, 50, 185,
-  75, 60, 130, 65, 150, 80, 200,
-  55, 90, 160, 70, 120, 190, 75,
-  60, 125, 105
-]
+function pad2(value) {
+  return value < 10 ? `0${value}` : `${value}`
+}
+
+function dateKeyOf(date) {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`
+}
 
 function formatDuration(minutes) {
   if (minutes === null || minutes === undefined) return '暂无'
+  if (!minutes) return '0分'
   if (minutes < 60) return `${minutes}分`
   const hours = Math.floor(minutes / 60)
   const remainder = minutes % 60
@@ -31,17 +35,10 @@ function getLevel(minutes) {
   return 4
 }
 
-function getMockMinutes(year, monthIndex, day, today) {
-  const date = new Date(year, monthIndex, day)
-  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-  if (date > todayOnly) return null
-
-  if (year === 2026 && monthIndex === 7 && day <= AUGUST_2026_MINUTES.length) {
-    return AUGUST_2026_MINUTES[day - 1]
-  }
-
-  const generated = ((day * 37 + (monthIndex + 1) * 19 + year) % 166) + 25
-  return day % 7 === 0 ? Math.max(20, generated - 35) : generated
+// 迷你柱状图：日均音量（dB）映射为 8%-100% 的柱高，无采样日给一个最低高度占位
+function dbToBarHeight(db) {
+  if (db === null || db === undefined) return 4
+  return Math.min(100, Math.max(8, Math.round(((db - 35) / 50) * 100)))
 }
 
 Page({
@@ -57,17 +54,73 @@ Page({
     selectedDuration: '',
     monthAverage: '',
     monthTotal: '',
-    headphoneMiniBars: [62, 48, 70, 58, 76, 53, 66],
-    environmentMiniBars: [52, 68, 45, 72, 82, 58, 61]
+    headphoneMiniBars: [],
+    environmentMiniBars: [],
+    headphoneStatus: '',
+    environmentStatus: '',
+    headphoneMeta: '',
+    environmentMeta: ''
   },
 
   onLoad() {
     const today = new Date()
     this.today = today
+    // 已加载的按天用量缓存（dateKey -> 记录），由 loadUsage 填充
+    this.usageCache = {}
     this.updateMonth(today.getFullYear(), today.getMonth(), today.getDate())
   },
 
-  updateMonth(year, monthIndex, preferredDay) {
+  onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 1 })
+    }
+    // 回到统计页时刷新一次，今天的时长会随前台追踪持续增长；
+    // 标签页可能驻留过夜，日期变了要重置“今天”并切回当前月
+    if (this.today) {
+      const now = new Date()
+      const monthChanged = now.getFullYear() !== this.today.getFullYear()
+        || now.getMonth() !== this.today.getMonth()
+      this.today = now
+      if (monthChanged) {
+        this.updateMonth(now.getFullYear(), now.getMonth(), now.getDate())
+      } else {
+        this.rebuildCalendar()
+        this.renderMiniInsights()
+        this.loadUsage()
+      }
+    }
+  },
+
+  // 拉取展示月份 + 最近 7 天的用量（本地优先渲染，再异步合并云端），驱动日历与迷你图
+  loadUsage() {
+    const today = this.today
+    const monthStart = new Date(this.data.displayYear, this.data.displayMonthIndex, 1)
+    const weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6)
+    const rangeStart = monthStart < weekStart ? monthStart : weekStart
+    const fromKey = dateKeyOf(rangeStart)
+    const toKey = dateKeyOf(today)
+
+    const render = (days) => {
+      ;(days || []).forEach(record => {
+        this.usageCache[record.dateKey] = record
+      })
+      this.rebuildCalendar()
+      this.renderMiniInsights()
+    }
+
+    render(usageTracker.getDays(fromKey, toKey))
+    usageTracker.refreshRange(fromKey, toKey).then(render)
+  },
+
+  getDayMinutes(year, monthIndex, day) {
+    const record = this.usageCache[dateKeyOf(new Date(year, monthIndex, day))]
+    if (!record || !record.seconds) return null
+    return Math.round(record.seconds / 60)
+  },
+
+  // 由用量缓存重建当前月的日历与汇总（结构沿用原实现）
+  rebuildCalendar() {
+    const { displayYear: year, displayMonthIndex: monthIndex } = this.data
     const today = this.today || new Date()
     const firstWeekday = new Date(year, monthIndex, 1).getDay()
     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate()
@@ -79,10 +132,12 @@ Page({
     }
 
     const isCurrentMonth = year === today.getFullYear() && monthIndex === today.getMonth()
-    const selectedDay = Math.min(preferredDay || 1, daysInMonth)
+    const selectedDay = this.data.selectedDay
+      ? Math.min(this.data.selectedDay, daysInMonth)
+      : Math.min(today.getDate(), daysInMonth)
 
     for (let day = 1; day <= daysInMonth; day += 1) {
-      const minutes = getMockMinutes(year, monthIndex, day, today)
+      const minutes = this.getDayMinutes(year, monthIndex, day)
       const hasData = minutes !== null
       if (hasData) minuteValues.push(minutes)
       const isToday = isCurrentMonth && day === today.getDate()
@@ -113,6 +168,75 @@ Page({
     const totalMinutes = minuteValues.reduce((sum, value) => sum + value, 0)
     const averageMinutes = minuteValues.length ? Math.round(totalMinutes / minuteValues.length) : 0
     const selectedItem = calendarDays.find(item => item.day === selectedDay)
+
+    this.setData({
+      calendarDays,
+      selectedDay,
+      selectedDateText: `${monthIndex + 1}月${selectedDay}日`,
+      selectedDuration: selectedItem && selectedItem.hasData ? `用耳 ${formatDuration(selectedItem.minutes)}` : '暂无用耳数据',
+      monthAverage: formatCompactDuration(averageMinutes),
+      monthTotal: formatCompactDuration(totalMinutes)
+    })
+  },
+
+  // 「听力数据」两张卡片的迷你柱状图与摘要文案：来自最近 7 天的音量聚合与用耳秒数
+  renderMiniInsights() {
+    const today = this.today
+    const keys = []
+    for (let offset = 6; offset >= 0; offset -= 1) {
+      const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - offset)
+      keys.push(dateKeyOf(date))
+    }
+    const records = keys.map(key => this.usageCache[key]).filter(Boolean)
+
+    const headphoneMiniBars = []
+    const environmentMiniBars = []
+    let hpSum = 0
+    let hpCount = 0
+    let envSum = 0
+    let envCount = 0
+    let envPeak = null
+    let totalSeconds = 0
+
+    keys.forEach(key => {
+      const record = this.usageCache[key]
+      const hpAvg = record && record.hpCount ? Math.round(record.hpSum / record.hpCount) : null
+      const envAvg = record && record.envCount ? Math.round(record.envSum / record.envCount) : null
+      headphoneMiniBars.push(dbToBarHeight(hpAvg))
+      environmentMiniBars.push(dbToBarHeight(envAvg))
+
+      if (record) {
+        hpSum += record.hpSum || 0
+        hpCount += record.hpCount || 0
+        envSum += record.envSum || 0
+        envCount += record.envCount || 0
+        totalSeconds += record.seconds || 0
+        envPeak = envPeak === null
+          ? record.envMax
+          : (record.envMax === null ? envPeak : Math.max(envPeak, record.envMax))
+      }
+    })
+
+    const hasSamples = hpCount > 0
+    const hpOverall = hasSamples ? Math.round(hpSum / hpCount) : null
+    const envOverall = envCount ? Math.round(envSum / envCount) : null
+
+    this.setData({
+      headphoneMiniBars,
+      environmentMiniBars,
+      headphoneStatus: hasSamples ? '七日暴露良好' : '暂无足够数据',
+      environmentStatus: envCount ? '七日暴露良好' : '暂无足够数据',
+      headphoneMeta: hasSamples
+        ? `平均 ${hpOverall} dB · 使用 ${formatCompactDuration(Math.round(totalSeconds / 60))}`
+        : '开始使用后生成音量记录',
+      environmentMeta: envCount
+        ? `平均 ${envOverall} dB · 峰值 ${envPeak} dB`
+        : '开始使用后生成环境音量记录'
+    })
+  },
+
+  updateMonth(year, monthIndex, preferredDay) {
+    const today = this.today || new Date()
     const currentMonthValue = today.getFullYear() * 12 + today.getMonth()
     const displayedMonthValue = year * 12 + monthIndex
 
@@ -120,14 +244,15 @@ Page({
       displayYear: year,
       displayMonthIndex: monthIndex,
       monthTitle: `${year}年${monthIndex + 1}月`,
-      calendarDays,
       canGoNext: displayedMonthValue < currentMonthValue,
-      selectedDay,
-      selectedDateText: `${monthIndex + 1}月${selectedDay}日`,
-      selectedDuration: selectedItem && selectedItem.hasData ? `用耳 ${formatDuration(selectedItem.minutes)}` : '暂无用耳数据',
-      monthAverage: formatCompactDuration(averageMinutes),
-      monthTotal: formatCompactDuration(totalMinutes)
+      // 换月时默认选中今天（历史月份选 1 号）
+      selectedDay: year === today.getFullYear() && monthIndex === today.getMonth()
+        ? today.getDate()
+        : 1
     })
+    this.rebuildCalendar()
+    this.renderMiniInsights()
+    this.loadUsage()
   },
 
   onPreviousMonth() {
@@ -148,9 +273,7 @@ Page({
       year += 1
       monthIndex = 0
     }
-    const today = this.today || new Date()
-    const preferredDay = year === today.getFullYear() && monthIndex === today.getMonth() ? today.getDate() : 1
-    this.updateMonth(year, monthIndex, preferredDay)
+    this.updateMonth(year, monthIndex, 1)
   },
 
   onSelectDay(event) {
@@ -177,11 +300,5 @@ Page({
 
   onOpenEnvironmentStats() {
     wx.navigateTo({ url: '/pages/stats/env-stats' })
-  },
-
-  onShow() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 })
-    }
   }
 })

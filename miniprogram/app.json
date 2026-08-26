@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/splash/splash",
     "pages/home/home",
     "pages/stats/stats",
     "pages/community/community",
@@ -16,8 +17,7 @@
     "pages/profile/settings",
     "pages/profile/about",
     "pages/skill/list",
-    "pages/skill/detail",
-    "pages/splash/splash"
+    "pages/skill/detail"
   ],
   "window": {
     "backgroundColor": "#f5f5f7",

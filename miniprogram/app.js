@@ -1,4 +1,7 @@
 // app.js
+const { ensureLogin } = require("./utils/auth");
+const usageTracker = require("./utils/usage-tracker");
+
 App({
   onLaunch: function () {
     this.globalData = {
@@ -9,11 +12,22 @@ App({
     };
     if (!wx.cloud) {
       console.error("请使用 2.2.3 或以上的基础库以使用云能力");
-    } else {
-      wx.cloud.init({
-        env: this.globalData.env,
-        traceUser: true,
-      });
+      return;
     }
+    wx.cloud.init({
+      env: this.globalData.env,
+      traceUser: true,
+    });
+    // 静默登录：云函数端按 OPENID 建档/合并资料，失败不阻塞启动
+    ensureLogin().catch(() => {});
+  },
+
+  onShow() {
+    // 前台期间累计用耳时长并定期采样音量（用耳时长的代理指标）
+    usageTracker.onAppShow();
+  },
+
+  onHide() {
+    usageTracker.onAppHide();
   },
 });

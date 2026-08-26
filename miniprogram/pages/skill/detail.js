@@ -1,5 +1,6 @@
 // 技能详情页 —— 渲染 data/skills.js 中的开发者整理文章
 const { SKILLS } = require('../../data/skills')
+const { callUser, isLoggedIn } = require('../../utils/auth')
 
 const FAV_STORAGE_KEY = 'skill_favs'
 
@@ -52,6 +53,10 @@ Page({
     }
     this.setData({ faved: !faved })
     wx.showToast({ title: faved ? '已取消收藏' : '已收藏', icon: 'none' })
+    // 登录状态下同步到云端 user_favorites；未登录时下次登录会自动补齐
+    if (isLoggedIn()) {
+      callUser(faved ? 'removeFavorite' : 'addFavorite', { skillId: skill.id }).catch(() => {})
+    }
   },
 
   // 点击相关技能：就地切换文章并回到顶部
