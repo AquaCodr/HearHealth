@@ -14,38 +14,37 @@
   border-bottom: 2rpx solid rgba(0, 0, 0, 0.04);
 }
 
-.progress-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.progress-title {
-  color: var(--color-ink);
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-.progress-count {
-  color: var(--color-ink-muted-48);
-  font-size: 22rpx;
-}
-
 .step-row {
   display: flex;
-  margin-top: 18rpx;
   gap: 12rpx;
+  transition: gap 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 进场融合态：整条蓝条随后裂开为三段，衔接引导页的融合动画 */
+.step-row--fused {
+  gap: 0;
 }
 
 .step-item {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
+  transition: flex-grow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 当前步骤的分段拉长，其余分段被压缩（与引导页一致） */
+.step-item--active {
+  flex-grow: 2;
+}
+
+.step-row--fused .step-item {
+  flex-grow: 1;
 }
 
 .step-segment {
-  height: 6rpx;
+  height: 12rpx;
   border-radius: var(--radius-pill);
-  background: #e8e8ed;
+  background: var(--color-hairline);
+  transition: background-color 0.2s ease, border-radius 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .step-segment--active,
@@ -53,11 +52,33 @@
   background: var(--color-primary);
 }
 
+.step-row--fused .step-segment {
+  background: var(--color-primary);
+}
+
+/* 融合态下拼接处改方角，整条呈一根完整蓝条，与引导页的融合条一致 */
+.step-row--fused .step-item:first-child .step-segment {
+  border-radius: 9999rpx 0 0 9999rpx;
+}
+
+.step-row--fused .step-item:nth-child(2) .step-segment {
+  border-radius: 0;
+}
+
+.step-row--fused .step-item:last-child .step-segment {
+  border-radius: 0 9999rpx 9999rpx 0;
+}
+
 .step-label {
   margin-top: 8rpx;
   color: var(--color-ink-muted-48);
   font-size: 20rpx;
   text-align: center;
+  transition: opacity 0.25s ease;
+}
+
+.step-row--fused .step-label {
+  opacity: 0;
 }
 
 .step-label--active,

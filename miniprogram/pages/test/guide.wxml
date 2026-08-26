@@ -1,54 +1,123 @@
-<view class="container guide-page">
-  <view class="guide-hero">
-    <view class="hero-icon" aria-hidden="true">🎧</view>
-    <view class="hero-title">开始听力测试</view>
-    <view class="hero-description">
-      逐级寻找左右耳在不同频率下首次听到的相对强度
-    </view>
-  </view>
-
-  <view class="notice-card">
-    <view class="notice-title">测试结果仅供参考</view>
-    <view class="notice-text">
-      本测试记录小程序内的相对强度，不能换算为真实分贝，也不能替代专业医学检查。不同设备之间请勿直接比较；如有耳痛、持续耳鸣或明显听力下降，请及时就诊。
-    </view>
-  </view>
-
-  <view class="requirements-card">
-    <view class="section-title">开始前请确认</view>
-    <view
-      class="requirement-item"
-      wx:for="{{requirements}}"
-      wx:key="title"
-    >
-      <view class="requirement-check" aria-hidden="true">✓</view>
-      <view class="requirement-content">
-        <view class="requirement-title">{{item.title}}</view>
-        <view class="requirement-description">{{item.description}}</view>
+<view class="container guide-page {{mode === 'intro' ? 'guide-page--intro' : ''}}">
+  <block wx:if="{{mode === 'intro'}}">
+    <view class="guide-hero">
+      <view class="hero-illustration" role="img" aria-label="佩戴耳机示意图"></view>
+      <view class="hero-title">开始听力测试</view>
+      <view class="hero-description">
+        请佩戴耳机，逐级寻找左右耳在不同频率下首次听到的相对强度
       </view>
     </view>
-  </view>
 
-  <view class="duration-row">
-    <view class="duration-icon" aria-hidden="true">⏱</view>
-    <view class="duration-copy">
-      <view class="duration-title">大约需要 5 分钟</view>
-      <view class="duration-description">每个频率会从较弱测试音开始，依次完成左右耳</view>
+    <view class="guide-actions">
+      <button
+        class="start-button {{navigating ? 'button--disabled' : ''}}"
+        hover-class="start-button--pressed"
+        disabled="{{navigating}}"
+        bindtap="startTest"
+      >开始测试</button>
     </view>
-  </view>
 
-  <view class="guide-actions">
-    <button
-      class="start-button {{navigating ? 'button--disabled' : ''}}"
-      hover-class="start-button--pressed"
-      disabled="{{navigating}}"
-      bindtap="startTest"
-    >开始测试</button>
-    <button
-      class="skip-button {{navigating ? 'button--disabled' : ''}}"
-      hover-class="skip-button--pressed"
-      disabled="{{navigating}}"
-      bindtap="skipTest"
-    >跳过本次</button>
-  </view>
+    <view class="legal-note">
+      测试结果仅供参考，不能换算为真实分贝，也不能替代专业医学检查；不同设备间请勿直接比较。如有耳痛、持续耳鸣或明显听力下降，请及时就诊。
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="prep-progress {{merging ? 'prep-progress--merging' : ''}}" aria-hidden="true">
+      <view
+        wx:for="{{prepDots}}"
+        wx:key="*this"
+        class="prep-segment prep-segment--{{index < prepStep - 1 ? 'done' : index === prepStep - 1 ? 'active' : 'pending'}}"
+      ></view>
+    </view>
+
+    <view class="prep-screen">
+      <block wx:if="{{prepStep === 1}}">
+        <view class="prep-icon" aria-hidden="true">🤫</view>
+        <view class="prep-title">请确认环境安静</view>
+        <view class="prep-description">关闭电视、音乐等声源，避免环境噪声干扰判断</view>
+
+        <view class="noise-meter" wx:if="{{!micDenied && !micError}}">
+          <view class="noise-meter-track">
+            <view
+              class="noise-meter-fill noise-meter-fill--{{noiseClass}}"
+              style="width: {{noiseLevel}}%;"
+            ></view>
+          </view>
+          <view class="noise-status">
+            <text class="noise-status-label">麦克风环境音</text>
+            <text class="noise-status-value noise-status-value--{{noiseClass}}">{{noiseLabel}}</text>
+          </view>
+        </view>
+
+        <view class="prep-note" wx:if="{{micDenied}}">未获得麦克风权限，无法检测环境音，可直接确认继续</view>
+        <button
+          class="utility-button"
+          hover-class="utility-button--pressed"
+          wx:if="{{micDenied}}"
+          bindtap="openMicSetting"
+        >去开启麦克风权限</button>
+        <view class="prep-note" wx:elif="{{micError}}">暂时无法检测环境音，请自行确认后继续</view>
+      </block>
+
+      <block wx:elif="{{prepStep === 2}}">
+        <view class="hero-illustration hero-illustration--compact" role="img" aria-label="佩戴耳机示意图"></view>
+        <view class="prep-title">请正确佩戴耳机</view>
+        <view class="prep-description">确认左右耳方向，让耳机保持稳固、舒适</view>
+      </block>
+
+      <block wx:elif="{{prepStep === 3}}">
+        <view class="prep-icon" aria-hidden="true">🔊</view>
+        <view class="prep-title">请固定设备音量</view>
+        <view class="prep-description">播放参考音，调到舒适音量后保持不变，测试中不再调整</view>
+        <button
+          class="utility-button"
+          hover-class="utility-button--pressed"
+          disabled="{{tonePlaying}}"
+          bindtap="playReferenceTone"
+        >{{tonePlaying ? '参考音播放中…' : '播放参考音'}}</button>
+        <view class="prep-note">如感到刺耳或不适，请调低音量或立即停止测试。</view>
+      </block>
+
+      <block wx:else>
+        <view class="prep-icon" aria-hidden="true">👂</view>
+        <view class="prep-title">根据真实听感作答</view>
+        <view class="prep-description">每个频率会从较弱音量逐级提高，无论声音多轻，只在确实听到时点击「听到了」</view>
+      </block>
+    </view>
+
+    <view class="prep-actions">
+      <button
+        wx:if="{{prepStep === 1}}"
+        class="start-button"
+        hover-class="start-button--pressed"
+        bindtap="confirmNoise"
+      >下一步</button>
+      <button
+        wx:elif="{{prepStep === 2}}"
+        class="start-button"
+        hover-class="start-button--pressed"
+        bindtap="confirmHeadset"
+      >下一步</button>
+      <button
+        wx:elif="{{prepStep === 3}}"
+        class="start-button"
+        hover-class="start-button--pressed"
+        bindtap="confirmVolume"
+      >下一步</button>
+      <button
+        wx:else
+        class="start-button {{navigating ? 'button--disabled' : ''}}"
+        hover-class="start-button--pressed"
+        disabled="{{navigating}}"
+        bindtap="beginTest"
+      >开始测试</button>
+
+      <button
+        class="ghost-button"
+        hover-class="ghost-button--pressed"
+        bindtap="prevStep"
+      >{{prepStep === 1 ? '返回' : '上一步'}}</button>
+    </view>
+  </block>
 </view>

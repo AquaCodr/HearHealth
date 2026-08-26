@@ -1,3 +1,5 @@
+const { callUser } = require('../../utils/auth')
+
 const TONE_DURATION_SECONDS = 1
 const TONE_FADE_SECONDS = 0.05
 const MAX_TEST_TONE_GAIN = 0.02
@@ -5,6 +7,7 @@ const TONE_START_TIMEOUT_MS = 1500
 const FREQUENCY_COUNTDOWN_SECONDS = 3
 const LEVEL_ADVANCE_DELAY_MS = 900
 const NEXT_FREQUENCY_DELAY_MS = 1400
+const BAR_FUSE_DELAY_MS = 420
 const RELATIVE_LEVELS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 const LATEST_TEST_RESULT_KEY = 'latestHearingTestResult'
 
@@ -40,6 +43,7 @@ Page({
     countdownSeconds: 0,
     toneError: false,
     toneStatusText: '开始后自动播放测试音',
+    barFused: false,
     responses: {
       left: [],
       right: []
@@ -59,7 +63,7 @@ Page({
     ]
   },
 
-  onLoad() {
+  onLoad(options) {
     this.audioContext = null
     this.activeOscillator = null
     this.activeGain = null
@@ -73,6 +77,14 @@ Page({
     this.autoSequenceId = 0
     this.pageVisible = true
     this.resumeAutomaticAction = ''
+
+    // 引导页向导已完成环境/耳机/音量确认时携带 autostart，跳过准备步骤直接开测。
+    if (options && options.autostart === '1') {
+      // 进度条先以融合态（一条蓝条）出现，再裂开为三段，衔接引导页的融合动画。
+      this.barFuseTimer = setTimeout(() => this.setData({ barFused: false }), BAR_FUSE_DELAY_MS)
+      this.setData({ barFused: true })
+      this.startLeftEar()
+    }
   },
 
   onShow() {
@@ -111,6 +123,10 @@ Page({
   },
 
   onUnload() {
+    if (this.barFuseTimer) {
+      clearTimeout(this.barFuseTimer)
+      this.barFuseTimer = null
+    }
     this.destroyAudioContext()
   },
 
@@ -680,6 +696,9 @@ Page({
       wx.showToast({ title: '保存测试结果失败，请重试', icon: 'none' })
       return
     }
+
+    // 云端留档（按用户存 test_records 集合），失败不影响本地报告
+    callUser('saveTestRecord', { result }).catch(() => {})
 
     wx.navigateTo({
       url: '/pages/test/report'

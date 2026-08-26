@@ -1,11 +1,7 @@
 <view class="container process-page">
   <view class="progress-section">
-    <view class="progress-meta">
-      <view class="progress-title">听力测试</view>
-      <view class="progress-count">步骤 {{currentStep}} / {{totalSteps}}</view>
-    </view>
-    <view class="step-row">
-      <view class="step-item" wx:for="{{steps}}" wx:key="label">
+    <view class="step-row {{barFused ? 'step-row--fused' : ''}}">
+      <view class="step-item step-item--{{item.status}}" wx:for="{{steps}}" wx:key="label">
         <view class="step-segment step-segment--{{item.status}}"></view>
         <view class="step-label step-label--{{item.status}}">{{item.label}}</view>
       </view>
