@@ -33,8 +33,8 @@ const { calculateUsageRisk } = require('../../utils/usage-risk');
 const USAGE_REFRESH_INTERVAL_MS = 30 * 1000;
 const HEALTH_REMINDER_STORAGE_KEY = 'hearHealthDailyRiskReminder';
 
-// 本周一到周日的柱状图标签（周一起始，与统计页日历一致）
-const WEEK_LABELS = ['一', '二', '三', '四', '五', '六', '日'];
+// 周几标签（getDay：0=周日，6=周六）
+const WEEK_LABELS = ['日', '一', '二', '三', '四', '五', '六'];
 
 function pad2(value) {
   return value < 10 ? `0${value}` : `${value}`;
@@ -66,7 +66,7 @@ Page({
     healthText: '正在加载今天的应用内记录…',
     healthDismissed: false,
     locationDenied: false,
-    weekData: WEEK_LABELS.map(day => ({ day, hours: 0, status: 'normal' })),
+    weekData: [], // 近7天数据（今天在最右），由 loadUsageData 生成
     maxWeekHours: 4,
     nearbyHospitals: [
       { name: '浙江大学医学院附属第一医院(庆春院区)', address: '杭州市上城区庆春路79号', latitude: 30.255920, longitude: 120.177825, distance: '1.2km', department: '耳鼻喉科' },
@@ -122,11 +122,10 @@ Page({
   // 数据来自前台时长追踪（见 utils/usage-tracker.js），按用户账号存在 usage_records 里。
   loadUsageData(refreshCloud = true) {
     const now = new Date();
-    // 本周一（getDay：周日=0，换算成周一起始）
-    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
-    const mondayKey = dateKeyOf(monday);
+    // 近7天：从6天前到今天，今天在最右边
     const todayKey = dateKeyOf(now);
-    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+    const startKey = dateKeyOf(startDate);
 
     const render = (days) => {
       const byKey = {};
@@ -134,23 +133,28 @@ Page({
 
       const threshold = this.data.threshold || 1;
       let peakHours = 0;
-      const weekData = WEEK_LABELS.map((day, index) => {
-        const date = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index);
-        // 本周尚未到来的日期不画柱子
-        if (date.getTime() > todayMidnight) {
-          return { day, hours: 0, status: 'normal' };
-        }
-        const record = byKey[dateKeyOf(date)];
-        const usageSeconds = record ? Number(record.seconds) || 0 : 0;
-        const hours = Math.round((usageSeconds / 3600) * 10) / 10;
-        const risk = calculateUsageRisk(usageSeconds, threshold);
+      const weekData = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const dateKey = dateKeyOf(date);
+        const isToday = i === 0;
+        const record = byKey[dateKey];
+        const seconds = record ? Number(record.seconds) || 0 : 0;
+        const hours = Math.round((seconds / 3600) * 10) / 10;
+        const minutes = Math.round(seconds / 60);
         peakHours = Math.max(peakHours, hours);
-        return {
-          day,
+        // 与圆环、健康提示复用统一风险计算（见 utils/usage-risk.js）
+        const risk = calculateUsageRisk(seconds, threshold);
+        weekData.push({
+          day: WEEK_LABELS[date.getDay()],
+          dateLabel: `${date.getMonth() + 1}/${date.getDate()}`,
           hours,
+          minutes,
+          isToday,
+          selected: false,
           status: risk.status
-        };
-      });
+        });
+      }
 
       const todaySeconds = (byKey[todayKey] && byKey[todayKey].seconds) || 0;
       const totalMinutes = Math.floor(todaySeconds / 60);
@@ -167,9 +171,9 @@ Page({
       this.maybeShowHealthReminder(todayKey, risk);
     };
 
-    render(usageTracker.getDays(mondayKey, todayKey));
+    render(usageTracker.getDays(startKey, todayKey));
     if (refreshCloud) {
-      usageTracker.refreshRange(mondayKey, todayKey).then(render);
+      usageTracker.refreshRange(startKey, todayKey).then(render);
     }
   },
 
@@ -365,6 +369,18 @@ Page({
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
+  },
+
+  // 点击柱子，在顶部显示/隐藏具体时长（0时长柱子无数据，不响应）
+  onTapBar(e) {
+    const index = e.currentTarget.dataset.index;
+    const target = this.data.weekData[index];
+    if (!target || !target.minutes) return;
+    const weekData = this.data.weekData.map((item, i) => ({
+      ...item,
+      selected: i === index ? !item.selected : false
+    }));
+    this.setData({ weekData });
   },
 
   dismissHealth() {

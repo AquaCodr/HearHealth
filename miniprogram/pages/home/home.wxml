@@ -61,18 +61,21 @@
     <view class="health-btn" wx:if="{{!healthDismissed}}" bindtap="dismissHealth">知道了</view>
   </view>
 
-  <!-- 本周应用内代理记录概览 -->
+  <!-- 近7天应用内代理记录概览 -->
   <view class="card week-card" bindtap="goStats">
     <view class="card-header">
-      <view class="card-title">本周应用内记录</view>
+      <view class="card-title">近7天应用内记录</view>
       <view class="card-more">查看详情 ›</view>
     </view>
     <view class="bar-chart">
-      <view class="bar-item" wx:for="{{weekData}}" wx:key="day">
+      <view class="bar-item" wx:for="{{weekData}}" wx:key="day" data-index="{{index}}" catchtap="onTapBar">
         <view class="bar-wrap">
-          <view class="bar bar-{{item.status}}" style="height: {{item.hours / maxWeekHours * 100}}%;"></view>
+          <view class="bar-col" style="height: {{item.hours > 0 ? item.hours / maxWeekHours * 100 : 0}}%;">
+            <view class="bar-tip" wx:if="{{item.selected && item.minutes > 0}}">{{item.minutes}}min</view>
+            <view class="bar bar-{{item.status}}" wx:if="{{item.hours > 0}}"></view>
+          </view>
         </view>
-        <view class="bar-label">周{{item.day}}</view>
+        <view class="bar-label">{{item.dateLabel}}{{item.isToday ? ' 今天' : ''}}</view>
       </view>
     </view>
   </view>
