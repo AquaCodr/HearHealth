@@ -292,10 +292,35 @@
   justify-content: center;
 }
 
+.bar-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 0;
+}
+
+.bar-tip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-ink);
+  color: #ffffff;
+  font-size: var(--text-micro-legal);
+  font-weight: 500;
+  line-height: 1;
+  padding: 8rpx 14rpx;
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+  z-index: 2;
+}
+
 .bar {
   width: 40rpx;
+  height: 100%;
   border-radius: 10rpx 10rpx 0 0;
-  min-height: 8rpx;
 }
 
 .bar-normal {
