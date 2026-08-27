@@ -9,7 +9,7 @@
   metrics="{{metrics}}"
   reference-value="{{60}}"
   info-title="环境音量说明"
-  info-text="环境音量为应用内采样的趋势估计，不用于判断具体疾病或听力损伤。"
+  info-text="当前环境音量为演示采样，不代表真实测量，也不用于判断具体疾病或听力损伤。"
   footer-text="环境音量会受使用环境影响，数据仅供趋势参考。"
   bind:rangechange="onRangeChange"
 />
