@@ -15,7 +15,7 @@
             <view class="progress-cap" style="background: #e8e8ed; left: {{trackCapEndLeft}}rpx; top: {{trackCapEndTop}}rpx;"></view>
           </view>
           <view class="progress-overlay">
-            <view class="progress-label">今日</view>
+            <view class="progress-label">今日估算</view>
             <view class="progress-value">{{todayHours}}h{{todayMinutes}}min</view>
           </view>
         </view>
@@ -61,10 +61,10 @@
     <view class="health-btn" wx:if="{{!healthDismissed}}" bindtap="dismissHealth">知道了</view>
   </view>
 
-  <!-- 本周用耳概览 -->
+  <!-- 本周应用内代理记录概览 -->
   <view class="card week-card" bindtap="goStats">
     <view class="card-header">
-      <view class="card-title">本周用耳概览</view>
+      <view class="card-title">本周应用内记录</view>
       <view class="card-more">查看详情 ›</view>
     </view>
     <view class="bar-chart">
