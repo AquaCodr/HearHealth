@@ -9,7 +9,7 @@
   metrics="{{metrics}}"
   reference-value="{{60}}"
   info-title="耳机音量说明"
-  info-text="暴露量结合耳机音量与使用时间估算，数据来自应用内的用耳记录。正式健康阈值需由专业规则确认。"
+  info-text="当前时长来自小程序前台代理记录，音量采样为演示数据，不代表真实耳机测量。正式健康阈值需由专业规则确认。"
   footer-text="声音暴露数据仅供趋势参考，不能替代专业听力检查。"
   bind:rangechange="onRangeChange"
 />

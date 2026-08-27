@@ -30,8 +30,29 @@ let samplerTimer = null
 let lastSyncAt = 0
 let lastHp = HP_BASE_DB
 let lastEnv = 48
-// 待同步缓冲：先写 storage 再异步上报，进程被杀也不丢当天的增量
-let pending = { dateKey: '', seconds: 0, samples: [] }
+// 待同步缓冲：pending 接收新数据，inFlight 保存正在上报的快照。
+// 两者都写入同一个 storage key，网络失败或进程退出时不会提前丢掉增量。
+let pending = emptyBucket()
+let inFlightBucket = null
+let flushPromise = null
+let flushRequested = false
+
+function emptyBucket() {
+  return { dateKey: '', seconds: 0, samples: [] }
+}
+
+function normalizeBucket(raw) {
+  if (!raw || typeof raw !== 'object') return emptyBucket()
+  return {
+    dateKey: typeof raw.dateKey === 'string' ? raw.dateKey : '',
+    seconds: Math.max(0, Number(raw.seconds) || 0),
+    samples: Array.isArray(raw.samples) ? raw.samples : []
+  }
+}
+
+function hasBucketData(bucket) {
+  return Boolean(bucket && bucket.dateKey && (bucket.seconds || bucket.samples.length))
+}
 
 function pad2(value) {
   return value < 10 ? `0${value}` : `${value}`
@@ -148,20 +169,27 @@ function loadPending() {
     const stored = wx.getStorageSync(PENDING_KEY)
     if (stored && typeof stored === 'object') {
       return {
-        dateKey: typeof stored.dateKey === 'string' ? stored.dateKey : '',
-        seconds: Number(stored.seconds) || 0,
-        samples: Array.isArray(stored.samples) ? stored.samples : []
+        pending: normalizeBucket(stored),
+        inFlight: normalizeBucket(stored.inFlight)
       }
     }
   } catch (e) {
     // 同上
   }
-  return { dateKey: '', seconds: 0, samples: [] }
+  return { pending: emptyBucket(), inFlight: emptyBucket() }
 }
 
 function savePending() {
   try {
-    wx.setStorageSync(PENDING_KEY, pending)
+    const stored = {
+      dateKey: pending.dateKey,
+      seconds: pending.seconds,
+      samples: pending.samples
+    }
+    if (hasBucketData(inFlightBucket)) {
+      stored.inFlight = inFlightBucket
+    }
+    wx.setStorageSync(PENDING_KEY, stored)
   } catch (e) {
     // 忽略写入失败
   }
@@ -171,7 +199,7 @@ function clampDb(value) {
   return Math.min(120, Math.max(20, Math.round(value)))
 }
 
-// 随机游走生成一条采样：耳机音量围绕基准波动，环境音量略低于耳机音量
+// Mock/demo 采样：仅维持旧统计页图表结构，不代表真实耳机或环境音量测量。
 function nextSample(now) {
   lastHp = clampDb(lastHp + (Math.random() * 2 - 1) * HP_STEP_DB)
   lastEnv = clampDb(lastHp - ENV_GAP_MIN_DB - Math.random() * (ENV_GAP_MAX_DB - ENV_GAP_MIN_DB))
@@ -192,29 +220,65 @@ function accumulate(now) {
   pending.seconds += Math.round(delta / 1000)
 }
 
-// 把待同步缓冲并入本地镜像并异步上报云端；无论上报成败都清空缓冲
-// （失败场景由下次 refreshRange 以服务端为准收敛，本地仍保有当天数据）
+// 同一时刻只允许一个增量上报。快照在云端明确成功前一直保存在 inFlight，
+// 失败后由下一同步周期原样重试。
+// saveUsage 目前没有 requestId/eventId；若服务端成功但响应丢失，重试仍可能重复累加。
+// 严格 exactly-once 需要未来由接口增加幂等标识，本轮不改变数据库结构。
 function flushPending() {
-  const bucket = pending
-  pending = { dateKey: '', seconds: 0, samples: [] }
-  savePending()
+  if (flushPromise) {
+    flushRequested = true
+    return flushPromise
+  }
 
-  if (!bucket.dateKey || (!bucket.seconds && !bucket.samples.length)) return
+  if (!hasBucketData(inFlightBucket)) {
+    if (!hasBucketData(pending)) return Promise.resolve()
+    inFlightBucket = pending
+    pending = emptyBucket()
+    savePending()
+  }
 
-  const state = loadState()
-  const day = state.days[bucket.dateKey] || newDayRecord()
-  day.seconds += bucket.seconds
-  bucket.samples.forEach(sample => applySampleToDay(day, sample))
-  state.days[bucket.dateKey] = day
-  state.lastHp = lastHp
-  state.lastEnv = lastEnv
-  saveState(state)
-
-  callUser('saveUsage', {
+  const bucket = inFlightBucket
+  flushPromise = callUser('saveUsage', {
     dateKey: bucket.dateKey,
     addSeconds: bucket.seconds,
     samples: bucket.samples
-  }).catch(() => {})
+  })
+    .then(result => {
+      const state = loadState()
+      const day = state.days[bucket.dateKey] || newDayRecord()
+      const serverSeconds = Number(result && result.seconds)
+      day.seconds = Number.isFinite(serverSeconds)
+        ? serverSeconds
+        : day.seconds + bucket.seconds
+      bucket.samples.forEach(sample => applySampleToDay(day, sample))
+      state.days[bucket.dateKey] = day
+      state.lastHp = lastHp
+      state.lastEnv = lastEnv
+      saveState(state)
+
+      inFlightBucket = null
+      savePending()
+      return result
+    })
+    .catch(error => {
+      // inFlight 继续落在 hearHealthUsagePending，下一周期会重试同一增量。
+      savePending()
+      console.error('[usage-tracker] saveUsage failed', {
+        dateKey: bucket.dateKey,
+        addSeconds: bucket.seconds,
+        error
+      })
+      return null
+    })
+    .finally(() => {
+      flushPromise = null
+      if (flushRequested) {
+        flushRequested = false
+        flushPending()
+      }
+    })
+
+  return flushPromise
 }
 
 function onSamplerTick() {
@@ -236,9 +300,8 @@ function onAppShow() {
   active = true
 
   const restored = loadPending()
-  if (restored.dateKey) {
-    pending = restored
-  }
+  pending = restored.pending
+  inFlightBucket = hasBucketData(restored.inFlight) ? restored.inFlight : null
   const state = loadState()
   lastHp = state.lastHp
   lastEnv = state.lastEnv
@@ -279,26 +342,46 @@ function toDayView(dateKey, day) {
   }
 }
 
-// 读取本地区间内的按天记录（升序）
-function getDays(fromDate, toDate) {
-  const state = loadState()
-  return Object.keys(state.days)
-    .sort()
-    .filter(key => key >= fromDate && key <= toDate)
-    .map(key => toDayView(key, state.days[key]))
+// 将尚未得到云端确认的增量叠加到只读视图，不写回已确认的本地镜像。
+function overlayBucket(days, bucket, fromDate, toDate) {
+  if (!hasBucketData(bucket) || bucket.dateKey < fromDate || bucket.dateKey > toDate) return
+  const day = days[bucket.dateKey] || newDayRecord()
+  day.seconds += bucket.seconds
+  bucket.samples.forEach(sample => applySampleToDay(day, sample))
+  days[bucket.dateKey] = day
 }
 
-// 云端拉取区间记录并合并进本地镜像。合并规则：服务端整天覆盖；
-// 仅当该天仍有待同步缓冲（只可能是今天）时跳过，等缓冲刷掉后再拉即一致。
+// 读取本地区间内的按天记录（升序）：云端已确认镜像 + 本地未同步增量。
+function getDays(fromDate, toDate) {
+  const state = loadState()
+  const days = {}
+  Object.keys(state.days).forEach(key => {
+    days[key] = normalizeStoredDay(state.days[key])
+  })
+  overlayBucket(days, inFlightBucket, fromDate, toDate)
+  overlayBucket(days, pending, fromDate, toDate)
+
+  return Object.keys(days)
+    .sort()
+    .filter(key => key >= fromDate && key <= toDate)
+    .map(key => toDayView(key, days[key]))
+}
+
+// 云端拉取区间记录并覆盖本地的“已确认镜像”；getDays 再叠加未同步增量。
+// 若已有 flush，先等它完成，避免 listUsage 与增量确认交错造成瞬时重复显示。
 function refreshRange(fromDate, toDate) {
-  return callUser('listUsage', { fromDate, toDate })
+  const waitForFlush = flushPromise
+    ? flushPromise.catch(() => null)
+    : Promise.resolve()
+
+  return waitForFlush
+    .then(() => callUser('listUsage', { fromDate, toDate }))
     .then(records => {
       const list = Array.isArray(records) ? records : []
       const state = loadState()
-      const bufferedKey = pending.dateKey || loadPending().dateKey
 
       list.forEach(record => {
-        if (!record || !record.dateKey || record.dateKey === bufferedKey) return
+        if (!record || !record.dateKey) return
         const day = normalizeStoredDay({
           ...record,
           samples: (record.samples || []).slice(-DAY_SAMPLE_LIMIT)
@@ -311,7 +394,14 @@ function refreshRange(fromDate, toDate) {
       saveState(state)
       return getDays(fromDate, toDate)
     })
-    .catch(() => getDays(fromDate, toDate))
+    .catch(error => {
+      console.error('[usage-tracker] listUsage failed', {
+        fromDate,
+        toDate,
+        error
+      })
+      return getDays(fromDate, toDate)
+    })
 }
 
 module.exports = {

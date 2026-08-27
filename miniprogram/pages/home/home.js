@@ -28,6 +28,10 @@ const HOSPITAL_DB = [
 
 const { getSettings } = require('../../utils/app-settings');
 const usageTracker = require('../../utils/usage-tracker');
+const { calculateUsageRisk } = require('../../utils/usage-risk');
+
+const USAGE_REFRESH_INTERVAL_MS = 30 * 1000;
+const HEALTH_REMINDER_STORAGE_KEY = 'hearHealthDailyRiskReminder';
 
 // 周几标签（getDay：0=周日，6=周六）
 const WEEK_LABELS = ['日', '一', '二', '三', '四', '五', '六'];
@@ -55,10 +59,11 @@ Page({
     todayHours: 0,
     todayMinutes: 0,
     threshold: 2,
+    healthReminder: true,
     progressPercent: 0,
     progressGradient: '',
     healthStatus: 'normal',
-    healthText: '正在加载今天的用耳数据…',
+    healthText: '正在加载今天的应用内记录…',
     healthDismissed: false,
     locationDenied: false,
     weekData: [], // 近7天数据（今天在最右），由 loadUsageData 生成
@@ -79,17 +84,25 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 });
     }
-    // 阈值可能刚在设置页改过；每次回到首页都按最新配置加载用量数据
-    this.setData({ threshold: getSettings().reminderThreshold });
-    this.loadUsageData();
+    // 设置可能刚在设置页改过；每次回到首页都读取最新配置。
+    const settings = getSettings();
+    this.setData({
+      threshold: settings.reminderThreshold,
+      healthReminder: settings.healthReminder
+    }, () => {
+      this.loadUsageData(true);
+      this.startUsageRefreshTimer();
+    });
   },
 
   onHide() {
     this.clearTipTimer();
+    this.clearUsageRefreshTimer();
   },
 
   onUnload() {
     this.clearTipTimer();
+    this.clearUsageRefreshTimer();
   },
 
   setGreeting() {
@@ -107,7 +120,7 @@ Page({
 
   // 今日圆环与本周概览共用一份数据：先读本地立即渲染，再异步拉云端合并刷新。
   // 数据来自前台时长追踪（见 utils/usage-tracker.js），按用户账号存在 usage_records 里。
-  loadUsageData() {
+  loadUsageData(refreshCloud = true) {
     const now = new Date();
     // 近7天：从6天前到今天，今天在最右边
     const todayKey = dateKeyOf(now);
@@ -126,11 +139,12 @@ Page({
         const dateKey = dateKeyOf(date);
         const isToday = i === 0;
         const record = byKey[dateKey];
-        const seconds = record ? record.seconds : 0;
+        const seconds = record ? Number(record.seconds) || 0 : 0;
         const hours = Math.round((seconds / 3600) * 10) / 10;
         const minutes = Math.round(seconds / 60);
         peakHours = Math.max(peakHours, hours);
-        const ratio = hours / threshold;
+        // 与圆环、健康提示复用统一风险计算（见 utils/usage-risk.js）
+        const risk = calculateUsageRisk(seconds, threshold);
         weekData.push({
           day: WEEK_LABELS[date.getDay()],
           dateLabel: `${date.getMonth() + 1}/${date.getDate()}`,
@@ -138,40 +152,43 @@ Page({
           minutes,
           isToday,
           selected: false,
-          // 与圆环一致：<50% 阈值正常绿，50%-100% 警告黄，超阈值危险红
-          status: ratio > 1 ? 'danger' : ratio >= 0.5 ? 'warning' : 'normal'
+          status: risk.status
         });
       }
 
       const todaySeconds = (byKey[todayKey] && byKey[todayKey].seconds) || 0;
-      const totalMinutes = Math.round(todaySeconds / 60);
+      const totalMinutes = Math.floor(todaySeconds / 60);
+      const risk = calculateUsageRisk(todaySeconds, threshold);
 
       this.setData({
         todayHours: Math.floor(totalMinutes / 60),
         todayMinutes: totalMinutes % 60,
         weekData,
         maxWeekHours: Math.max(threshold, Math.ceil(peakHours * 10) / 10 || 0, 1),
-        healthText: this.buildHealthText(totalMinutes, threshold)
+        healthText: this.buildHealthText(todaySeconds, totalMinutes, risk)
       });
-      this.calculateHealthStatus();
+      this.calculateHealthStatus(risk);
+      this.maybeShowHealthReminder(todayKey, risk);
     };
 
     render(usageTracker.getDays(startKey, todayKey));
-    usageTracker.refreshRange(startKey, todayKey).then(render);
+    if (refreshCloud) {
+      usageTracker.refreshRange(startKey, todayKey).then(render);
+    }
   },
 
-  buildHealthText(totalMinutes, threshold) {
-    if (!totalMinutes) {
-      return '今天还没有用耳记录，戴上耳机前记得控制音量';
+  buildHealthText(usageSeconds, totalMinutes, risk) {
+    if (!usageSeconds) {
+      return '今天还没有应用内记录，使用耳机时记得控制音量并适当休息';
     }
     const durationText = formatDuration(totalMinutes);
-    if (totalMinutes > threshold * 60) {
-      return `今天已戴耳机${durationText}，超过 ${threshold} 小时阈值了，建议摘下休息一会儿`;
+    if (risk.status === 'danger') {
+      return `今日应用内记录时长${durationText}，当前时长较高，建议暂停使用耳机并充分休息`;
     }
-    if (totalMinutes >= threshold * 30) {
-      return `今天已戴耳机${durationText}，接近 ${threshold} 小时提醒阈值，注意让耳朵歇歇`;
+    if (risk.status === 'warning') {
+      return `今日应用内记录时长${durationText}，已达到提醒阈值，建议适当休息`;
     }
-    return `今天已戴耳机${durationText}，用耳状态良好，继续保持`;
+    return `今日应用内记录时长${durationText}，当前风险状态较低`;
   },
 
   // 轻点顶部问候卡片，显示 WHO 护耳小知识，3 秒后自动恢复
@@ -194,19 +211,9 @@ Page({
     }
   },
 
-  calculateHealthStatus() {
-    const totalHours = this.data.todayHours + this.data.todayMinutes / 60;
-    const threshold = this.data.threshold;
-    const progressPercent = Math.min((totalHours / threshold) * 100, 100);
-
-    // 按 PRD：<50%阈值=正常绿，50%-100%阈值=警告黄，>100%阈值=危险红
-    let healthStatus = 'normal';
-    if (totalHours > threshold) {
-      healthStatus = 'danger';
-    } else if (totalHours >= threshold * 0.5) {
-      healthStatus = 'warning';
-    }
-
+  calculateHealthStatus(risk) {
+    const progressPercent = risk.progressPercent;
+    const healthStatus = risk.status;
     const progressColor = this.getProgressColor(healthStatus);
     const progressDeg = (progressPercent / 100) * 270;
     // 270度圆环，缺口在顶部（CSS 角度：从 225deg 开始，顺时针 270deg 后回到 135deg）
@@ -242,15 +249,86 @@ Page({
   },
 
   getProgressColor(status) {
-    // 与 app.wxss 语义 token 保持一致：success #34c759 / warning #ffcc00 / danger #ff3b30
+    // 复用 app.wxss 语义 token，不在页面内创建新的颜色体系。
     switch (status) {
       case 'danger':
-        return '#ff3b30';
+        return 'var(--color-danger)';
       case 'warning':
-        return '#ffcc00';
+        return 'var(--color-warning)';
       default:
-        return '#34c759';
+        return 'var(--color-success)';
     }
+  },
+
+  startUsageRefreshTimer() {
+    this.clearUsageRefreshTimer();
+    // 只读本地 tracker 镜像；云端仍由 tracker 原有节奏同步，并仅在 onShow 时主动拉取。
+    this.usageRefreshTimer = setInterval(() => {
+      this.loadUsageData(false);
+    }, USAGE_REFRESH_INTERVAL_MS);
+  },
+
+  clearUsageRefreshTimer() {
+    if (this.usageRefreshTimer) {
+      clearInterval(this.usageRefreshTimer);
+      this.usageRefreshTimer = null;
+    }
+  },
+
+  getDailyReminderState(dateKey) {
+    if (this.dailyReminderState && this.dailyReminderState.dateKey === dateKey) {
+      return this.dailyReminderState;
+    }
+    try {
+      const stored = wx.getStorageSync(HEALTH_REMINDER_STORAGE_KEY);
+      if (stored && stored.dateKey === dateKey) {
+        this.dailyReminderState = {
+          dateKey,
+          warningShown: Boolean(stored.warningShown),
+          dangerShown: Boolean(stored.dangerShown)
+        };
+        return this.dailyReminderState;
+      }
+    } catch (error) {
+      // Storage 不可用时仍使用当前页面实例的内存态去重。
+    }
+    this.dailyReminderState = { dateKey, warningShown: false, dangerShown: false };
+    return this.dailyReminderState;
+  },
+
+  saveDailyReminderState(state) {
+    this.dailyReminderState = state;
+    try {
+      wx.setStorageSync(HEALTH_REMINDER_STORAGE_KEY, state);
+    } catch (error) {
+      // 当前页面实例仍会通过 dailyReminderState 避免重复提醒。
+    }
+  },
+
+  maybeShowHealthReminder(dateKey, risk) {
+    if (!this.data.healthReminder || risk.status === 'normal') return;
+
+    const state = this.getDailyReminderState(dateKey);
+    let content = '';
+
+    if (risk.status === 'danger' && !state.dangerShown) {
+      state.dangerShown = true;
+      // 首次载入就已超过 90% 时只提示更高等级，避免连续弹出两次。
+      state.warningShown = true;
+      content = '今日记录时长较高，建议暂停使用耳机并让耳朵充分休息。';
+    } else if (risk.status === 'warning' && !state.warningShown) {
+      state.warningShown = true;
+      content = '今日记录时长已达到提醒阈值，建议适当休息。';
+    }
+
+    if (!content) return;
+    this.saveDailyReminderState(state);
+    wx.showModal({
+      title: '用耳健康提醒',
+      content,
+      showCancel: false,
+      confirmText: '知道了'
+    });
   },
 
   // 获取用户定位，计算最近3家医院
