@@ -339,6 +339,13 @@
   font-size: var(--text-fine-print);
   color: var(--color-ink-muted-48);
   margin-top: 14rpx;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-label-today {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 /* ========== 附近医院 ========== */

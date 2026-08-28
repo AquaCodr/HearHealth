@@ -75,7 +75,7 @@
             <view class="bar bar-{{item.status}}" wx:if="{{item.hours > 0}}"></view>
           </view>
         </view>
-        <view class="bar-label">{{item.dateLabel}}{{item.isToday ? ' 今天' : ''}}</view>
+        <view class="bar-label {{item.isToday ? 'bar-label-today' : ''}}">{{item.dateLabel}}</view>
       </view>
     </view>
   </view>
