@@ -10,9 +10,9 @@
         <view class="progress-ring">
           <view class="progress-track" style="background: {{progressGradient}}">
             <view class="progress-hole"></view>
-            <view class="progress-cap" wx:if="{{progressPercent > 0}}" style="background: {{progressColor}}; left: {{capStartLeft}}rpx; top: {{capStartTop}}rpx;"></view>
+            <view class="progress-cap" style="background: {{startCapColor}}; left: {{capStartLeft}}rpx; top: {{capStartTop}}rpx;"></view>
             <view class="progress-cap" wx:if="{{progressPercent > 0 && progressPercent < 100}}" style="background: {{progressColor}}; left: {{capEndLeft}}rpx; top: {{capEndTop}}rpx;"></view>
-            <view class="progress-cap" style="background: #e8e8ed; left: {{trackCapEndLeft}}rpx; top: {{trackCapEndTop}}rpx;"></view>
+            <view class="progress-cap" style="background: {{trackEndCapColor}}; left: {{trackCapEndLeft}}rpx; top: {{trackCapEndTop}}rpx;"></view>
           </view>
           <view class="progress-overlay">
             <view class="progress-label">今日估算</view>

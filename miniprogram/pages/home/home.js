@@ -62,6 +62,8 @@ Page({
     healthReminder: true,
     progressPercent: 0,
     progressGradient: '',
+    startCapColor: '#e8e8ed',
+    trackEndCapColor: '#e8e8ed',
     healthStatus: 'normal',
     healthText: '正在加载今天的应用内记录…',
     healthDismissed: false,
@@ -229,10 +231,14 @@ Page({
     const capEndLeft = 100 + radius * Math.sin(endRad);
     const capEndTop = 100 - radius * Math.cos(endRad);
 
-    // 灰色背景轨道末端圆角（固定 135deg 位置，即 225+270）
+    // 轨道末端圆角（固定 135deg，即 225+270）：进度走满时该处是进度色，未满时是灰色轨道色，
+    // 保证端点颜色与所在弧段一致，避免“灰色圆点压在红弧终点”或“平头方角”
     const trackEndRad = (135 * Math.PI) / 180;
     const trackCapEndLeft = 100 + radius * Math.sin(trackEndRad);
     const trackCapEndTop = 100 - radius * Math.cos(trackEndRad);
+    const trackEndCapColor = progressPercent >= 100 ? progressColor : '#e8e8ed';
+    // 无进度时起点同样用轨道灰，空轨道两端都是圆角
+    const startCapColor = progressPercent > 0 ? progressColor : '#e8e8ed';
 
     this.setData({
       progressPercent,
@@ -244,7 +250,9 @@ Page({
       capEndLeft,
       capEndTop,
       trackCapEndLeft,
-      trackCapEndTop
+      trackCapEndTop,
+      trackEndCapColor,
+      startCapColor
     });
   },
 
