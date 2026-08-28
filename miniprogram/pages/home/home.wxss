@@ -306,13 +306,11 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--color-ink);
-  color: #ffffff;
+  color: var(--color-ink);
   font-size: var(--text-micro-legal);
   font-weight: 500;
   line-height: 1;
-  padding: 8rpx 14rpx;
-  border-radius: var(--radius-xs);
+  padding: 4rpx 0;
   white-space: nowrap;
   z-index: 2;
 }
