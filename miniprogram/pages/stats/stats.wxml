@@ -65,7 +65,9 @@
         <text class="insight-meta">{{headphoneMeta}}</text>
       </view>
       <view class="mini-chart" aria-hidden="true">
-        <view class="mini-chart-bar" wx:for="{{headphoneMiniBars}}" wx:key="*this" style="height: {{item}}%;"></view>
+        <view class="mini-chart-column" wx:for="{{headphoneMiniBars}}" wx:key="key">
+          <view class="mini-range-bar" wx:if="{{item.span > 0}}" style="bottom: {{item.min}}%; height: {{item.span}}%;"></view>
+        </view>
         <view class="mini-chart-line"></view>
       </view>
       <image class="insight-arrow" src="/images/arrow.svg" mode="aspectFit"></image>
@@ -84,7 +86,9 @@
         <text class="insight-meta">{{environmentMeta}}</text>
       </view>
       <view class="mini-chart" aria-hidden="true">
-        <view class="mini-chart-bar" wx:for="{{environmentMiniBars}}" wx:key="*this" style="height: {{item}}%;"></view>
+        <view class="mini-chart-column" wx:for="{{environmentMiniBars}}" wx:key="key">
+          <view class="mini-range-bar" wx:if="{{item.span > 0}}" style="bottom: {{item.min}}%; height: {{item.span}}%;"></view>
+        </view>
         <view class="mini-chart-line"></view>
       </view>
       <image class="insight-arrow" src="/images/arrow.svg" mode="aspectFit"></image>

@@ -159,9 +159,10 @@
 .status-dot { width: 14rpx; height: 14rpx; margin-right: 10rpx; border-radius: 50%; background: #34c759; }
 .status-text { color: #1d8f40; font-size: 22rpx; font-weight: 600; }
 .insight-meta { display: block; margin-top: 6rpx; overflow: hidden; color: #7a7a7a; font-size: 21rpx; text-overflow: ellipsis; white-space: nowrap; }
-.mini-chart { position: relative; display: flex; align-self: center; align-items: center; justify-content: space-between; width: 132rpx; height: 108rpx; margin-left: 12rpx; padding: 0 4rpx; }
-.mini-chart-bar { z-index: 1; width: 8rpx; min-height: 12rpx; border-radius: 8rpx; background: #0071e3; }
-.mini-chart-line { position: absolute; right: 0; left: 0; top: 50%; height: 2rpx; background: rgba(0, 113, 227, 0.28); }
+.mini-chart { position: relative; display: flex; align-self: center; align-items: stretch; justify-content: space-between; width: 132rpx; height: 108rpx; margin-left: 12rpx; padding: 0 4rpx; }
+.mini-chart-column { position: relative; flex: 1; }
+.mini-range-bar { position: absolute; z-index: 1; left: 50%; width: 8rpx; border-radius: 8rpx; background: #0071e3; transform: translateX(-50%); }
+.mini-chart-line { position: absolute; z-index: 0; right: 0; left: 0; bottom: 60%; height: 2rpx; background: rgba(0, 113, 227, 0.28); }
 .insight-arrow { align-self: center; width: 16rpx; height: 28rpx; margin-left: 12rpx; opacity: 0.55; }
 .stats-footnote { padding: 16rpx 18rpx 0; color: #7a7a7a; font-size: 22rpx; line-height: 1.5; text-align: center; }
 

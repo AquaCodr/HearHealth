@@ -35,10 +35,15 @@ function getLevel(minutes) {
   return 4
 }
 
-// 迷你柱状图：日均音量（dB）映射为 8%-100% 的柱高，无采样日给一个最低高度占位
-function dbToBarHeight(db) {
-  if (db === null || db === undefined) return 4
-  return Math.min(100, Math.max(8, Math.round(((db - 35) / 50) * 100)))
+// 迷你区间图：与详情页（sound-detail）同语义，dB 值直接作为图表百分比（纵轴 0-100% 对应 0-100 dB），
+// 每天一根从当日最低到最高音量的细线段，无采样日 span 为 0 不渲染
+function bandToRangeBar(min, max, index) {
+  if (min === null || min === undefined || max === null || max === undefined) {
+    return { key: `bar-${index}`, min: 0, span: 0 }
+  }
+  const low = Math.round(Math.min(100, Math.max(0, min)))
+  const high = Math.round(Math.min(100, Math.max(0, max)))
+  return { key: `bar-${index}`, min: low, span: Math.max(high - low, 2) }
 }
 
 Page({
@@ -198,12 +203,12 @@ Page({
     let envPeak = null
     let totalSeconds = 0
 
-    keys.forEach(key => {
+    keys.forEach((key, index) => {
       const record = this.usageCache[key]
-      const hpAvg = record && record.hpCount ? Math.round(record.hpSum / record.hpCount) : null
-      const envAvg = record && record.envCount ? Math.round(record.envSum / record.envCount) : null
-      headphoneMiniBars.push(dbToBarHeight(hpAvg))
-      environmentMiniBars.push(dbToBarHeight(envAvg))
+      const hasHp = record && record.hpCount
+      const hasEnv = record && record.envCount
+      headphoneMiniBars.push(bandToRangeBar(hasHp ? record.hpMin : null, hasHp ? record.hpMax : null, index))
+      environmentMiniBars.push(bandToRangeBar(hasEnv ? record.envMin : null, hasEnv ? record.envMax : null, index))
 
       if (record) {
         hpSum += record.hpSum || 0
