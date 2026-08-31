@@ -170,7 +170,6 @@
   animation: fade-up 0.7s ease-out 0.35s both;
 }
 
-/* 品牌蓝实心发光按钮 */
 .splash-hint {
   margin-bottom: var(--spacing-md);
   color: var(--color-ink-muted-48);
@@ -179,6 +178,7 @@
   text-align: center;
 }
 
+/* 品牌蓝实心发光按钮 */
 .splash-login-btn {
   width: 100%;
   height: 104rpx;
