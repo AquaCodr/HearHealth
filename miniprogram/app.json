@@ -2,6 +2,7 @@
   "pages": [
     "pages/splash/splash",
     "pages/home/home",
+    "pages/ai-chat/ai-chat",
     "pages/stats/stats",
     "pages/community/community",
     "pages/profile/profile",
@@ -13,9 +14,11 @@
     "pages/community/detail",
     "pages/community/publish",
     "pages/profile/my-posts",
+    "pages/profile/test-history",
     "pages/profile/edit-profile",
     "pages/profile/settings",
     "pages/profile/about",
+    "pages/profile/points-shop",
     "pages/skill/list",
     "pages/skill/detail"
   ],

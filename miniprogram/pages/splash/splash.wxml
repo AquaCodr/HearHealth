@@ -1,18 +1,56 @@
 <view class="splash-page">
+  <!-- 背景：品牌蓝渐变 + 光晕 -->
+  <view class="splash-bg"></view>
+  <view class="splash-glow splash-glow--top"></view>
+  <view class="splash-glow splash-glow--bottom"></view>
+
+  <!-- 品牌区 -->
   <view class="splash-brand">
-    <image class="splash-logo" src="/images/icons/headphones.svg" mode="aspectFit"></image>
+    <!-- 声波涟漪层：以耳机图标为中心扩散 -->
+    <view class="splash-ripple" aria-hidden="true">
+      <view class="ripple-circle ripple-1"></view>
+      <view class="ripple-circle ripple-2"></view>
+      <view class="ripple-circle ripple-3"></view>
+      <view class="ripple-circle ripple-4"></view>
+      <view class="ripple-circle ripple-5"></view>
+    </view>
+    <view class="splash-logo-wrap">
+      <image class="splash-logo" src="/images/icons/splash-headphones.png" mode="aspectFit"></image>
+    </view>
     <view class="splash-name">HearHealth</view>
-    <view class="splash-slogan">关注听力健康，从每天开始</view>
+    <view class="splash-divider"></view>
+    <view class="splash-slogan">每一次聆听，都有回响</view>
   </view>
 
+  <!-- 操作区 -->
   <view class="splash-actions">
-    <button
-      class="splash-login-btn {{loggingIn ? 'splash-login-btn--loading' : ''}}"
-      bindtap="onLoginTap"
-      hover-class="splash-login-btn--pressed"
-      disabled="{{loggingIn}}"
-    >{{loggingIn ? '正在登录…' : '微信一键登录'}}</button>
-    <view class="splash-error" wx:if="{{errorMsg}}">{{errorMsg}}</view>
-    <view class="splash-skip" bindtap="onSkipTap" hover-class="splash-skip--pressed">暂不登录，先逛逛</view>
+    <!-- 未登录才展示登录入口；已登录用户只看到进入提示，避免误以为还需要登录 -->
+    <block wx:if="{{!loggedIn}}">
+      <view class="splash-hint">登录后可云端同步用耳与听力数据，不登录也能使用大部分功能</view>
+      <button
+        class="splash-login-btn {{loggingIn ? 'splash-login-btn--loading' : ''}}"
+        bindtap="onLoginTap"
+        hover-class="splash-login-btn--pressed"
+        disabled="{{loggingIn}}"
+      >
+        <text>{{loggingIn ? '正在登录…' : '微信一键登录'}}</text>
+      </button>
+
+      <!-- 协议勾选：线上不勾选不发请求，云端建档只发生在用户明确同意之后 -->
+      <view class="splash-agreement" bindtap="onToggleAgree">
+        <view class="splash-checkbox {{agreed ? 'splash-checkbox--checked' : ''}}"></view>
+        <view class="splash-agreement-text">
+          我已阅读并同意
+          <text class="splash-link" data-type="terms" catchtap="onAgreementTap">《用户协议》</text>
+          和
+          <text class="splash-link" data-type="privacy" catchtap="onAgreementTap">《隐私政策》</text>
+        </view>
+      </view>
+
+      <view class="splash-error" wx:if="{{errorMsg}}">{{errorMsg}}</view>
+      <view class="splash-skip" bindtap="onSkipTap" hover-class="splash-skip--pressed">暂不登录，先逛逛</view>
+    </block>
+
+    <view class="splash-entering" wx:else>已登录，正在进入…</view>
   </view>
 </view>

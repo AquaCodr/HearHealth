@@ -4,11 +4,24 @@
 // 并把云端档案同步回本地 storage（资料新者胜，设置以云端为准）。
 const { getUserProfile, saveUserProfile } = require('./user-profile')
 const { getSettings, saveSettings } = require('./app-settings')
+const {
+  SESSION_KEY,
+  clearAccountData,
+  clearLoggedOut,
+  grantConsent,
+  hasConsent,
+  isLoggedOut,
+  markLoggedOut,
+  revokeConsent
+} = require('./local-data')
 
-const SESSION_STORAGE_KEY = 'hearHealthSession'
+const SESSION_STORAGE_KEY = SESSION_KEY
 
 let sessionCache = null
 let loginPromise = null
+// 会话代号：每次退出登录自增。登录请求发出后用户可能已退出，
+// 回到前台的响应不能把会话和云端数据重新写回本地（issue #35）
+let sessionEpoch = 0
 
 function callUser(type, data = {}) {
   return wx.cloud.callFunction({
@@ -110,19 +123,27 @@ function mergeFavorites(localFavs, serverFavs) {
   return merged
 }
 
-// 静默登录（幂等）：同一时刻只发一次请求；已登录时直接复用会话
+// 静默登录（幂等）：同一时刻只发一次请求；已登录时直接复用会话。
+// 注意：这个接口只负责「同步/复用会话」，不代表用户同意建档，
+// 因此新用户建档必须走 login()（用户点按钮 + 已勾选协议），不要在页面里直接调它（issue #36）。
 function ensureLogin() {
   if (loginPromise) return loginPromise
+
+  const epoch = sessionEpoch
 
   loginPromise = callUser('login', {
     profile: getUserProfile(),
     settings: getSettings()
   }).then(data => {
+    // 登录请求在途期间若已退出登录，丢弃这次响应，避免把云端数据重新写回本地
+    if (epoch !== sessionEpoch) return null
+
     const user = data && data.user
     if (!user) throw new Error('登录响应缺少用户信息')
 
     applyServerProfile(user)
     applyServerSettings(user.settings)
+    clearLoggedOut()
 
     let localFavs = []
     try {
@@ -134,6 +155,7 @@ function ensureLogin() {
     // 云端收藏异步拉取后二次合并（补拉其他设备产生的收藏）
     callUser('listFavorites')
       .then(favs => {
+        if (epoch !== sessionEpoch) return
         let latestLocal = []
         try {
           latestLocal = wx.getStorageSync('skill_favs') || []
@@ -158,10 +180,40 @@ function ensureLogin() {
   return loginPromise
 }
 
+// 用户主动登录（唯一允许建档的入口）：开屏页「微信一键登录」/「我的」页补登录。
+// 前置条件是已勾选同意《用户协议》与《隐私政策》并落了授权记录，
+// 这样云端建档一定是用户做了明确动作之后才发生（issue #36）。
+function login() {
+  if (!hasConsent()) {
+    return Promise.reject(new Error('请先阅读并同意《用户协议》与《隐私政策》'))
+  }
+  return ensureLogin()
+}
+
+// 退出登录：清掉本地会话与账号数据，云端数据完整保留，重新登录会同步回来。
+// 身份由微信 OPENID 决定，本地无法真正「注销微信登录」，
+// 因此额外标记 loggedOut，让 app.js 与各页面不再自动把会话补回来（issue #35）。
+// 授权记录一并撤销：下次登录需要重新勾选同意，避免「一次同意、永久有效」。
+// 需要连云端数据一起删除时用设置页的「注销账号」。
+function logout() {
+  sessionEpoch += 1
+  sessionCache = null
+  loginPromise = null
+  markLoggedOut()
+  revokeConsent()
+  clearAccountData()
+}
+
 module.exports = {
   SESSION_STORAGE_KEY,
   callUser,
   ensureLogin,
   getSession,
-  isLoggedIn
+  grantConsent,
+  hasConsent,
+  isLoggedIn,
+  isLoggedOut,
+  login,
+  logout,
+  revokeConsent
 }

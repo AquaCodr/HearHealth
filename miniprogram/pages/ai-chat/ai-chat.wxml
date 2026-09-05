@@ -1,0 +1,75 @@
+<view class="chat-page">
+  <scroll-view
+    class="chat-scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    scroll-into-view="{{scrollTarget}}"
+  >
+    <view class="chat-content">
+      <view class="welcome-card" wx:if="{{!messages.length}}">
+        <view class="welcome-title">你好，我是用耳 AI 助手</view>
+        <view class="welcome-text">你可以问我关于耳机使用、音量控制、噪声暴露和听力保护的问题。</view>
+        <view class="suggestion-list">
+          <view
+            class="suggestion-chip"
+            wx:for="{{suggestions}}"
+            wx:key="*this"
+            data-question="{{item}}"
+            bindtap="sendSuggestion"
+          >{{item}}</view>
+        </view>
+      </view>
+
+      <view
+        id="message-{{item.id}}"
+        class="message-row message-row--{{item.role}}"
+        wx:for="{{messages}}"
+        wx:key="id"
+      >
+        <view class="message-ai-mark" wx:if="{{item.role === 'assistant'}}" aria-hidden="true">AI</view>
+        <view class="message-bubble message-bubble--{{item.role}}">{{item.content}}</view>
+      </view>
+
+      <view class="message-row message-row--assistant" id="chat-loading" wx:if="{{loading}}">
+        <view class="message-ai-mark" aria-hidden="true">AI</view>
+        <view class="message-bubble message-bubble--assistant loading-bubble">
+          <text>AI 正在思考</text>
+          <view class="loading-dots" aria-hidden="true">
+            <view></view><view></view><view></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="chat-error" id="chat-error" wx:if="{{errorMessage}}">
+        <view class="chat-error-text">{{errorMessage}}</view>
+        <button class="retry-button" bindtap="retryLastMessage">重新发送</button>
+      </view>
+      <view class="chat-bottom" id="chat-bottom"></view>
+    </view>
+  </scroll-view>
+
+  <view class="chat-footer">
+    <view class="chat-disclaimer">AI 内容仅用于听力健康教育，不构成医学诊断，也不能替代专业听力检查或医生建议。</view>
+    <view class="composer">
+      <textarea
+        class="composer-input"
+        value="{{inputValue}}"
+        placeholder="输入你的用耳健康问题"
+        placeholder-class="composer-placeholder"
+        maxlength="500"
+        auto-height
+        fixed
+        cursor-spacing="16"
+        confirm-type="send"
+        bindinput="onInput"
+        bindconfirm="onConfirm"
+      ></textarea>
+      <button
+        class="send-button {{loading || !inputValue ? 'send-button--disabled' : ''}}"
+        disabled="{{loading || !inputValue}}"
+        bindtap="sendCurrentInput"
+      >发送</button>
+    </view>
+  </view>
+</view>

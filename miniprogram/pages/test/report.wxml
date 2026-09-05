@@ -80,6 +80,73 @@
         <view class="interpretation-title">如何理解结果</view>
         <view class="interpretation-text">百分比是小程序测试音上限内的线性数字增益。它不是真实分贝，不能用于不同设备之间比较，也不能替代专业听力检查。</view>
       </view>
+
+      <view class="ai-card">
+        <view class="ai-card-header">
+          <view class="ai-mark" aria-hidden="true">AI</view>
+          <view class="ai-heading-copy">
+            <view class="ai-title">AI 智能解读</view>
+            <view class="ai-subtitle">基于本次筛查结果生成</view>
+          </view>
+        </view>
+
+        <view class="ai-loading" wx:if="{{aiStatus === 'loading'}}">
+          <view class="ai-spinner" aria-hidden="true"></view>
+          <view class="ai-state-title">AI 正在分析本次筛查结果…</view>
+          <view class="ai-state-description">通常需要几秒钟，请稍候</view>
+        </view>
+
+        <view class="ai-result" wx:elif="{{aiStatus === 'success' && aiAnalysis}}">
+          <view class="ai-overview">{{aiAnalysis.overview}}</view>
+
+          <view class="ai-section" wx:if="{{aiAnalysis.findings.length}}">
+            <view class="ai-section-title">观察到的现象</view>
+            <view class="ai-list-card" wx:for="{{aiAnalysis.findings}}" wx:for-item="finding" wx:key="title">
+              <view class="ai-item-title">{{finding.title}}</view>
+              <view class="ai-item-text">{{finding.explanation}}</view>
+            </view>
+          </view>
+
+          <view class="ai-section">
+            <view class="ai-section-title">左右耳对比</view>
+            <view class="ai-comparison-card">
+              <view class="ai-item-text ai-item-text--strong">{{aiAnalysis.earComparison.summary}}</view>
+              <view class="ai-caution">{{aiAnalysis.earComparison.caution}}</view>
+            </view>
+          </view>
+
+          <view class="ai-section" wx:if="{{aiAnalysis.recommendations.length}}">
+            <view class="ai-section-title">用耳健康建议</view>
+            <view class="ai-list-card ai-recommendation" wx:for="{{aiAnalysis.recommendations}}" wx:for-item="recommendation" wx:key="text">
+              <view class="ai-priority ai-priority--{{recommendation.priority}}">{{recommendation.priorityLabel}}</view>
+              <view class="ai-item-title">{{recommendation.text}}</view>
+              <view class="ai-item-text">{{recommendation.reason}}</view>
+            </view>
+          </view>
+
+          <view class="ai-section" wx:if="{{aiAnalysis.redFlags.length}}">
+            <view class="ai-section-title">需要及时关注的情况</view>
+            <view class="ai-note-list ai-note-list--attention">
+              <view class="ai-note-line" wx:for="{{aiAnalysis.redFlags}}" wx:key="*this">{{item}}</view>
+            </view>
+          </view>
+
+          <view class="ai-section" wx:if="{{aiAnalysis.limitations.length}}">
+            <view class="ai-section-title">测试局限</view>
+            <view class="ai-note-list">
+              <view class="ai-note-line" wx:for="{{aiAnalysis.limitations}}" wx:key="*this">{{item}}</view>
+            </view>
+          </view>
+        </view>
+
+        <view class="ai-error" wx:elif="{{aiStatus === 'error'}}">
+          <view class="ai-state-title">AI 解读暂时不可用</view>
+          <view class="ai-state-description">{{aiErrorMessage}}</view>
+          <button class="ai-retry-button" wx:if="{{aiCanRetry}}" bindtap="retryAiAnalysis">重新尝试</button>
+        </view>
+
+        <view class="ai-disclaimer">{{aiFixedDisclaimer}}</view>
+      </view>
     </view>
   </block>
 

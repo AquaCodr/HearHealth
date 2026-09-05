@@ -5,7 +5,7 @@ const {
   getUserProfile,
   saveUserProfile
 } = require('../../utils/user-profile')
-const { callUser, ensureLogin } = require('../../utils/auth')
+const { callUser, ensureLogin, isLoggedIn } = require('../../utils/auth')
 
 const DEVICE_OPTIONS = [
   '未选择',
@@ -148,8 +148,11 @@ Page({
     })
   },
 
-  // 云端同步：登录 → 头像上传云存储（跨设备可见）→ 更新 users 档案
+  // 云端同步：登录 → 头像上传云存储（跨设备可见）→ 更新 users 档案。
+  // 游客不在这里静默建档：资料先落在本机，登录时按更新时间合并回云端（issue #36）
   async syncProfileToCloud(profile) {
+    if (!isLoggedIn()) return
+
     try {
       const session = await ensureLogin()
       let avatar = profile.avatar

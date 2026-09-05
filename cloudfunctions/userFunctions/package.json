@@ -1,7 +1,7 @@
 {
   "name": "userFunctions",
   "version": "1.0.0",
-  "description": "用户云函数：微信静默登录、资料/设置同步、听力测试记录与技能收藏",
+  "description": "用户云函数：登录、资料设置、听力记录、技能收藏与积分账户",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

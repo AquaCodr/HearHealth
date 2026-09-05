@@ -1,6 +1,19 @@
 const LATEST_TEST_RESULT_KEY = 'latestHearingTestResult'
+// 测试历史页查看某条旧记录时，会把完整结果暂存在这个 key（见 pages/profile/test-history.js）
+const HISTORY_TEST_RESULT_KEY = 'historyHearingTestResult'
 const COMMUNITY_SHARE_DRAFT_KEY = 'hearingReportShareDraft'
+const AI_FIXED_DISCLAIMER = 'AI 解读仅用于听力健康教育和初步筛查结果解释，不构成医学诊断，也不能替代专业听力检查或医生建议。'
 const { callUser } = require('../../utils/auth')
+const { analyzeHearingTest } = require('../../utils/ai')
+
+function readTestRecordId(value) {
+  if (typeof value !== 'string') return ''
+  try {
+    return decodeURIComponent(value).trim()
+  } catch (error) {
+    return ''
+  }
+}
 
 Page({
   data: {
@@ -9,11 +22,21 @@ Page({
     completedAtText: '',
     totalDetectedText: '0 / 12',
     earSummaries: [],
-    navigating: false
+    navigating: false,
+    aiStatus: 'idle',
+    aiAnalysis: null,
+    aiErrorMessage: '',
+    aiCanRetry: false,
+    aiFixedDisclaimer: AI_FIXED_DISCLAIMER
   },
 
-  onLoad() {
+  onLoad(options) {
     this.chartReady = false
+    this.testRecordId = readTestRecordId(options && options.testRecordId)
+    this.aiUnavailableReason = options && options.aiUnavailable
+    // from=history：来自测试历史页，渲染指定的历史记录而不是最新一条
+    this.fromHistory = Boolean(options && options.from === 'history')
+    this.aiStarted = false
     this.loadLatestResult()
   },
 
@@ -27,6 +50,18 @@ Page({
   },
 
   loadLatestResult() {
+    // 历史模式：读取测试历史页暂存的指定记录；数据缺失时展示空态，不回退到最新记录
+    if (this.fromHistory) {
+      let record
+      try {
+        record = wx.getStorageSync(HISTORY_TEST_RESULT_KEY)
+      } catch (error) {
+        record = null
+      }
+      if (this.isValidResult(record)) this.renderResult(record)
+      return
+    }
+
     let result
     try {
       result = wx.getStorageSync(LATEST_TEST_RESULT_KEY)
@@ -66,7 +101,127 @@ Page({
       earSummaries: [leftSummary, rightSummary]
     }, () => {
       if (this.chartReady) this.drawThresholdChart()
+      this.startAiAnalysis()
     })
+  },
+
+  startAiAnalysis() {
+    if (this.aiStarted || !this.data.hasResult) return
+    this.aiStarted = true
+
+    if (!this.testRecordId) {
+      const reason = this.aiUnavailableReason
+      this.setData({
+        aiStatus: 'error',
+        aiAnalysis: null,
+        aiErrorMessage: reason === 'record-sync-failed'
+          ? '测试记录暂未同步到云端，暂时无法生成 AI 解读'
+          : reason === 'guest-mode'
+            ? '游客模式下测试记录仅保存在本机，登录后完成测试即可生成 AI 解读'
+            : '这份报告没有可用的云端记录标识，暂时无法生成 AI 解读',
+        aiCanRetry: false
+      })
+      return
+    }
+
+    this.requestAiAnalysis()
+  },
+
+  requestAiAnalysis() {
+    if (!this.testRecordId || this.data.aiStatus === 'loading') return
+    this.setData({
+      aiStatus: 'loading',
+      aiAnalysis: null,
+      aiErrorMessage: '',
+      aiCanRetry: false
+    })
+
+    analyzeHearingTest(this.testRecordId)
+      .then(result => {
+        if (!result || !result.analysis) throw new Error('missing analysis')
+        this.setData({
+          aiStatus: 'success',
+          aiAnalysis: this.prepareAnalysisForView(result.analysis),
+          aiErrorMessage: '',
+          aiCanRetry: false
+        })
+      })
+      .catch(error => {
+        console.warn('[report] AI analysis failed', {
+          code: error && error.code ? error.code : 'AI_REQUEST_FAILED'
+        })
+        this.setData({
+          aiStatus: 'error',
+          aiAnalysis: null,
+          aiErrorMessage: this.getAiErrorMessage(error && error.code),
+          aiCanRetry: true
+        })
+      })
+  },
+
+  retryAiAnalysis() {
+    this.requestAiAnalysis()
+  },
+
+  getAiErrorMessage(code) {
+    switch (code) {
+      case 'CONFIG_MISSING':
+        return 'AI 服务尚未完成配置，基础听力报告仍可正常查看'
+      case 'RECORD_NOT_FOUND':
+        return '没有找到对应的云端测试记录，暂时无法生成 AI 解读'
+      case 'MODEL_INVALID_RESPONSE':
+        return 'AI 返回内容未通过安全校验，请稍后重试'
+      case 'CACHE_ERROR':
+        return 'AI 分析缓存暂时不可用，请稍后重试'
+      default:
+        return 'AI 解读暂时不可用，请稍后重试'
+    }
+  },
+
+  prepareAnalysisForView(analysis) {
+    const labels = {
+      routine: '日常建议',
+      monitor: '持续关注',
+      'professional-check': '建议专业检查'
+    }
+    return {
+      overview: this.cleanAiDisplayText(analysis.overview),
+      findings: (Array.isArray(analysis.findings) ? analysis.findings : [])
+        .map(item => ({
+          title: this.cleanAiDisplayText(item && item.title),
+          explanation: this.cleanAiDisplayText(item && item.explanation)
+        }))
+        .filter(item => item.title || item.explanation),
+      earComparison: {
+        summary: this.cleanAiDisplayText(analysis.earComparison && analysis.earComparison.summary),
+        caution: this.cleanAiDisplayText(analysis.earComparison && analysis.earComparison.caution)
+      },
+      recommendations: (Array.isArray(analysis.recommendations) ? analysis.recommendations : []).map(item => ({
+        priority: item.priority,
+        priorityLabel: labels[item.priority] || '健康建议',
+        text: this.cleanAiDisplayText(item.text),
+        reason: this.cleanAiDisplayText(item.reason)
+      })).filter(item => item.text || item.reason),
+      redFlags: this.cleanAiDisplayList(analysis.redFlags),
+      limitations: this.cleanAiDisplayList(analysis.limitations)
+    }
+  },
+
+  cleanAiDisplayText(value) {
+    if (typeof value !== 'string') return ''
+    return value
+      .replace(/\bdata(?:\.[A-Za-z_$][\w$]*)+\b/gi, '')
+      .replace(/\b[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+\b/g, '')
+      .replace(/\b[a-z]{2,}(?:[A-Z][A-Za-z0-9]*)+\b/g, '')
+      .replace(/\b(?:routine|monitor|professional-check|relative-gain-threshold)\b/gi, '')
+      .replace(/^\s*[:：,，;；|/\\–—-]+\s*/g, '')
+      .replace(/\s*[:：,，;；|/\\–—-]+\s*$/g, '')
+      .trim()
+  },
+
+  cleanAiDisplayList(value) {
+    if (!Array.isArray(value)) return []
+    return value.map(this.cleanAiDisplayText).filter(Boolean)
   },
 
   isValidResult(result) {

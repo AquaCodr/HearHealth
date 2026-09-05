@@ -14,7 +14,7 @@
         <view class="intro-block">
           <view class="intro-kicker">STEP 1</view>
           <view class="intro-title">准备测试</view>
-          <view class="intro-description">安静环境，戴好耳机，音量保持不变。</view>
+          <view class="intro-description">每个频率从 50% 开始，根据真实听感上下调整。</view>
         </view>
 
         <view class="setup-panel">
@@ -49,7 +49,7 @@
 
       <view class="process-actions">
         <button class="ready-button" hover-class="ready-button--pressed" bindtap="startLeftEar">开始左耳测试</button>
-        <view class="action-hint">从 125 Hz 的轻音开始</view>
+        <view class="action-hint">从 125 Hz、50% 相对强度开始</view>
       </view>
     </view>
   </block>
@@ -87,6 +87,10 @@
               <block wx:elif="{{autoPhase === 'recorded'}}">
                 <view class="orb-check" aria-hidden="true">✓</view>
                 <view class="orb-label">已记录</view>
+              </block>
+              <block wx:elif="{{autoPhase === 'adjusting'}}">
+                <view class="orb-idle" aria-hidden="true">…</view>
+                <view class="orb-label">{{isRetesting ? '准备回测' : '调整音量'}}</view>
               </block>
               <block wx:elif="{{autoPhase === 'error'}}">
                 <view class="orb-error" aria-hidden="true">!</view>
@@ -133,21 +137,27 @@
           <view class="auto-tone-panel auto-tone-panel--{{autoPhase}}">
             <view class="auto-tone-status">{{toneStatusText}}</view>
           </view>
-          <button
-            class="heard-button {{!canAnswer || currentResponse ? 'heard-button--disabled' : ''}}"
-            hover-class="heard-button--pressed"
-            disabled="{{!canAnswer || currentResponse}}"
-            bindtap="recordHeard"
-          >
-            <text class="heard-button-icon" aria-hidden="true">✓</text>
-            <text>{{currentResponse === 'heard' ? '已记录' : '听到了'}}</text>
-          </button>
+          <view class="answer-buttons">
+            <button
+              class="response-button response-button--not-heard {{!canAnswer || currentResponse ? 'response-button--disabled' : ''}}"
+              hover-class="response-button--pressed"
+              disabled="{{!canAnswer || currentResponse}}"
+              bindtap="recordNotHeard"
+            >听不到</button>
+            <button
+              class="response-button response-button--heard {{!canAnswer || currentResponse ? 'response-button--disabled' : ''}}"
+              hover-class="response-button--pressed"
+              disabled="{{!canAnswer || currentResponse}}"
+              bindtap="recordHeard"
+            >听到了</button>
+          </view>
           <button
             class="retry-tone-button"
             wx:if="{{toneError}}"
             bindtap="retryAutomaticTone"
           >重新尝试</button>
-          <view class="action-hint" wx:if="{{!toneError}}">第一次听到声音时点击</view>
+          <view class="action-hint" wx:if="{{!toneError && isRetesting}}">正在回测 {{candidateThresholdPercent}}%，请按实际听感作答</view>
+          <view class="action-hint" wx:elif="{{!toneError}}">声音播放后，请选择刚才是否听到</view>
         </view>
       </view>
     </block>

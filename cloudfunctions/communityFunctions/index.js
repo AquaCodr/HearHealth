@@ -6,6 +6,13 @@ cloud.init({
 const db = cloud.database()
 const _ = db.command
 const { SEED_POSTS, SEED_COMMENTS } = require('./seedData')
+const {
+  TIP_ADOPTION_REWARD,
+  normalizePostId,
+  buildAdoptionLedgerId,
+  getAdoptionIssue,
+  buildAdoptionLedger
+} = require('./tipAdoption')
 
 const TAGS = {
   tip: '护耳妙招',
@@ -126,6 +133,127 @@ async function getUserProfileByOpenid(openid) {
   }
 }
 
+// 管理员名单只能由项目维护者在云数据库中配置，客户端无法自行加入。
+// app_admins 支持用 OPENID 作为文档 _id，或存为 { openid, active }。
+async function isAdmin(openid) {
+  if (!openid) return false
+  await ensureCollection('app_admins')
+
+  try {
+    const direct = await db.collection('app_admins').doc(openid).get()
+    if (direct.data && direct.data.active !== false) return true
+  } catch (e) {
+    // 未使用 OPENID 作为文档 _id 时，继续按 openid 字段查找。
+  }
+
+  const result = await db.collection('app_admins').where({ openid }).limit(1).get()
+  return Boolean(result.data[0] && result.data[0].active !== false)
+}
+
+async function getDocumentOrNull(collection, id) {
+  try {
+    const result = await collection.doc(id).get()
+    return result.data || null
+  } catch (e) {
+    return null
+  }
+}
+
+// 官方采纳护耳妙招并奖励固定积分。权限、奖励数值和幂等性全部由云端控制。
+async function adoptTip(event) {
+  const { OPENID } = cloud.getWXContext()
+  const postId = normalizePostId(event.postId)
+  if (!OPENID) return { success: false, errMsg: '无法识别当前用户' }
+  if (!postId) return { success: false, errMsg: '缺少帖子 ID' }
+
+  await Promise.all([
+    ensureCollection('community'),
+    ensureCollection('users'),
+    ensureCollection('points_ledger')
+  ])
+
+  if (!(await isAdmin(OPENID))) {
+    return { success: false, errMsg: '无采纳权限' }
+  }
+
+  // 事务只支持 doc 查询，因此先定位作者账户文档，事务内再重新校验帖子和账户。
+  const preliminaryPost = await getDocumentOrNull(db.collection('community'), postId)
+  const preliminaryIssue = getAdoptionIssue(preliminaryPost)
+  if (preliminaryIssue === 'already-adopted') {
+    return {
+      success: true,
+      data: { adopted: true, duplicate: true, pointsAwarded: 0 }
+    }
+  }
+  if (preliminaryIssue) return { success: false, errMsg: preliminaryIssue }
+
+  const author = await getUserProfileByOpenid(preliminaryPost.openid)
+  if (!author || !author._id) {
+    return { success: false, errMsg: '作者尚未建立积分账户' }
+  }
+
+  const ledgerId = buildAdoptionLedgerId(postId)
+  const transactionResult = await db.runTransaction(async transaction => {
+    const postRef = transaction.collection('community').doc(postId)
+    const userRef = transaction.collection('users').doc(author._id)
+    const ledgerRef = transaction.collection('points_ledger').doc(ledgerId)
+    const post = await getDocumentOrNull(transaction.collection('community'), postId)
+    const issue = getAdoptionIssue(post)
+
+    if (issue === 'already-adopted') {
+      return { adopted: true, duplicate: true, pointsAwarded: 0 }
+    }
+    if (issue) throw new Error(issue)
+    if (post.openid !== preliminaryPost.openid) throw new Error('帖子作者信息已发生变化')
+
+    const existingLedger = await getDocumentOrNull(
+      transaction.collection('points_ledger'),
+      ledgerId
+    )
+    if (existingLedger) {
+      return { adopted: true, duplicate: true, pointsAwarded: 0 }
+    }
+
+    const userResult = await userRef.get()
+    const user = userResult.data
+    if (!user || user.openid !== post.openid) throw new Error('作者积分账户不可用')
+
+    const now = new Date()
+    const currentBalance = Math.max(0, Math.round(Number(user.pointsBalance) || 0))
+    const ledger = buildAdoptionLedger({
+      postId,
+      authorOpenid: post.openid,
+      createdAt: now
+    })
+
+    await postRef.update({
+      data: {
+        adopted: true,
+        adoptedAt: now,
+        adoptedBy: OPENID,
+        adoptionReward: TIP_ADOPTION_REWARD,
+        adoptionLedgerId: ledgerId
+      }
+    })
+    await userRef.update({
+      data: {
+        pointsBalance: currentBalance + TIP_ADOPTION_REWARD,
+        pointsUpdatedAt: now
+      }
+    })
+    await ledgerRef.set({ data: ledger })
+
+    return {
+      adopted: true,
+      duplicate: false,
+      pointsAwarded: TIP_ADOPTION_REWARD,
+      authorOpenid: post.openid
+    }
+  })
+
+  return { success: true, data: transactionResult.result || transactionResult }
+}
+
 // 发布帖子（images 为云存储 fileID 数组，cover 取第一张）
 // 身份信息以云端 users 档案为准，避免伪造与默认“耳友”问题
 async function addPost(event) {
@@ -232,6 +360,8 @@ exports.main = async (event) => {
         return await addComment(event)
       case 'updateCount':
         return await updateCount(event)
+      case 'adoptTip':
+        return await adoptTip(event)
       default:
         return { success: false, errMsg: `unknown type: ${event.type}` }
     }

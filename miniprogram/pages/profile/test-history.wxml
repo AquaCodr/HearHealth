@@ -1,0 +1,43 @@
+<view class="test-history">
+  <view class="page-header">
+    <text class="page-title">测试历史</text>
+    <text class="page-subtitle" wx:if="{{records.length}}">最近 {{records.length}} 条记录，点击查看完整报告</text>
+  </view>
+
+  <view class="loading-tip" wx:if="{{loading}}">加载中…</view>
+
+  <view class="empty" wx:elif="{{!records.length}}">
+    <image class="empty-icon" src="/images/icons/headphones.svg" mode="aspectFit"></image>
+    <text class="empty-text">还没有听力测试记录</text>
+    <text class="empty-hint">完成第一次测试后，这里会保存你的听力报告</text>
+    <view class="empty-btn" bindtap="onStartTest">去做测试</view>
+  </view>
+
+  <block wx:else>
+    <view
+      class="record-card"
+      wx:for="{{records}}"
+      wx:key="_id"
+      data-index="{{index}}"
+      bindtap="onTapRecord"
+      hover-class="record-card--pressed"
+      hover-stay-time="80"
+    >
+      <view class="record-time-box">
+        <text class="record-date">{{item.dateText}}</text>
+        <text class="record-time">{{item.timeText}}</text>
+      </view>
+      <view class="record-ears">
+        <view class="ear-row">
+          <text class="ear-name">左耳</text>
+          <text class="ear-value">{{item.leftText}}</text>
+        </view>
+        <view class="ear-row">
+          <text class="ear-name">右耳</text>
+          <text class="ear-value">{{item.rightText}}</text>
+        </view>
+      </view>
+      <image class="record-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
+    </view>
+  </block>
+</view>

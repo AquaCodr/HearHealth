@@ -61,12 +61,42 @@
     <view class="section-title">数据</view>
     <view class="grouped-card">
       <view
-        class="settings-row"
-        bindtap="onClearLocalData"
+        class="settings-row settings-row--stacked settings-row--divided"
+        bindtap="onClearCache"
         hover-class="settings-row--pressed"
         hover-stay-time="80"
       >
-        <text class="danger-label">清除本地数据</text>
+        <view class="row-copy">
+          <text class="row-label">清除缓存</text>
+          <text class="row-hint">清理本设备的缓存副本，云端数据不受影响</text>
+        </view>
+        <image class="row-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
+      </view>
+      <view
+        wx:if="{{loggedIn}}"
+        class="settings-row settings-row--stacked settings-row--divided"
+        bindtap="onLogout"
+        hover-class="settings-row--pressed"
+        hover-stay-time="80"
+      >
+        <view class="row-copy">
+          <text class="row-label">退出登录</text>
+          <text class="row-hint">回到登录页，云端数据完整保留</text>
+        </view>
+        <image class="row-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
+      </view>
+      <view
+        wx:if="{{loggedIn}}"
+        class="settings-row settings-row--stacked"
+        bindtap="onDeleteAccount"
+        hover-class="settings-row--pressed"
+        hover-stay-time="80"
+      >
+        <view class="row-copy">
+          <text class="danger-label">注销账号</text>
+          <text class="row-hint">永久删除云端全部数据，不可恢复</text>
+        </view>
+        <image class="row-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
       </view>
     </view>
   </view>

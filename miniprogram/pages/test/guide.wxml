@@ -4,7 +4,7 @@
       <view class="hero-illustration" role="img" aria-label="佩戴耳机示意图"></view>
       <view class="hero-title">开始听力测试</view>
       <view class="hero-description">
-        请佩戴耳机，逐级寻找左右耳在不同频率下首次听到的相对强度
+        请佩戴耳机，从 50% 开始双向寻找左右耳各频率的相对听觉阈值
       </view>
     </view>
 
@@ -82,7 +82,7 @@
       <block wx:else>
         <view class="prep-icon" aria-hidden="true">👂</view>
         <view class="prep-title">根据真实听感作答</view>
-        <view class="prep-description">每个频率会从较弱音量逐级提高，无论声音多轻，只在确实听到时点击「听到了」</view>
+        <view class="prep-description">每个频率从 50% 开始：听不到就提高，听到了就降低；找到边界后会回测一次</view>
       </block>
     </view>
 

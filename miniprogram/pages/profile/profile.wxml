@@ -16,11 +16,24 @@
       <image class="user-summary-chevron" src="/images/arrow.svg" mode="aspectFit"></image>
     </view>
 
+    <!-- 游客态：明确告知数据只在本机，并把登录入口摆在显眼处 -->
+    <view class="guest-banner" wx:if="{{!loggedIn}}">
+      <view class="guest-copy">
+        <view class="guest-title">当前为游客模式</view>
+        <view class="guest-desc">用耳记录与测试结果仅保存在本机，登录后可跨设备同步。</view>
+      </view>
+      <view class="guest-login" bindtap="onLoginTap" hover-class="guest-login--pressed">登录</view>
+    </view>
+
     <view class="stats-card">
       <view
         class="stat-item {{index < stats.length - 1 ? 'stat-item--divided' : ''}}"
         wx:for="{{stats}}"
         wx:key="label"
+        data-target="{{item.target}}"
+        bindtap="onStatTap"
+        hover-class="stat-item--pressed"
+        hover-stay-time="80"
       >
         <text class="stat-value">{{item.value}}</text>
         <text class="stat-label">{{item.label}}</text>

@@ -1,15 +1,39 @@
-const { callUser } = require('../../utils/auth')
+const { callUser, isLoggedIn } = require('../../utils/auth')
+const {
+  RELATIVE_LEVELS,
+  START_LEVEL_PERCENT,
+  SEARCH_PHASES,
+  createThresholdSearch,
+  answerThresholdSearch
+} = require('./threshold-search')
 
 const TONE_DURATION_SECONDS = 1
 const TONE_FADE_SECONDS = 0.05
 const MAX_TEST_TONE_GAIN = 0.02
 const TONE_START_TIMEOUT_MS = 1500
 const FREQUENCY_COUNTDOWN_SECONDS = 3
-const LEVEL_ADVANCE_DELAY_MS = 900
+const NEXT_ATTEMPT_DELAY_MS = 900
 const NEXT_FREQUENCY_DELAY_MS = 1400
 const BAR_FUSE_DELAY_MS = 420
-const RELATIVE_LEVELS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+const REPORT_SAVE_TIMEOUT_MS = 8000
+const START_LEVEL_INDEX = RELATIVE_LEVELS.indexOf(START_LEVEL_PERCENT)
 const LATEST_TEST_RESULT_KEY = 'latestHearingTestResult'
+
+function withTimeout(promise, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('save test record timeout')), timeoutMs)
+    promise.then(
+      value => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      error => {
+        clearTimeout(timer)
+        reject(error)
+      }
+    )
+  })
+}
 
 Page({
   data: {
@@ -29,9 +53,12 @@ Page({
     currentFrequency: 125,
     currentFrequencyIndex: 0,
     nextFrequencyValue: 250,
-    currentLevelIndex: 0,
-    currentLevelPercent: RELATIVE_LEVELS[0],
+    currentLevelIndex: START_LEVEL_INDEX,
+    currentLevelPercent: START_LEVEL_PERCENT,
     isAtMaxLevel: false,
+    searchPhase: SEARCH_PHASES.SEARCHING,
+    candidateThresholdPercent: null,
+    isRetesting: false,
     leftEarCompleted: false,
     rightEarCompleted: false,
     leftThresholdCount: 0,
@@ -72,11 +99,12 @@ Page({
     this.toneStartTimer = null
     this.toneTimer = null
     this.countdownTimer = null
-    this.levelAdvanceTimer = null
+    this.nextAttemptTimer = null
     this.nextFrequencyTimer = null
     this.autoSequenceId = 0
     this.pageVisible = true
     this.resumeAutomaticAction = ''
+    this.thresholdSearch = createThresholdSearch()
 
     // 引导页向导已完成环境/耳机/音量确认时携带 autostart，跳过准备步骤直接开测。
     if (options && options.autostart === '1') {
@@ -89,6 +117,7 @@ Page({
 
   onShow() {
     this.pageVisible = true
+    this.reportOpening = false
     const resumeAction = this.resumeAutomaticAction
     this.resumeAutomaticAction = ''
 
@@ -132,6 +161,7 @@ Page({
 
   startLeftEar() {
     this.primeAudioContext()
+    this.thresholdSearch = createThresholdSearch()
     this.setData({
       currentStep: 2,
       currentEar: 'left',
@@ -143,9 +173,7 @@ Page({
       currentFrequency: this.data.frequencies[0].value,
       currentFrequencyIndex: 0,
       nextFrequencyValue: this.data.frequencies[1].value,
-      currentLevelIndex: 0,
-      currentLevelPercent: RELATIVE_LEVELS[0],
-      isAtMaxLevel: false,
+      ...this.getThresholdSearchData(this.thresholdSearch),
       leftEarCompleted: false,
       rightEarCompleted: false,
       leftThresholdCount: 0,
@@ -181,6 +209,7 @@ Page({
     this.primeAudioContext()
     this.cancelAutomaticTimers()
     this.stopTone(false)
+    this.thresholdSearch = createThresholdSearch()
     this.setData({
       currentStep: 3,
       currentEar: 'right',
@@ -192,9 +221,7 @@ Page({
       currentFrequency: this.data.frequencies[0].value,
       currentFrequencyIndex: 0,
       nextFrequencyValue: this.data.frequencies[1].value,
-      currentLevelIndex: 0,
-      currentLevelPercent: RELATIVE_LEVELS[0],
-      isAtMaxLevel: false,
+      ...this.getThresholdSearchData(this.thresholdSearch),
       rightEarCompleted: false,
       rightThresholdCount: 0,
       canAnswer: false,
@@ -232,6 +259,18 @@ Page({
     )
   },
 
+  getThresholdSearchData(search) {
+    const currentLevelIndex = RELATIVE_LEVELS.indexOf(search.currentLevelPercent)
+    return {
+      currentLevelIndex,
+      currentLevelPercent: search.currentLevelPercent,
+      isAtMaxLevel: currentLevelIndex === RELATIVE_LEVELS.length - 1,
+      searchPhase: search.phase,
+      candidateThresholdPercent: search.candidateThresholdPercent,
+      isRetesting: search.phase === SEARCH_PHASES.RETESTING
+    }
+  },
+
   primeAudioContext() {
     if (typeof wx.createWebAudioContext !== 'function') return
 
@@ -257,9 +296,9 @@ Page({
       clearTimeout(this.countdownTimer)
       this.countdownTimer = null
     }
-    if (this.levelAdvanceTimer) {
-      clearTimeout(this.levelAdvanceTimer)
-      this.levelAdvanceTimer = null
+    if (this.nextAttemptTimer) {
+      clearTimeout(this.nextAttemptTimer)
+      this.nextAttemptTimer = null
     }
     if (this.nextFrequencyTimer) {
       clearTimeout(this.nextFrequencyTimer)
@@ -443,52 +482,44 @@ Page({
 
     if (!updateState) return
 
-    const isAtMaxLevel = this.data.currentLevelIndex === RELATIVE_LEVELS.length - 1
-    const nextLevelPercent = RELATIVE_LEVELS[this.data.currentLevelIndex + 1]
     this.setData({
       isTonePlaying: false,
       canAnswer: completed && !this.data.currentResponse,
       autoPhase: completed ? 'waiting' : 'paused',
       toneStatusText: completed
-        ? isAtMaxLevel
-          ? '已到上限，将自动记录'
-          : `即将提升至 ${nextLevelPercent}%`
+        ? this.getToneAnswerPrompt()
         : '测试音已暂停'
-    }, () => {
-      if (completed) this.scheduleLevelAdvance()
     })
   },
 
-  scheduleLevelAdvance() {
+  getToneAnswerPrompt() {
+    if (this.data.searchPhase === SEARCH_PHASES.RETESTING) {
+      return `正在回测 ${this.data.currentLevelPercent}% · 请选择真实听感`
+    }
+    if (this.data.searchPhase === SEARCH_PHASES.FALLBACK) {
+      return `${this.data.currentLevelPercent}% 保守确认 · 请选择真实听感`
+    }
+    return `${this.data.currentLevelPercent}% 播放完成 · 请选择真实听感`
+  },
+
+  scheduleNextAttempt() {
     if (!this.isAutomaticTestAvailable()) return
 
-    if (this.levelAdvanceTimer) clearTimeout(this.levelAdvanceTimer)
+    if (this.nextAttemptTimer) clearTimeout(this.nextAttemptTimer)
     const sequenceId = this.autoSequenceId
-    this.levelAdvanceTimer = setTimeout(() => {
-      this.levelAdvanceTimer = null
+    this.nextAttemptTimer = setTimeout(() => {
+      this.nextAttemptTimer = null
       if (
         sequenceId !== this.autoSequenceId ||
         !this.pageVisible ||
         !this.isAutomaticTestAvailable()
       ) return
 
-      const isAtMaxLevel = this.data.currentLevelIndex === RELATIVE_LEVELS.length - 1
-      if (isAtMaxLevel) {
-        this.completeCurrentFrequency(false)
-        return
-      }
-
-      const nextLevelIndex = this.data.currentLevelIndex + 1
-      const nextLevelPercent = RELATIVE_LEVELS[nextLevelIndex]
       this.setData({
-        currentLevelIndex: nextLevelIndex,
-        currentLevelPercent: nextLevelPercent,
-        isAtMaxLevel: nextLevelIndex === RELATIVE_LEVELS.length - 1,
         canAnswer: false,
-        autoPhase: 'playing',
-        toneStatusText: `提升至 ${nextLevelPercent}%`
+        autoPhase: 'playing'
       }, () => this.playTone())
-    }, LEVEL_ADVANCE_DELAY_MS)
+    }, NEXT_ATTEMPT_DELAY_MS)
   },
 
   stopTone(updateState = true) {
@@ -554,20 +585,63 @@ Page({
   },
 
   recordHeard() {
-    if (!this.data.canAnswer || this.data.currentResponse || this.data.toneError) return
-
-    this.completeCurrentFrequency(true)
+    this.recordThresholdAnswer(true)
   },
 
-  completeCurrentFrequency(heard) {
+  recordNotHeard() {
+    this.recordThresholdAnswer(false)
+  },
+
+  recordThresholdAnswer(heard) {
+    if (!this.data.canAnswer || this.data.currentResponse || this.data.toneError) return
+
+    const previousLevelPercent = this.data.currentLevelPercent
+    this.cancelAutomaticTimers()
+    this.stopTone(false)
+
+    const currentSearch = this.thresholdSearch || createThresholdSearch()
+    const nextSearch = answerThresholdSearch(currentSearch, heard)
+    this.thresholdSearch = nextSearch
+
+    if (nextSearch.phase === SEARCH_PHASES.COMPLETE) {
+      this.completeCurrentFrequency(nextSearch)
+      return
+    }
+
+    this.setData({
+      ...this.getThresholdSearchData(nextSearch),
+      isTonePlaying: false,
+      canAnswer: false,
+      autoPhase: 'adjusting',
+      countdownSeconds: 0,
+      toneStatusText: this.getAdjustmentStatus(previousLevelPercent, heard, nextSearch)
+    }, () => this.scheduleNextAttempt())
+  },
+
+  getAdjustmentStatus(previousLevelPercent, heard, search) {
+    if (search.phase === SEARCH_PHASES.RETESTING) {
+      return `候选阈值 ${search.candidateThresholdPercent}% · 即将回测一次`
+    }
+    if (search.phase === SEARCH_PHASES.FALLBACK) {
+      return `回测未通过 · 即将提高至 ${search.currentLevelPercent}%`
+    }
+
+    const direction = search.currentLevelPercent > previousLevelPercent ? '提高' : '降低'
+    const responseText = heard ? '已听到' : '未听到'
+    return `${responseText} · 即将${direction}至 ${search.currentLevelPercent}%`
+  },
+
+  completeCurrentFrequency(searchResult) {
     if (this.data.currentResponse || this.data.currentEarCompleted) return
 
     const ear = this.data.currentEar
     if (ear !== 'left' && ear !== 'right') return
+    if (!searchResult || searchResult.phase !== SEARCH_PHASES.COMPLETE) return
 
     this.cancelAutomaticTimers()
     this.stopTone(false)
-    const responseValue = heard ? 'heard' : 'not-heard'
+    const detected = searchResult.detected
+    const responseValue = detected ? 'heard' : 'not-heard'
 
     const responses = {
       left: this.data.responses.left.slice(),
@@ -575,10 +649,12 @@ Page({
     }
     responses[ear].push({
       frequency: this.data.currentFrequency,
-      detected: heard,
-      thresholdPercent: heard ? this.data.currentLevelPercent : null,
-      maxTestedPercent: this.data.currentLevelPercent,
-      attempts: this.data.currentLevelIndex + 1,
+      detected,
+      thresholdPercent: detected ? searchResult.thresholdPercent : null,
+      maxTestedPercent: searchResult.maxTestedPercent,
+      attempts: searchResult.attempts,
+      completionReason: searchResult.completionReason,
+      history: searchResult.history.map(item => ({ ...item })),
       answeredAt: Date.now()
     })
 
@@ -600,6 +676,7 @@ Page({
         ]
 
     this.setData({
+      ...this.getThresholdSearchData(searchResult),
       responses,
       currentResponse: responseValue,
       isTonePlaying: false,
@@ -622,7 +699,7 @@ Page({
       steps: isLastFrequency ? completedSteps : this.data.steps,
       toneStatusText: isLastFrequency
         ? `${this.data.currentEarName}测试完成`
-        : heard
+        : detected
           ? `已记录 · 下一频率 ${this.data.nextFrequencyValue} Hz`
           : `未测得 · 下一频率 ${this.data.nextFrequencyValue} Hz`
     }, () => {
@@ -654,14 +731,13 @@ Page({
           : 'pending'
     }))
     const followingFrequency = frequencies[nextIndex + 1]
+    this.thresholdSearch = createThresholdSearch()
 
     this.setData({
       currentFrequencyIndex: nextIndex,
       currentFrequency: frequencies[nextIndex].value,
       nextFrequencyValue: followingFrequency ? followingFrequency.value : 0,
-      currentLevelIndex: 0,
-      currentLevelPercent: RELATIVE_LEVELS[0],
-      isAtMaxLevel: false,
+      ...this.getThresholdSearchData(this.thresholdSearch),
       frequencies,
       canAnswer: false,
       currentResponse: '',
@@ -676,11 +752,12 @@ Page({
   },
 
   viewReport() {
-    if (!this.data.leftEarCompleted || !this.data.rightEarCompleted) return
+    if (!this.data.leftEarCompleted || !this.data.rightEarCompleted || this.reportOpening) return
 
     const result = {
-      version: 1,
+      version: 2,
       measurement: 'relative-gain-threshold',
+      algorithm: 'bidirectional-single-retest',
       completedAt: Date.now(),
       relativeLevels: RELATIVE_LEVELS.slice(),
       maxTestToneGain: MAX_TEST_TONE_GAIN,
@@ -697,11 +774,40 @@ Page({
       return
     }
 
-    // 云端留档（按用户存 test_records 集合），失败不影响本地报告
-    callUser('saveTestRecord', { result }).catch(() => {})
+    this.reportOpening = true
 
+    // 游客模式：测试记录只落本机，不往云端写 OPENID 维度的数据，
+    // AI 解读依赖云端记录，登录后完成测试即可恢复（issue #36）
+    if (!isLoggedIn()) {
+      this.openReport('/pages/test/report?aiUnavailable=guest-mode')
+      return
+    }
+
+    wx.showLoading({ title: '正在保存报告', mask: true })
+
+    // AI 只接受云端 testRecordId；保存失败或超时仍进入基础报告，不让 AI 阻断原流程。
+    withTimeout(callUser('saveTestRecord', { result }), REPORT_SAVE_TIMEOUT_MS)
+      .then(saved => {
+        const testRecordId = saved && typeof saved._id === 'string' ? saved._id.trim() : ''
+        if (!testRecordId) throw new Error('missing test record id')
+        this.openReport(`/pages/test/report?testRecordId=${encodeURIComponent(testRecordId)}`)
+      })
+      .catch(error => {
+        console.error('[hearing-test] saveTestRecord failed', {
+          code: error && error.code ? error.code : 'SAVE_TEST_RECORD_FAILED'
+        })
+        this.openReport('/pages/test/report?aiUnavailable=record-sync-failed')
+      })
+  },
+
+  openReport(url) {
+    wx.hideLoading()
     wx.navigateTo({
-      url: '/pages/test/report'
+      url,
+      fail: () => {
+        this.reportOpening = false
+        wx.showToast({ title: '暂时无法打开报告', icon: 'none' })
+      }
     })
   },
 

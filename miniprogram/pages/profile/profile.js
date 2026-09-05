@@ -1,6 +1,9 @@
 const { callCommunity } = require('../community/util')
 const { DEFAULT_BIO, getUserProfile } = require('../../utils/user-profile')
-const { ensureLogin, getSession, isLoggedIn } = require('../../utils/auth')
+const { getSession, isLoggedIn } = require('../../utils/auth')
+
+// 从本页去开屏页补登录后回跳到「我的」（tab 页）
+const LOGIN_URL = '/pages/splash/splash?redirect=/pages/profile/profile'
 const initialUserProfile = getUserProfile()
 const initialUser = (getSession() || {}).user || {}
 
@@ -16,10 +19,11 @@ Page({
   data: {
     defaultBio: DEFAULT_BIO,
     userProfile: initialUserProfile,
+    loggedIn: false,
     stats: [
-      { value: formatTotalUsage(initialUser.usageSeconds), label: '累计用耳' },
-      { value: String(initialUser.testCount || 0), label: '测试次数' },
-      { value: '4', label: '发帖数' }
+      { value: formatTotalUsage(initialUser.usageSeconds), label: '累计用耳', target: 'usage-stats' },
+      { value: String(initialUser.testCount || 0), label: '测试次数', target: 'test-history' },
+      { value: '4', label: '发帖数', target: 'my-posts' }
     ],
     menuGroups: [
       {
@@ -36,6 +40,12 @@ Page({
             title: '护耳技能库',
             icon: '/images/icons/goods.png',
             url: '/pages/skill/list'
+          },
+          {
+            id: 'points-shop',
+            title: '积分商城',
+            icon: '/images/icons/points.svg',
+            url: '/pages/profile/points-shop'
           }
         ]
       },
@@ -65,14 +75,10 @@ Page({
     }
     this.loadUserProfile()
     this.loadPostCount()
-    // 登录后用云端档案刷新测试次数；未登录时补一次静默登录（失败不打扰）
-    if (!isLoggedIn()) {
-      ensureLogin()
-        .then(() => this.applySession())
-        .catch(() => {})
-    } else {
-      this.applySession()
-    }
+    // 只展示当前会话，不在这里补登录：游客进「我的」不该被后台建档，
+    // 建档只发生在开屏页/登录入口用户主动点击并同意协议之后（issue #36）
+    this.setData({ loggedIn: isLoggedIn() })
+    this.applySession()
   },
 
   loadUserProfile() {
@@ -110,7 +116,24 @@ Page({
     wx.navigateTo({ url })
   },
 
+  // 统计卡三个数据各自可点：累计用耳 → 统计页（tab 页需 switchTab），其余为普通页面跳转
+  onStatTap(e) {
+    const { target } = e.currentTarget.dataset
+    if (!target) return
+
+    if (target === 'usage-stats') {
+      wx.switchTab({ url: '/pages/stats/stats' })
+      return
+    }
+    wx.navigateTo({ url: `/pages/profile/${target}` })
+  },
+
   onEditProfile() {
     wx.navigateTo({ url: '/pages/profile/edit-profile' })
+  },
+
+  // 游客补登录入口：跳开屏页走与首次登录完全一致的授权流程
+  onLoginTap() {
+    wx.navigateTo({ url: LOGIN_URL })
   }
 })

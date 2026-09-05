@@ -405,6 +405,10 @@ Page({
     wx.navigateTo({ url: '/pages/skill/list' });
   },
 
+  goAiChat() {
+    wx.navigateTo({ url: '/pages/ai-chat/ai-chat' });
+  },
+
   goStats() {
     wx.switchTab({ url: '/pages/stats/stats' });
   },

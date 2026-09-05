@@ -1,7 +1,7 @@
 {
   "name": "communityFunctions",
   "version": "1.0.0",
-  "description": "耳友圈社区云函数：帖子/评论读写与种子数据",
+  "description": "耳友圈社区云函数：帖子/评论读写、官方采纳与积分奖励",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

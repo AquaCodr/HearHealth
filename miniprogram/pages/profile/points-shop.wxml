@@ -1,0 +1,86 @@
+<view class="points-shop-page">
+  <view class="shop-header">
+    <view class="shop-kicker">POINTS MARKET</view>
+    <view class="shop-title">积分商城</view>
+    <view class="shop-description">让每一次护耳行动与优质分享，都沉淀为看得见的成长。</view>
+  </view>
+
+  <view class="balance-card">
+    <view class="balance-copy">
+      <view class="balance-label">当前积分</view>
+      <view class="balance-value">{{pointsBalance}}</view>
+      <view class="balance-caption" wx:if="{{pointsLoading}}">正在同步积分账户…</view>
+      <view class="balance-caption balance-caption--error" wx:elif="{{pointsError}}">同步失败，当前显示上次余额</view>
+      <view class="balance-caption" wx:else>每一笔积分变动都会记录在明细中</view>
+    </view>
+    <view class="balance-medal" aria-hidden="true">
+      <view class="balance-medal-star">★</view>
+    </view>
+  </view>
+
+  <!-- 游客：积分属于云端账号数据，先引导登录而不是静默建档 -->
+  <view class="shop-section login-gate" wx:if="{{needLogin}}">
+    <view class="login-gate-symbol" aria-hidden="true">◈</view>
+    <view class="login-gate-title">登录后查看积分账户</view>
+    <view class="login-gate-description">积分余额与明细保存在你的云端账号中，登录后即可查看。</view>
+    <button class="login-gate-button" bindtap="onGoLogin">去登录</button>
+  </view>
+
+  <view class="shop-section ledger-section" wx:else>
+    <view class="section-heading">
+      <view>
+        <view class="section-title">积分明细</view>
+        <view class="section-description">记录积分获得与兑换情况</view>
+      </view>
+      <view class="section-count" wx:if="{{pointsEntries.length}}">{{pointsEntries.length}} 笔</view>
+    </view>
+
+    <view class="ledger-state" wx:if="{{pointsLoading}}">正在加载积分记录…</view>
+    <view class="ledger-state ledger-state--error" wx:elif="{{pointsError}}">
+      <view>{{pointsError}}</view>
+      <button class="retry-button" bindtap="retryPoints">重新加载</button>
+    </view>
+    <view class="ledger-list" wx:elif="{{pointsEntries.length}}">
+      <view class="ledger-row" wx:for="{{pointsEntries}}" wx:key="id">
+        <view class="ledger-copy">
+          <view class="ledger-title">{{item.title}}</view>
+          <view class="ledger-time">{{item.timeText}}</view>
+        </view>
+        <view class="ledger-points ledger-points--{{item.direction}}">{{item.pointsText}}</view>
+      </view>
+    </view>
+    <view class="ledger-state" wx:else>还没有积分记录，优质护耳贡献会显示在这里。</view>
+  </view>
+
+  <view class="shop-section">
+    <view class="section-heading">
+      <view>
+        <view class="section-title">奖励分类</view>
+        <view class="section-description">首批奖励方向，具体内容后续逐步上架</view>
+      </view>
+      <view class="section-count">3 类</view>
+    </view>
+
+    <view class="category-list">
+      <view
+        class="category-row"
+        wx:for="{{rewardCategories}}"
+        wx:key="id"
+      >
+        <view class="category-mark category-mark--{{item.id}}">{{item.mark}}</view>
+        <view class="category-copy">
+          <view class="category-title">{{item.title}}</view>
+          <view class="category-description">{{item.description}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-card">
+    <view class="empty-symbol" aria-hidden="true">◇</view>
+    <view class="empty-title">商品准备中</view>
+    <view class="empty-description">商城入口已经就绪。下一阶段将接入积分明细、奖励库存与兑换流程。</view>
+  </view>
+
+  <view class="shop-note">积分属于应用内成长记录，不可提现或转让；兑换规则以上架商品说明为准。</view>
+</view>

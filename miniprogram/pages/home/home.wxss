@@ -387,3 +387,29 @@
   color: var(--color-ink-muted-48);
   margin-left: 16rpx;
 }
+
+/* ========== 用耳 AI 助手悬浮入口 ========== */
+.ai-fab {
+  position: fixed;
+  right: 24rpx;
+  bottom: calc(128rpx + env(safe-area-inset-bottom));
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 108rpx;
+  height: 108rpx;
+  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.96);
+  border: 2rpx solid rgba(0, 102, 204, 0.12);
+  border-radius: 50%;
+  box-shadow: 0 10rpx 30rpx rgba(0, 80, 160, 0.16), 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  font-size: 30rpx;
+  font-weight: 700;
+  letter-spacing: -0.5rpx;
+}
+
+.ai-fab--pressed {
+  transform: scale(0.96);
+  background: #f4f8fd;
+}

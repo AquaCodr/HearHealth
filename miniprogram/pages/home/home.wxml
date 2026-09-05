@@ -94,5 +94,12 @@
     </view>
   </view>
 
+  <view
+    class="ai-fab"
+    hover-class="ai-fab--pressed"
+    aria-label="打开用耳 AI 助手"
+    bindtap="goAiChat"
+  >AI</view>
+
   <view class="tabbar-placeholder"></view>
 </view>
